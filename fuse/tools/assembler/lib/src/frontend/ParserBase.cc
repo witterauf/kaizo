@@ -58,6 +58,7 @@ bool ParserBase::expectAndConsume(TokenKind kind)
 
 auto ParserBase::fetch(size_t offset) const -> const Token&
 {
+    Expects(m_tokens);
     if (m_index + offset < m_tokens->size())
     {
         return (*m_tokens)[m_index + offset];

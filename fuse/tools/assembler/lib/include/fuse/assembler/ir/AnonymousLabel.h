@@ -17,6 +17,8 @@ public:
     bool isForward() const;
     auto level() const -> size_t;
 
+    bool isEqual(const BlockElement& rhs) const override;
+
 private:
     bool m_isForward{true};
     size_t m_level{0};

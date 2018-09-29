@@ -28,4 +28,17 @@ auto SymbolTable::lookup(const SymbolIdentifier& identifier) const -> const Symb
     }
 }
 
+auto SymbolTable::lookup(const SymbolIdentifier& identifier) -> Symbol*
+{
+    auto const iter = m_symbols.find(identifier);
+    if (iter != m_symbols.cend())
+    {
+        return iter->second.get();
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 } // namespace fuse::assembler

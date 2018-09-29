@@ -13,6 +13,8 @@ public:
 
     auto identifier() const -> const std::string&;
 
+    bool isEqual(const BlockElement& rhs) const override;
+
 private:
     Symbol* m_symbol{nullptr};
 };

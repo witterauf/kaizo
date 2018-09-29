@@ -16,4 +16,14 @@ auto NamedLabel::identifier() const -> const std::string&
     return m_symbol->identifier();
 }
 
+bool NamedLabel::isEqual(const BlockElement& rhs) const
+{
+    if (rhs.kind() == BlockElementKind::NamedLabel)
+    {
+        auto const& namedLabelRhs = static_cast<const NamedLabel&>(rhs);
+        return m_symbol == namedLabelRhs.m_symbol;
+    }
+    return false;
+}
+
 } // namespace fuse::assembler

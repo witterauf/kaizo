@@ -15,6 +15,8 @@ class BlockElement
 public:
     auto kind() const -> BlockElementKind;
 
+    virtual bool isEqual(const BlockElement& element) const;
+
 protected:
     BlockElement(BlockElementKind kind);
 

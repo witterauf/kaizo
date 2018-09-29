@@ -46,6 +46,21 @@ bool Symbol::isEqual(const Symbol& rhs) const
     {
         return type().isEqual(rhs.type()) && value().isEqual(rhs.value());
     }
+    else if (isExternal() && rhs.isExternal())
+    {
+        return true;
+    }
+    else if (isLabel() && rhs.isLabel())
+    {
+        if (hasAddress())
+        {
+            return rhs.hasAddress() && *address() == *rhs.address();
+        }
+        else
+        {
+            return !rhs.hasAddress();
+        }
+    }
     return false;
 }
 

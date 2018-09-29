@@ -22,6 +22,12 @@ void Parser::setReporter(diagnostics::SourceReporter* reporter)
     ParserBase::setReporter(reporter);
 }
 
+void Parser::setSymbolTable(SymbolTable* symbolTable)
+{
+    Expects(symbolTable);
+    m_symbolTable = symbolTable;
+}
+
 auto Parser::parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>
 {
     auto ast = std::make_unique<AbstractSyntaxTree>();

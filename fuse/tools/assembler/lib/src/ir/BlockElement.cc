@@ -12,4 +12,9 @@ BlockElement::BlockElement(BlockElementKind kind)
 {
 }
 
+bool BlockElement::isEqual(const BlockElement&) const
+{
+    return false;
+}
+
 } // namespace fuse::assembler

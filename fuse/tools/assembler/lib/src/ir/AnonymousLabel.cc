@@ -1,5 +1,5 @@
-#include <fuse/assembler/ir/AnonymousLabel.h>
 #include <diagnostics/Contracts.h>
+#include <fuse/assembler/ir/AnonymousLabel.h>
 
 namespace fuse::assembler {
 
@@ -22,7 +22,9 @@ auto AnonymousLabel::makeBackward(size_t level) -> std::unique_ptr<AnonymousLabe
 }
 
 AnonymousLabel::AnonymousLabel()
-    : Label{BlockElementKind::AnonymousLabel} {}
+    : Label{BlockElementKind::AnonymousLabel}
+{
+}
 
 bool AnonymousLabel::isBackward() const
 {
@@ -37,6 +39,16 @@ bool AnonymousLabel::isForward() const
 auto AnonymousLabel::level() const -> size_t
 {
     return m_level;
+}
+
+bool AnonymousLabel::isEqual(const BlockElement& rhs) const
+{
+    if (rhs.kind() == BlockElementKind::AnonymousLabel)
+    {
+        auto const& anonymousLabelRhs = static_cast<const AnonymousLabel&>(rhs);
+        return m_level == anonymousLabelRhs.m_level && m_isForward == anonymousLabelRhs.m_isForward;
+    }
+    return false;
 }
 
 } // namespace fuse::assembler
