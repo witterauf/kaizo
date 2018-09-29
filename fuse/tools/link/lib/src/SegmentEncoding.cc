@@ -13,13 +13,19 @@ bool SegmentEncoding::isValid() const
     return m_width != 0;
 }
 
-auto SegmentEncoding::toSegment(size_t address) const -> size_t
+auto SegmentEncoding::offset(size_t address) const -> size_t
+{
+    auto const mask = (1ULL << m_position) - 1;
+    return address & mask;
+}
+
+auto SegmentEncoding::segment(size_t address) const -> size_t
 {
     auto const mask = (1ULL << m_width) - 1;
     return (address >> m_position) & mask;
 }
 
-auto SegmentEncoding::toAddress(size_t segment) const -> size_t
+auto SegmentEncoding::address(size_t segment) const -> size_t
 {
     return segment << m_position;
 }

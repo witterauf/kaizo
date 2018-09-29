@@ -1,0 +1,31 @@
+#pragma once
+
+namespace fuse::assembler {
+
+enum class ExpressionKind
+{
+    BinaryOperation,
+    IntegerLiteral,
+    Reference
+};
+
+class Expression
+{
+public:
+    auto kind() const -> ExpressionKind;
+
+    virtual ~Expression() = default;
+    virtual auto operandCount() const -> size_t = 0;
+    virtual auto operand(size_t index) const -> const Expression& = 0;
+    virtual bool isEqual(const Expression& rhs) const;
+
+    // type, width, ...
+
+protected:
+    explicit Expression(ExpressionKind kind);
+
+private:
+    const ExpressionKind m_kind;
+};
+
+} // namespace fuse::assembler

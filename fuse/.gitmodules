@@ -1,0 +1,3 @@
+[submodule "external/diagnostics"]
+	path = external/diagnostics
+	url = ssh://git@codesignrev.informatik.uni-erlangen.de/people/witterauf/diagnostics.git

@@ -36,7 +36,7 @@ SCENARIO("Segment <-> address conversion with SegmentEncoding", "[Link][SegmentE
 
         THEN("The correct segment is returned")
         {
-            REQUIRE(encoding.toSegment(0xbcabde) == 0xbc);
+            REQUIRE(encoding.segment(0xbcabde) == 0xbc);
         }
     }
     GIVEN("An address is constructed from a segment")
@@ -45,7 +45,7 @@ SCENARIO("Segment <-> address conversion with SegmentEncoding", "[Link][SegmentE
 
         THEN("The correct address is returned")
         {
-            REQUIRE(encoding.toAddress(0xbc) == 0xbc0000);
+            REQUIRE(encoding.address(0xbc) == 0xbc0000);
         }
     }
 }

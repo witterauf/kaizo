@@ -4,7 +4,14 @@ set(FUSE_LINK_INCLUDE_DIRECTORY "${FUSE_LINK_BASE_INCLUDE_DIRECTORY}/fuse/link")
 ###[ sources ]#####################################################################################
 
 set(FUSE_LINK_BASE_SOURCES
+    ${FUSE_LINK_INCLUDE_DIRECTORY}/Address.h
+    ${FUSE_LINK_INCLUDE_DIRECTORY}/Constraint.h
+    ${FUSE_LINK_INCLUDE_DIRECTORY}/FreeBlock.h
+    ${FUSE_LINK_INCLUDE_DIRECTORY}/Interval.h
     ${FUSE_LINK_INCLUDE_DIRECTORY}/SegmentEncoding.h
+    Address.cc
+    Constraint.cc
+    FreeBlock.cc
     SegmentEncoding.cc
 )
 
