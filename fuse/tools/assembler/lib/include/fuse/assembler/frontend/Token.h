@@ -15,7 +15,12 @@ enum class TokenKind
     Mnemonic,
     Annotation,
     Directive,
+    
+    // keywords
+    KeywordBlock,
+    KeywordConstant,
     KeywordExtern,
+    KeywordSubroutine,
     CustomKeyword,
 
     // other literals
@@ -65,6 +70,7 @@ class Token
 public:
     static auto makeEnd() -> Token;
     static auto makeEndOfInstruction() -> Token;
+    static auto makeKeyword(TokenKind kind) -> Token;
     static auto makeIdentifier(const std::string& identifier) -> Token;
     static auto makeAnnotation(const std::string& name) -> Token;
     static auto makeDirective(const std::string& name) -> Token;
@@ -85,6 +91,7 @@ public:
     auto mnemonicId() const -> size_t;
     auto customKeywordId() const -> size_t;
     auto integer() const -> int64_t;
+    auto identifier() const -> const std::string&;
 
     bool isEquivalent(const Token& rhs) const;
 

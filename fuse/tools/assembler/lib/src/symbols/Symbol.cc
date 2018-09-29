@@ -14,6 +14,20 @@ auto Symbol::makeConstant(const SymbolIdentifier& identifier, std::unique_ptr<Ty
     return std::move(symbol);
 }
 
+auto Symbol::makeLabel(const SymbolIdentifier& identifier) -> std::unique_ptr<Symbol>
+{
+    auto symbol = std::make_unique<Symbol>(identifier);
+    symbol->m_isLabel = true;
+    return std::move(symbol);
+}
+
+auto Symbol::makeExternal(const SymbolIdentifier& identifier)->std::unique_ptr<Symbol>
+{
+    auto symbol = std::make_unique<Symbol>(identifier);
+    symbol->m_isExternal = true;
+    return std::move(symbol);
+}
+
 Symbol::Symbol(const SymbolIdentifier& identifier)
     : m_identifier{identifier}
 {
@@ -45,16 +59,40 @@ bool Symbol::isConstant() const
     return m_isConstant;
 }
 
+bool Symbol::isExternal() const
+{
+    return m_isExternal;
+}
+
+bool Symbol::isLabel() const
+{
+    return m_isLabel;
+}
+
 auto Symbol::type() const -> const Type&
 {
+    Expects(isConstant());
     Expects(m_type);
     return *m_type;
 }
 
 auto Symbol::value() const -> const Expression&
 {
+    Expects(isConstant());
     Expects(m_value);
     return *m_value;
+}
+
+bool Symbol::hasAddress() const
+{
+    Expects(isLabel());
+    return m_address.has_value();
+}
+
+auto Symbol::address() const -> std::optional<size_t>
+{
+    Expects(isLabel());
+    return m_address;
 }
 
 } // namespace fuse::assembler

@@ -1,29 +1,27 @@
 #pragma once
 
-#include "Token.h"
+#include "ParserBase.h"
 #include <optional>
 #include <vector>
-
-namespace diagnostics {
-class SourceReporter;
-}
 
 namespace fuse::assembler {
 
 class Expression;
 class InstructionParser;
+class SymbolTable;
 
-class ExpressionParser
+class ExpressionParser : public ParserBase
 {
 public:
-    void setReporter(diagnostics::SourceReporter* reporter);
-    bool hasReporter() const;
-    auto reporter() -> diagnostics::SourceReporter*;
+    struct DiagnosticTags
+    {
+        static constexpr char ExpectedFactor[] = "ExpressionParser.ExpectedFactor";
+    };
 
     bool isStartedBy(const Token& token) const;
 
-    auto parse(const std::vector<Token>& tokens, size_t index)
-        -> std::optional<std::unique_ptr<Expression>>;
+    auto parse(const std::vector<Token>& tokens, size_t index = 0)
+        -> ParseResult<std::unique_ptr<Expression>>;
 
     auto parseExpression() -> std::optional<std::unique_ptr<Expression>>;
     auto parseLogicalExpression() -> std::optional<std::unique_ptr<Expression>>;
@@ -39,19 +37,8 @@ private:
 
     bool startsFactor(const Token& token) const;
 
-    void setSource(const std::vector<Token>* tokens);
-    void setIndex(size_t index);
-    bool expectAndConsume(TokenKind kind);
-    auto fetch(size_t offset = 0) const -> const Token&;
-    void consume(size_t size = 1);
-    auto fetchAndConsume() -> const Token&;
-    auto position() const -> size_t;
-
-    const std::vector<Token>* m_tokens = nullptr;
-    size_t m_index = 0;
-
     void reportExpectedFactor();
-    void reportUnexpectedToken();
+
 };
 
 } // namespace fuse::assembler

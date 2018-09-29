@@ -6,7 +6,8 @@ enum class ExpressionKind
 {
     BinaryOperation,
     IntegerLiteral,
-    Reference
+    SymbolReference,
+    UnresolvedReference
 };
 
 class Expression
@@ -15,8 +16,8 @@ public:
     auto kind() const -> ExpressionKind;
 
     virtual ~Expression() = default;
-    virtual auto operandCount() const -> size_t = 0;
-    virtual auto operand(size_t index) const -> const Expression& = 0;
+    virtual auto operandCount() const -> size_t;
+    virtual auto operand(size_t index) const -> const Expression&;
     virtual bool isEqual(const Expression& rhs) const;
 
     // type, width, ...

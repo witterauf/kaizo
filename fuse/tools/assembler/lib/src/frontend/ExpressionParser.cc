@@ -1,8 +1,11 @@
 #include <diagnostics/Contracts.h>
+#include <diagnostics/SourceReporter.h>
 #include <fuse/assembler/frontend/ExpressionParser.h>
 #include <fuse/assembler/ir/BinaryOperation.h>
 #include <fuse/assembler/ir/Expression.h>
 #include <fuse/assembler/ir/IntegerLiteral.h>
+#include <fuse/assembler/ir/UnresolvedReference.h>
+#include <fuse/assembler/symbols/SymbolTable.h>
 
 namespace fuse::assembler {
 
@@ -12,12 +15,19 @@ bool ExpressionParser::isStartedBy(const Token& token) const
 }
 
 auto ExpressionParser::parse(const std::vector<Token>& tokens, size_t index)
-    -> std::optional<std::unique_ptr<Expression>>
+    -> ParseResult<std::unique_ptr<Expression>>
 {
     Expects(tokens.size() > 0 && tokens.back().is(TokenKind::End));
     setSource(&tokens);
     setIndex(index);
-    return parseExpression();
+    if (auto maybeExpression = parseExpression())
+    {
+        return {std::move(*maybeExpression), m_index};
+    }
+    else
+    {
+        return {};
+    }
 }
 
 auto ExpressionParser::parseExpression() -> std::optional<std::unique_ptr<Expression>>
@@ -170,75 +180,31 @@ auto ExpressionParser::parseFactor() -> std::optional<std::unique_ptr<Expression
     }
     else if (fetch().is(TokenKind::Identifier))
     {
-        // symbol table
-        return {};
+        return std::make_unique<UnresolvedReference>(fetchAndConsume().identifier());
     }
     return {};
 }
 
-void ExpressionParser::setSource(const std::vector<Token>* tokens)
-{
-    Expects(tokens);
-    m_tokens = tokens;
-}
-
-void ExpressionParser::setIndex(size_t index)
-{
-    Expects(index < m_tokens->size());
-    m_index = index;
-}
-
-bool ExpressionParser::expectAndConsume(TokenKind kind)
-{
-    if (fetch().kind() == kind)
-    {
-        consume();
-        return true;
-    }
-    else
-    {
-        reportUnexpectedToken();
-        return false;
-    }
-}
-
-auto ExpressionParser::fetch(size_t offset) const -> const Token&
-{
-    if (m_index + offset < m_tokens->size())
-    {
-        return (*m_tokens)[m_index + offset];
-    }
-    else
-    {
-        return m_tokens->back();
-    }
-}
-
-void ExpressionParser::consume(size_t size)
-{
-    m_index += size;
-}
-
-auto ExpressionParser::fetchAndConsume() -> const Token&
-{
-    auto const& token = fetch();
-    consume();
-    return token;
-}
-
-auto ExpressionParser::position() const -> size_t
-{
-    return m_index;
-}
-
 //## [ diagnostics ]###############################################################################
+
+using namespace diagnostics;
 
 void ExpressionParser::reportExpectedFactor()
 {
-}
-
-void ExpressionParser::reportUnexpectedToken()
-{
+    if (hasReporter())
+    {
+        auto snippet = reporter()
+                           .snippetBuilder()
+                           .setSourceRange(fetch().start(), fetch().start() + 1)
+                           .setMarkedRange(fetch().start(), fetch().start() + 1)
+                           .setCursor(fetch().start())
+                           .build();
+        reporter()
+            .report("expected an expression", fetch().start())
+            .level(DiagnosticLevel::Error)
+            .tag(DiagnosticTags::ExpectedFactor)
+            .snippet(std::move(snippet));
+    }
 }
 
 } // namespace fuse::assembler

@@ -17,6 +17,13 @@ auto Token::makeEndOfInstruction() -> Token
     return token;
 }
 
+auto Token::makeKeyword(TokenKind kind) -> Token
+{
+    Token token;
+    token.m_kind = kind;
+    return token;
+}
+
 auto Token::makeIdentifier(const std::string& identifier) -> Token
 {
     Token token;
@@ -137,6 +144,13 @@ auto Token::integer() const -> int64_t
     Expects(is(TokenKind::Integer));
     Expects(std::holds_alternative<int64_t>(m_content));
     return std::get<int64_t>(m_content);
+}
+
+auto Token::identifier() const -> const std::string&
+{
+    Expects(is(TokenKind::Identifier));
+    Expects(std::holds_alternative<std::string>(m_content));
+    return std::get<std::string>(m_content);
 }
 
 } // namespace fuse::assembler

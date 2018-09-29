@@ -1,4 +1,5 @@
 #include <fuse/assembler/ir/Expression.h>
+#include <diagnostics/Contracts.h>
 
 namespace fuse::assembler {
 
@@ -10,6 +11,16 @@ Expression::Expression(ExpressionKind kind)
 auto Expression::kind() const -> ExpressionKind
 {
     return m_kind;
+}
+
+auto Expression::operandCount() const -> size_t
+{
+    return 0;
+}
+
+auto Expression::operand(size_t) const -> const Expression&
+{
+    Expects(false);
 }
 
 bool Expression::isEqual(const Expression& rhs) const
