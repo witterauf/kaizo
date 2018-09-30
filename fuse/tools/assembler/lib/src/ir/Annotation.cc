@@ -6,6 +6,7 @@ namespace fuse::assembler {
 Annotation::Annotation(const std::string& identifier)
     : m_identifier{identifier}
 {
+    Expects(!identifier.empty());
 }
 
 auto Annotation::identifier() const -> const std::string&

@@ -229,9 +229,23 @@ static bool continuesIdentifier(char c)
     return std::isalnum(c) || c == '_' || c == '.';
 }
 
+static const std::map<std::string, TokenKind> BaseKeywords = {
+    {"block", TokenKind::KeywordBlock},
+    {"subroutine", TokenKind::KeywordSubroutine},
+    {"extern", TokenKind::KeywordExtern},
+    {"constant", TokenKind::KeywordConstant},
+};
+
 auto Lexer::lexIdentifier() -> std::optional<Token>
 {
     auto const identifier = lexIdentifierString();
+
+    auto keyword = BaseKeywords.find(identifier);
+    if (keyword != BaseKeywords.cend())
+    {
+        return Token::makeKeyword(keyword->second);
+    }
+
     if (m_classifier)
     {
         auto const classification = m_classifier->classify(identifier);

@@ -21,10 +21,18 @@ class AbstractSyntaxTree;
 class BlockNamer;
 class BlockElement;
 class Annotation;
+class Directive;
 
 class Parser : public ParserBase
 {
 public:
+    struct DiagnosticTags
+    {
+        static constexpr char UnknownType[] = "Parser.UnknownType";
+        static constexpr char DuplicateDeclaration[] = "Parser.DuplicateDeclaration";
+        static constexpr char ExpectedBlock[] = "Parser.ExpectedBlock";
+    };
+
     void setReporter(diagnostics::SourceReporter* reporter) override;
     void setInstructionParser(InstructionParser* parser);
     void setSymbolTable(SymbolTable* symbolTable);
@@ -45,7 +53,8 @@ public:
     auto parseAnnotationList() -> std::optional<std::vector<std::unique_ptr<Annotation>>>;
     auto parseAnnotation() -> std::optional<std::unique_ptr<Annotation>>;
     bool parseAnnotationArguments(Annotation& annotation);
-    auto parseDirective();
+    auto parseDirective() -> std::optional<std::unique_ptr<Directive>>;
+    bool parseDirectiveArguments(Directive& directive);
 
     auto parseConstantDeclaration() -> std::optional<std::unique_ptr<Symbol>>;
     auto parseDeclarationType() -> std::optional<std::unique_ptr<Type>>;

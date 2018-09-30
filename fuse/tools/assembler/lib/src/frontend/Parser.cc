@@ -1,4 +1,5 @@
 #include <diagnostics/Contracts.h>
+#include <diagnostics/SourceReporter.h>
 #include <functional>
 #include <fuse/assembler/frontend/BlockNamer.h>
 #include <fuse/assembler/frontend/InstructionParser.h>
@@ -8,6 +9,7 @@
 #include <fuse/assembler/ir/AnonymousLabel.h>
 #include <fuse/assembler/ir/Block.h>
 #include <fuse/assembler/ir/BlockElement.h>
+#include <fuse/assembler/ir/Directive.h>
 #include <fuse/assembler/ir/Expression.h>
 #include <fuse/assembler/ir/Instruction.h>
 #include <fuse/assembler/ir/NamedLabel.h>
@@ -305,10 +307,69 @@ auto Parser::parseBlockElement() -> std::optional<std::unique_ptr<BlockElement>>
         }
         break;
 
-    case TokenKind::Directive: return {};
+    case TokenKind::Directive:
+        if (auto maybeDirective = parseDirective())
+        {
+            return std::move(*maybeDirective);
+        }
+        break;
+
     default: break;
     }
     return {};
+}
+
+auto Parser::parseDirective() -> std::optional<std::unique_ptr<Directive>>
+{
+    if (!expect(TokenKind::Directive))
+    {
+        return {};
+    }
+    auto directive = std::make_unique<Directive>(fetchAndConsume().annotation());
+    if (fetch().is(TokenKind::ParenthesisLeft))
+    {
+        consume();
+        if (!parseDirectiveArguments(*directive))
+        {
+            return {};
+        }
+        if (!expectAndConsume(TokenKind::ParenthesisRight))
+        {
+            return {};
+        }
+    }
+    return std::move(directive);
+}
+
+bool Parser::parseDirectiveArguments(Directive& directive)
+{
+    for (;;)
+    {
+        if (fetch().is(TokenKind::Identifier))
+        {
+            auto const identifier = fetchAndConsume().identifier();
+            if (!expectAndConsume(TokenKind::Equal))
+            {
+                return false;
+            }
+            if (!expect(TokenKind::Integer))
+            {
+                return false;
+            }
+            directive.addNamed(identifier, fetchAndConsume().integer());
+        }
+        else if (fetch().is(TokenKind::Integer))
+        {
+            directive.addPositional(fetchAndConsume().integer());
+        }
+
+        if (!fetch().is(TokenKind::Comma))
+        {
+            break;
+        }
+        consume();
+    };
+    return true;
 }
 
 auto Parser::parseLabel() -> std::optional<std::unique_ptr<NamedLabel>>
@@ -477,16 +538,45 @@ void Parser::actOnLabel(std::unique_ptr<Symbol>&& label)
 
 //##[ diagnostics ]################################################################################
 
+using namespace diagnostics;
+
 void Parser::reportUnknownType()
 {
+    if (hasReporter())
+    {
+        auto snippet = reporter().snippetBuilder()
+            .setSourceRange(fetch().start(), fetch().end())
+            .setMarkedRange(fetch().start(), fetch().end())
+            .setCursor(fetch().start())
+            .build();
+        reporter().report("unknown type", fetch().start())
+            .level(DiagnosticLevel::Error)
+            .tag(DiagnosticTags::UnknownType)
+            .snippet(std::move(snippet));
+    }
 }
 
 void Parser::reportDuplicateDeclaration()
 {
+    if (hasReporter())
+    {
+        reporter().report("there already exists a declaration with the same name", fetch().start())
+            .level(DiagnosticLevel::Error)
+            .tag(DiagnosticTags::DuplicateDeclaration);
+    }
 }
 
 void Parser::reportExpectedBlock()
 {
+    auto snippet = reporter().snippetBuilder()
+        .setSourceRange(fetch().start(), fetch().start() + 1)
+        .setMarkedRange(fetch().start(), fetch().start() + 1)
+        .setCursor(fetch().start())
+        .build();
+    reporter().report("expected the start of a block ('block' or 'subroutine')", fetch().start())
+        .level(DiagnosticLevel::Error)
+        .tag(DiagnosticTags::UnknownType)
+        .snippet(std::move(snippet));
 }
 
 } // namespace fuse::assembler
