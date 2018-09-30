@@ -46,58 +46,61 @@ auto Parser::parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>
     auto ast = std::make_unique<AbstractSyntaxTree>();
     while (!fetch().is(TokenKind::End))
     {
-        bool success{false};
-        switch (fetch().kind())
-        {
-        case TokenKind::KeywordConstant:
-            if (auto maybeConstant = parseConstantDeclaration())
-            {
-                actOnConstantDeclaration(std::move(*maybeConstant));
-                success = true;
-            }
-            break;
-
-        case TokenKind::KeywordExtern:
-            if (auto maybeExtern = parseExternalDeclaration())
-            {
-                actOnExternalDeclaration(std::move(*maybeExtern));
-                success = true;
-            }
-            break;
-
-        case TokenKind::Annotation:
-            if (auto maybeBlock = parseAnnotatedBlock())
-            {
-                ast->append(std::move(*maybeBlock));
-                success = true;
-            }
-            break;
-
-        case TokenKind::KeywordBlock:
-            if (auto maybeBlock = parseBlock())
-            {
-                ast->append(std::move(*maybeBlock));
-                success = true;
-            }
-            break;
-
-        case TokenKind::KeywordSubroutine:
-            if (auto maybeSubroutine = parseSubroutine())
-            {
-                ast->append(std::move(*maybeSubroutine));
-                success = true;
-            }
-            break;
-
-        default: break;
-        }
-
-        if (!success)
+        if (!parseTopElement(*ast))
         {
             return {};
         }
     }
     return std::move(ast);
+}
+
+bool Parser::parseTopElement(AbstractSyntaxTree& ast)
+{
+    switch (fetch().kind())
+    {
+    case TokenKind::KeywordConstant:
+        if (auto maybeConstant = parseConstantDeclaration())
+        {
+            actOnConstantDeclaration(std::move(*maybeConstant));
+            return true;
+        }
+        break;
+
+    case TokenKind::KeywordExtern:
+        if (auto maybeExtern = parseExternalDeclaration())
+        {
+            actOnExternalDeclaration(std::move(*maybeExtern));
+            return true;
+        }
+        break;
+
+    case TokenKind::Annotation:
+        if (auto maybeBlock = parseAnnotatedBlock())
+        {
+            ast.append(std::move(*maybeBlock));
+            return true;
+        }
+        break;
+
+    case TokenKind::KeywordBlock:
+        if (auto maybeBlock = parseBlock())
+        {
+            ast.append(std::move(*maybeBlock));
+            return true;
+        }
+        break;
+
+    case TokenKind::KeywordSubroutine:
+        if (auto maybeSubroutine = parseSubroutine())
+        {
+            ast.append(std::move(*maybeSubroutine));
+            return true;
+        }
+        break;
+
+    default: break;
+    }
+    return false;
 }
 
 auto Parser::parseAnnotatedBlock() -> std::optional<std::unique_ptr<Block>>

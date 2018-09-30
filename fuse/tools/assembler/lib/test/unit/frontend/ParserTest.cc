@@ -3,6 +3,7 @@
 #include "TestInstructionParser.h"
 #include <Catch2.hpp>
 #include <fuse/assembler/frontend/Parser.h>
+#include <fuse/assembler/ir/AbstractSyntaxTree.h>
 #include <fuse/assembler/ir/AnonymousLabel.h>
 #include <fuse/assembler/ir/Block.h>
 #include <fuse/assembler/ir/IntegerLiteral.h>
@@ -13,13 +14,92 @@
 
 using namespace fuse::assembler;
 
-SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
+namespace {
+
+struct Fixture
 {
+    Fixture()
+    {
+        parser.setSymbolTable(&table);
+        parser.setInstructionParser(&instructionParser);
+        parser.setBlockNamer(&blockNamer);
+    }
+
     Parser parser;
     SymbolTable table;
     TestInstructionParser instructionParser;
-    parser.setSymbolTable(&table);
-    parser.setInstructionParser(&instructionParser);
+    TestBlockNamer blockNamer;
+};
+
+} // namespace
+
+SCENARIO("Parsing top elements", "[Frontend][Parsing]")
+{
+    Fixture fixture;
+    AbstractSyntaxTree ast;
+
+    GIVEN("The next elements start with KeywordConstant")
+    {
+        WHEN("It is a valid constant declaration")
+        {
+            const std::vector<Token> input = {Token::makeKeyword(TokenKind::KeywordConstant),
+                                              Token::makeIdentifier("abc"),
+                                              Token::makeSymbol(TokenKind::Colon),
+                                              Token::makeIdentifier("dword"),
+                                              Token::makeSymbol(TokenKind::Equal),
+                                              Token::makeInteger(64),
+                                              Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            bool success = fixture.parser.parseTopElement(ast);
+
+            THEN("Parsing should be successful")
+            {
+                REQUIRE(success);
+
+                AND_THEN("The Symbol is registered in the SymbolTable")
+                {
+                    REQUIRE(fixture.table.has("abc"));
+
+                    AND_THEN("It is a constant")
+                    {
+                        REQUIRE(fixture.table.lookup("abc")->isConstant());
+                    }
+                }
+            }
+        }
+    }
+    GIVEN("The next elements start with KeywordExtern")
+    {
+        WHEN("It is a valid external declaration")
+        {
+            const std::vector<Token> input = {Token::makeKeyword(TokenKind::KeywordExtern),
+                                              Token::makeIdentifier("abc"), Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            bool success = fixture.parser.parseTopElement(ast);
+
+            THEN("Parsing should be successful")
+            {
+                REQUIRE(success);
+
+                AND_THEN("The Symbol is registered in the SymbolTable")
+                {
+                    REQUIRE(fixture.table.has("abc"));
+
+                    AND_THEN("It is external")
+                    {
+                        REQUIRE(fixture.table.lookup("abc")->isExternal());
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
+{
+    Fixture fixture;
 
     GIVEN("The next element starts with a Mnemonic")
     {
@@ -27,9 +107,9 @@ SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
         {
             const std::vector<Token> input = {Token::makeMnemonic(13),
                                               Token::makeEndOfInstruction(), Token::makeEnd()};
-            parser.setSource(&input);
-            parser.setIndex(0);
-            auto maybeInstruction = parser.parseBlockElement();
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeInstruction = fixture.parser.parseBlockElement();
 
             THEN("An Instruction is returned")
             {
@@ -45,9 +125,9 @@ SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
         {
             const std::vector<Token> input = {Token::makeSymbol(TokenKind::Minus),
                                               Token::makeEnd()};
-            parser.setSource(&input);
-            parser.setIndex(0);
-            auto maybeBlockElement = parser.parseBlockElement();
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeBlockElement = fixture.parser.parseBlockElement();
 
             THEN("A BlockElement is returned")
             {
@@ -67,9 +147,9 @@ SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
         WHEN("It is a valid AnonymousLabel")
         {
             const std::vector<Token> input = {Token::makeSymbol(TokenKind::Plus), Token::makeEnd()};
-            parser.setSource(&input);
-            parser.setIndex(0);
-            auto maybeBlockElement = parser.parseBlockElement();
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeBlockElement = fixture.parser.parseBlockElement();
 
             THEN("A BlockElement is returned")
             {
@@ -91,9 +171,9 @@ SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
             const std::vector<Token> input = {Token::makeIdentifier("abc"),
                                               Token::makeSymbol(TokenKind::Colon),
                                               Token::makeEnd()};
-            parser.setSource(&input);
-            parser.setIndex(0);
-            auto maybeBlockElement = parser.parseBlockElement();
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeBlockElement = fixture.parser.parseBlockElement();
 
             THEN("A BlockElement is returned")
             {

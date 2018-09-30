@@ -30,6 +30,7 @@ public:
     void setBlockNamer(BlockNamer* blockNamer);
 
     auto parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>;
+    bool parseTopElement(AbstractSyntaxTree& ast);
 
     auto parseAnnotatedBlock() -> std::optional<std::unique_ptr<Block>>;
     auto parseBlock() -> std::optional<std::unique_ptr<Block>>;
