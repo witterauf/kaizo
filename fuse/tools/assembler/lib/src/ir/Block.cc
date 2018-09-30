@@ -8,6 +8,23 @@ Block::Block(const std::string& identifier)
 {
 }
 
+void Block::append(std::unique_ptr<Annotation>&& annotation)
+{
+    Expects(annotation);
+    m_annotations.push_back(std::move(annotation));
+}
+
+auto Block::annotationCount() const
+{
+    return m_annotations.size();
+}
+
+auto Block::annotation(size_t index) const -> const Annotation&
+{
+    Expects(index < annotationCount());
+    return *m_annotations[index];
+}
+
 void Block::append(std::unique_ptr<BlockElement>&& element)
 {
     Expects(element);

@@ -4,6 +4,7 @@
 #include <fuse/assembler/frontend/InstructionParser.h>
 #include <fuse/assembler/frontend/Parser.h>
 #include <fuse/assembler/ir/AbstractSyntaxTree.h>
+#include <fuse/assembler/ir/Annotation.h>
 #include <fuse/assembler/ir/AnonymousLabel.h>
 #include <fuse/assembler/ir/Block.h>
 #include <fuse/assembler/ir/BlockElement.h>
@@ -105,7 +106,104 @@ bool Parser::parseTopElement(AbstractSyntaxTree& ast)
 
 auto Parser::parseAnnotatedBlock() -> std::optional<std::unique_ptr<Block>>
 {
+    if (auto maybeAnnotations = parseAnnotationList())
+    {
+        if (fetch().is(TokenKind::KeywordBlock))
+        {
+            if (auto maybeBlock = parseBlock())
+            {
+                for (auto&& annotation : *maybeAnnotations)
+                {
+                    maybeBlock.value()->append(std::move(annotation));
+                }
+            }
+        }
+        else if (fetch().is(TokenKind::KeywordSubroutine))
+        {
+            if (auto maybeSubroutine = parseSubroutine())
+            {
+                for (auto&& annotation : *maybeAnnotations)
+                {
+                    maybeSubroutine.value()->append(std::move(annotation));
+                }
+            }
+        }
+        else
+        {
+            reportExpectedBlock();
+        }
+    }
     return {};
+}
+
+auto Parser::parseAnnotationList() -> std::optional<std::vector<std::unique_ptr<Annotation>>>
+{
+    std::vector<std::unique_ptr<Annotation>> annotations;
+    while (fetch().is(TokenKind::Annotation))
+    {
+        if (auto maybeAnnotation = parseAnnotation())
+        {
+            annotations.push_back(std::move(*maybeAnnotation));
+        }
+        else
+        {
+            return {};
+        }
+    }
+    return std::move(annotations);
+}
+
+auto Parser::parseAnnotation() -> std::optional<std::unique_ptr<Annotation>>
+{
+    if (!expect(TokenKind::Annotation))
+    {
+        return {};
+    }
+    auto annotation = std::make_unique<Annotation>(fetchAndConsume().annotation());
+    if (fetch().is(TokenKind::ParenthesisLeft))
+    {
+        consume();
+        if (!parseAnnotationArguments(*annotation))
+        {
+            return {};
+        }
+        if (!expectAndConsume(TokenKind::ParenthesisRight))
+        {
+            return {};
+        }
+    }
+    return std::move(annotation);
+}
+
+bool Parser::parseAnnotationArguments(Annotation& annotation)
+{
+    for (;;)
+    {
+        if (fetch().is(TokenKind::Identifier))
+        {
+            auto const identifier = fetchAndConsume().identifier();
+            if (!expectAndConsume(TokenKind::Equal))
+            {
+                return false;
+            }
+            if (!expect(TokenKind::Integer))
+            {
+                return false;
+            }
+            annotation.addNamed(identifier, fetchAndConsume().integer());
+        }
+        else if (fetch().is(TokenKind::Integer))
+        {
+            annotation.addPositional(fetchAndConsume().integer());
+        }
+
+        if (!fetch().is(TokenKind::Comma))
+        {
+            break;
+        }
+        consume();
+    };
+    return true;
 }
 
 auto Parser::parseSubroutine() -> std::optional<std::unique_ptr<Block>>
@@ -384,6 +482,10 @@ void Parser::reportUnknownType()
 }
 
 void Parser::reportDuplicateDeclaration()
+{
+}
+
+void Parser::reportExpectedBlock()
 {
 }
 

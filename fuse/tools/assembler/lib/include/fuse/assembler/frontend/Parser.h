@@ -20,6 +20,7 @@ class AnonymousLabel;
 class AbstractSyntaxTree;
 class BlockNamer;
 class BlockElement;
+class Annotation;
 
 class Parser : public ParserBase
 {
@@ -41,7 +42,9 @@ public:
     auto parseLabel() -> std::optional<std::unique_ptr<NamedLabel>>;
     auto parseAnonymousForwardLabel() -> std::optional<std::unique_ptr<AnonymousLabel>>;
     auto parseAnonymousBackwardLabel() -> std::optional<std::unique_ptr<AnonymousLabel>>;
-    auto parseAnnotation();
+    auto parseAnnotationList() -> std::optional<std::vector<std::unique_ptr<Annotation>>>;
+    auto parseAnnotation() -> std::optional<std::unique_ptr<Annotation>>;
+    bool parseAnnotationArguments(Annotation& annotation);
     auto parseDirective();
 
     auto parseConstantDeclaration() -> std::optional<std::unique_ptr<Symbol>>;
@@ -64,6 +67,7 @@ private:
 
     void reportUnknownType();
     void reportDuplicateDeclaration();
+    void reportExpectedBlock();
 
     diagnostics::SourceReporter* m_reporter{nullptr};
 };

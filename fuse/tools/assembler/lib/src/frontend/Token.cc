@@ -153,4 +153,11 @@ auto Token::identifier() const -> const std::string&
     return std::get<std::string>(m_content);
 }
 
+auto Token::annotation() const -> const std::string&
+{
+    Expects(is(TokenKind::Annotation));
+    Expects(std::holds_alternative<std::string>(m_content));
+    return std::get<std::string>(m_content);
+}
+
 } // namespace fuse::assembler

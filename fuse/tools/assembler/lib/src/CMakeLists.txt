@@ -20,11 +20,13 @@ set(FUSE_ASSEMBLER_FRONTEND_SOURCES
 
 set(FUSE_ASSEMBLER_IR_SOURCES
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/AbstractSyntaxTree.h
+    ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/Annotation.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/AnonymousLabel.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/BinaryOperation.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/Block.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/BlockElement.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/Expression.h
+    ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/Directive.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/ExpressionOperand.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/Instruction.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/InstructionOperand.h
@@ -35,10 +37,12 @@ set(FUSE_ASSEMBLER_IR_SOURCES
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/SymbolReference.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/ir/UnresolvedReference.h
     ir/AbstractSyntaxTree.cc
+    ir/Annotation.cc
     ir/AnonymousLabel.cc
     ir/BinaryOperation.cc
     ir/Block.cc
     ir/BlockElement.cc
+    ir/Directive.cc
     ir/Expression.cc
     ir/IntegerLiteral.cc
     ir/Label.cc

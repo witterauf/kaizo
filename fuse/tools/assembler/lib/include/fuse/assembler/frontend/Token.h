@@ -92,6 +92,7 @@ public:
     auto customKeywordId() const -> size_t;
     auto integer() const -> int64_t;
     auto identifier() const -> const std::string&;
+    auto annotation() const -> const std::string&;
 
     bool isEquivalent(const Token& rhs) const;
 

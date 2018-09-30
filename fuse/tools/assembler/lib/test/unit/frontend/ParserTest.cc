@@ -33,6 +33,122 @@ struct Fixture
 
 } // namespace
 
+SCENARIO("Parsing annotations", "[Frontend][Parsing]")
+{
+    Fixture fixture;
+
+    GIVEN("An Annotation is parsed")
+    {
+        WHEN("It has no argument list")
+        {
+            const std::vector<Token> input = {Token::makeAnnotation("abc"), Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeAnnotation = fixture.parser.parseAnnotation();
+
+            THEN("An Annotation should be returned")
+            {
+                REQUIRE(maybeAnnotation.has_value());
+
+                AND_THEN("The Annotation has no positional arguments")
+                {
+                    REQUIRE(maybeAnnotation.value()->positionalCount() == 0);
+                }
+                AND_THEN("The Annotation has no named arguments")
+                {
+                    REQUIRE(maybeAnnotation.value()->namedCount() == 0);
+                }
+            }
+        }
+        WHEN("It has a positional argument")
+        {
+            const std::vector<Token> input = {
+                Token::makeAnnotation("abc"), Token::makeSymbol(TokenKind::ParenthesisLeft),
+                Token::makeInteger(64), Token::makeSymbol(TokenKind::ParenthesisRight),
+                Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeAnnotation = fixture.parser.parseAnnotation();
+
+            THEN("An Annotation should be returned")
+            {
+                REQUIRE(maybeAnnotation.has_value());
+                auto const& annotation = **maybeAnnotation;
+
+                AND_THEN("The Annotation has a positional argument")
+                {
+                    REQUIRE(annotation.positionalCount() == 1);
+
+                    AND_THEN("The argument has the expected value")
+                    {
+                        REQUIRE(annotation.positional(0) == 64);
+                    }
+                }
+            }
+        }
+        WHEN("It has a named argument")
+        {
+            const std::vector<Token> input = {Token::makeAnnotation("abc"),
+                                              Token::makeSymbol(TokenKind::ParenthesisLeft),
+                                              Token::makeIdentifier("def"),
+                                              Token::makeSymbol(TokenKind::Equal),
+                                              Token::makeInteger(64),
+                                              Token::makeSymbol(TokenKind::ParenthesisRight),
+                                              Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeAnnotation = fixture.parser.parseAnnotation();
+
+            THEN("An Annotation should be returned")
+            {
+                REQUIRE(maybeAnnotation.has_value());
+                auto const& annotation = **maybeAnnotation;
+
+                AND_THEN("The Annotation has the named argument")
+                {
+                    REQUIRE(annotation.namedCount() == 1);
+                    REQUIRE(annotation.hasNamed("def"));
+
+                    AND_THEN("The argument has the expected value")
+                    {
+                        REQUIRE(annotation.named("def") == 64);
+                    }
+                }
+            }
+        }
+        WHEN("It has N >= 2 positional arguments")
+        {
+            const std::vector<Token> input = {Token::makeAnnotation("abc"),
+                                              Token::makeSymbol(TokenKind::ParenthesisLeft),
+                                              Token::makeInteger(64),
+                                              Token::makeSymbol(TokenKind::Comma),
+                                              Token::makeInteger(32),
+                                              Token::makeSymbol(TokenKind::ParenthesisRight),
+                                              Token::makeEnd()};
+            fixture.parser.setSource(&input);
+            fixture.parser.setIndex(0);
+            auto maybeAnnotation = fixture.parser.parseAnnotation();
+
+            THEN("An Annotation should be returned")
+            {
+                REQUIRE(maybeAnnotation.has_value());
+                auto const& annotation = **maybeAnnotation;
+
+                AND_THEN("The Annotation has N positional arguments")
+                {
+                    REQUIRE(annotation.positionalCount() == 2);
+
+                    AND_THEN("The arguments have the expected value")
+                    {
+                        REQUIRE(annotation.positional(0) == 64);
+                        REQUIRE(annotation.positional(1) == 32);
+                    }
+                }
+            }
+        }
+    }
+}
+
 SCENARIO("Parsing top elements", "[Frontend][Parsing]")
 {
     Fixture fixture;
