@@ -4,6 +4,10 @@ add_executable(AssemblerFrontendUnitTest
     frontend/ExpressionParserTest.cc
     frontend/TestInstructionParser.h
     frontend/TestInstructionParser.cc
+    frontend/TestInstruction.h
+    frontend/TestInstruction.cc
+    frontend/TestBlockNamer.h
+    frontend/TestBlockNamer.cc
 )
 target_link_libraries(AssemblerFrontendUnitTest
     PRIVATE

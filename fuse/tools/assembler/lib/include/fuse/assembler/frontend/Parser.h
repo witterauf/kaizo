@@ -18,6 +18,8 @@ class Block;
 class NamedLabel;
 class AnonymousLabel;
 class AbstractSyntaxTree;
+class BlockNamer;
+class BlockElement;
 
 class Parser : public ParserBase
 {
@@ -25,12 +27,15 @@ public:
     void setReporter(diagnostics::SourceReporter* reporter) override;
     void setInstructionParser(InstructionParser* parser);
     void setSymbolTable(SymbolTable* symbolTable);
+    void setBlockNamer(BlockNamer* blockNamer);
 
     auto parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>;
 
+    auto parseAnnotatedBlock() -> std::optional<std::unique_ptr<Block>>;
     auto parseBlock() -> std::optional<std::unique_ptr<Block>>;
     auto parseSubroutine() -> std::optional<std::unique_ptr<Block>>;
     bool parseBlockBody(Block& block);
+    auto parseBlockElement() -> std::optional<std::unique_ptr<BlockElement>>;
 
     auto parseLabel() -> std::optional<std::unique_ptr<NamedLabel>>;
     auto parseAnonymousForwardLabel() -> std::optional<std::unique_ptr<AnonymousLabel>>;
@@ -48,6 +53,7 @@ private:
     void actOnLabel(std::unique_ptr<Symbol>&& label);
 
     SymbolTable* m_symbolTable{nullptr};
+    BlockNamer* m_blockNamer{nullptr};
 
     auto parseExpression() -> std::optional<std::unique_ptr<Expression>>;
     auto parseInstruction() -> std::optional<std::unique_ptr<Instruction>>;

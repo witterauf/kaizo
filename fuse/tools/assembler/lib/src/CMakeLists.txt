@@ -2,6 +2,7 @@ set(FUSE_ASSEMBLER_INCLUDE_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 set(FUSE_ASSEMBLER_INCLUDE_DIR "${FUSE_ASSEMBLER_INCLUDE_BASE_DIR}/fuse/assembler")
 
 set(FUSE_ASSEMBLER_FRONTEND_SOURCES
+    ${FUSE_ASSEMBLER_INCLUDE_DIR}/frontend/BlockNamer.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/frontend/Classifier.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/frontend/ExpressionParser.h
     ${FUSE_ASSEMBLER_INCLUDE_DIR}/frontend/InstructionParser.h

@@ -15,6 +15,12 @@ class BlockElement
 public:
     auto kind() const -> BlockElementKind;
 
+    bool isAnonymousLabel() const;
+    bool isInstruction() const;
+    bool isDirective() const;
+    bool isNamedLabel() const;
+    bool isLabel() const;
+
     virtual bool isEqual(const BlockElement& element) const;
 
 protected:

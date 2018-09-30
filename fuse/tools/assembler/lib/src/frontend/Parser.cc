@@ -1,5 +1,6 @@
 #include <diagnostics/Contracts.h>
 #include <functional>
+#include <fuse/assembler/frontend/BlockNamer.h>
 #include <fuse/assembler/frontend/InstructionParser.h>
 #include <fuse/assembler/frontend/Parser.h>
 #include <fuse/assembler/ir/AbstractSyntaxTree.h>
@@ -28,6 +29,18 @@ void Parser::setSymbolTable(SymbolTable* symbolTable)
     m_symbolTable = symbolTable;
 }
 
+void Parser::setInstructionParser(InstructionParser* parser)
+{
+    Expects(parser);
+    m_instructionParser = parser;
+}
+
+void Parser::setBlockNamer(BlockNamer* blockNamer)
+{
+    Expects(blockNamer);
+    m_blockNamer = blockNamer;
+}
+
 auto Parser::parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>
 {
     auto ast = std::make_unique<AbstractSyntaxTree>();
@@ -52,7 +65,13 @@ auto Parser::parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>
             }
             break;
 
-        case TokenKind::Annotation: break;
+        case TokenKind::Annotation:
+            if (auto maybeBlock = parseAnnotatedBlock())
+            {
+                ast->append(std::move(*maybeBlock));
+                success = true;
+            }
+            break;
 
         case TokenKind::KeywordBlock:
             if (auto maybeBlock = parseBlock())
@@ -81,6 +100,11 @@ auto Parser::parseTop() -> std::optional<std::unique_ptr<AbstractSyntaxTree>>
     return std::move(ast);
 }
 
+auto Parser::parseAnnotatedBlock() -> std::optional<std::unique_ptr<Block>>
+{
+    return {};
+}
+
 auto Parser::parseSubroutine() -> std::optional<std::unique_ptr<Block>>
 {
     if (!expectAndConsume(TokenKind::KeywordSubroutine))
@@ -93,7 +117,7 @@ auto Parser::parseSubroutine() -> std::optional<std::unique_ptr<Block>>
     }
 
     auto const identifier = fetchAndConsume().identifier();
-    auto block = std::make_unique<Block>();
+    auto block = std::make_unique<Block>(identifier);
     auto labelSymbol = Symbol::makeLabel(identifier);
     auto label = std::make_unique<NamedLabel>(labelSymbol.get());
     block->append(std::move(label));
@@ -109,11 +133,12 @@ auto Parser::parseSubroutine() -> std::optional<std::unique_ptr<Block>>
 
 auto Parser::parseBlock() -> std::optional<std::unique_ptr<Block>>
 {
+    Expects(m_blockNamer);
     if (!expectAndConsume(TokenKind::KeywordBlock))
     {
         return {};
     }
-    auto block = std::make_unique<Block>();
+    auto block = std::make_unique<Block>(m_blockNamer->generateName());
     if (parseBlockBody(*block))
     {
         return std::move(block);
@@ -134,46 +159,9 @@ bool Parser::parseBlockBody(Block& block)
     bool blockSuccess{true};
     while (!fetch().is(TokenKind::CurlyBraceRight))
     {
-        std::unique_ptr<BlockElement> element;
-        switch (fetch().kind())
+        if (auto maybeElement = parseBlockElement())
         {
-        case TokenKind::Plus:
-            if (auto maybeAnonymousLabel = parseAnonymousForwardLabel())
-            {
-                element = std::move(*maybeAnonymousLabel);
-            }
-            break;
-
-        case TokenKind::Minus:
-            if (auto maybeAnonymousLabel = parseAnonymousBackwardLabel())
-            {
-                element = std::move(*maybeAnonymousLabel);
-            }
-            break;
-
-        case TokenKind::Identifier:
-            if (auto maybeLabel = parseLabel())
-            {
-                element = std::move(*maybeLabel);
-            }
-            break;
-
-        case TokenKind::Directive:
-        case TokenKind::Annotation: break;
-
-        case TokenKind::Mnemonic:
-            if (auto maybeInstruction = parseInstruction())
-            {
-                element = std::move(*maybeInstruction);
-            }
-            break;
-
-        default: break;
-        }
-
-        if (element)
-        {
-            block.append(std::move(element));
+            block.append(std::move(*maybeElement));
         }
         else
         {
@@ -182,6 +170,44 @@ bool Parser::parseBlockBody(Block& block)
     }
     consume(); // '}'
     return blockSuccess;
+}
+
+auto Parser::parseBlockElement() -> std::optional<std::unique_ptr<BlockElement>>
+{
+    switch (fetch().kind())
+    {
+    case TokenKind::Plus:
+        if (auto maybeAnonymousLabel = parseAnonymousForwardLabel())
+        {
+            return std::move(*maybeAnonymousLabel);
+        }
+        break;
+
+    case TokenKind::Minus:
+        if (auto maybeAnonymousLabel = parseAnonymousBackwardLabel())
+        {
+            return std::move(*maybeAnonymousLabel);
+        }
+        break;
+
+    case TokenKind::Identifier:
+        if (auto maybeLabel = parseLabel())
+        {
+            return std::move(*maybeLabel);
+        }
+        break;
+
+    case TokenKind::Mnemonic:
+        if (auto maybeInstruction = parseInstruction())
+        {
+            return std::move(*maybeInstruction);
+        }
+        break;
+
+    case TokenKind::Directive: return {};
+    default: break;
+    }
+    return {};
 }
 
 auto Parser::parseLabel() -> std::optional<std::unique_ptr<NamedLabel>>

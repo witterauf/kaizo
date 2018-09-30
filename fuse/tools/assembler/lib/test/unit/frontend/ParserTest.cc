@@ -1,6 +1,10 @@
+#include "TestBlockNamer.h"
+#include "TestInstruction.h"
+#include "TestInstructionParser.h"
 #include <Catch2.hpp>
 #include <fuse/assembler/frontend/Parser.h>
 #include <fuse/assembler/ir/AnonymousLabel.h>
+#include <fuse/assembler/ir/Block.h>
 #include <fuse/assembler/ir/IntegerLiteral.h>
 #include <fuse/assembler/ir/NamedLabel.h>
 #include <fuse/assembler/symbols/Symbol.h>
@@ -8,6 +12,180 @@
 #include <vector>
 
 using namespace fuse::assembler;
+
+SCENARIO("Parsing BlockElements", "[Frontend][Parsing]")
+{
+    Parser parser;
+    SymbolTable table;
+    TestInstructionParser instructionParser;
+    parser.setSymbolTable(&table);
+    parser.setInstructionParser(&instructionParser);
+
+    GIVEN("The next element starts with a Mnemonic")
+    {
+        WHEN("It is a valid Instruction")
+        {
+            const std::vector<Token> input = {Token::makeMnemonic(13),
+                                              Token::makeEndOfInstruction(), Token::makeEnd()};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeInstruction = parser.parseBlockElement();
+
+            THEN("An Instruction is returned")
+            {
+                REQUIRE(maybeInstruction.has_value());
+                auto const& instruction = **maybeInstruction;
+                REQUIRE(instruction.isInstruction());
+            }
+        }
+    }
+    GIVEN("The next element starts with a Minus")
+    {
+        WHEN("It is a valid AnonymousLabel")
+        {
+            const std::vector<Token> input = {Token::makeSymbol(TokenKind::Minus),
+                                              Token::makeEnd()};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeBlockElement = parser.parseBlockElement();
+
+            THEN("A BlockElement is returned")
+            {
+                REQUIRE(maybeBlockElement.has_value());
+
+                AND_THEN("It is a backward AnonymousLabel")
+                {
+                    REQUIRE((*maybeBlockElement)->isAnonymousLabel());
+                    auto const& label = static_cast<const AnonymousLabel&>(**maybeBlockElement);
+                    REQUIRE(label.isBackward());
+                }
+            }
+        }
+    }
+    GIVEN("The next element starts with a Plus")
+    {
+        WHEN("It is a valid AnonymousLabel")
+        {
+            const std::vector<Token> input = {Token::makeSymbol(TokenKind::Plus), Token::makeEnd()};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeBlockElement = parser.parseBlockElement();
+
+            THEN("A BlockElement is returned")
+            {
+                REQUIRE(maybeBlockElement.has_value());
+
+                AND_THEN("It is a forward AnonymousLabel")
+                {
+                    REQUIRE((*maybeBlockElement)->isAnonymousLabel());
+                    auto const& label = static_cast<const AnonymousLabel&>(**maybeBlockElement);
+                    REQUIRE(label.isForward());
+                }
+            }
+        }
+    }
+    GIVEN("The next element starts with an Identifier")
+    {
+        WHEN("It is a valid NamedLabel")
+        {
+            const std::vector<Token> input = {Token::makeIdentifier("abc"),
+                                              Token::makeSymbol(TokenKind::Colon),
+                                              Token::makeEnd()};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeBlockElement = parser.parseBlockElement();
+
+            THEN("A BlockElement is returned")
+            {
+                REQUIRE(maybeBlockElement.has_value());
+
+                AND_THEN("It is a NamedLabel")
+                {
+                    REQUIRE((*maybeBlockElement)->isNamedLabel());
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Parsing blocks", "[Frontend][Parsing]")
+{
+    Parser parser;
+    SymbolTable table;
+    TestBlockNamer blockNamer;
+    TestInstructionParser instructionParser;
+    parser.setInstructionParser(&instructionParser);
+    parser.setSymbolTable(&table);
+    parser.setBlockNamer(&blockNamer);
+
+    GIVEN("A Block is parsed")
+    {
+        WHEN("It contains no BlockElements")
+        {
+            const std::vector<Token> input = {Token::makeKeyword(TokenKind::KeywordBlock),
+                                              Token::makeSymbol(TokenKind::CurlyBraceLeft),
+                                              Token::makeSymbol(TokenKind::CurlyBraceRight)};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeBlock = parser.parseBlock();
+
+            THEN("A Block is returned")
+            {
+                REQUIRE(maybeBlock.has_value());
+
+                AND_THEN("The Block has no BlockElements")
+                {
+                    REQUIRE((**maybeBlock).elementCount() == 0);
+                }
+                AND_THEN("The Block identifier is the last one")
+                {
+                    REQUIRE(maybeBlock.value()->identifier() == blockNamer.lastName());
+                }
+            }
+        }
+        WHEN("It contains n >= 1 BlockElements")
+        {
+            const std::vector<Token> input = {
+                Token::makeKeyword(TokenKind::KeywordBlock),
+                Token::makeSymbol(TokenKind::CurlyBraceLeft), Token::makeMnemonic(13),
+                Token::makeEndOfInstruction(), Token::makeSymbol(TokenKind::CurlyBraceRight)};
+            parser.setSource(&input);
+            parser.setIndex(0);
+            auto maybeBlock = parser.parseBlock();
+
+            THEN("A Block is returned")
+            {
+                REQUIRE(maybeBlock.has_value());
+
+                AND_THEN("The Block has n BlockElements")
+                {
+                    auto expected = std::make_unique<Block>(blockNamer.lastName());
+                    REQUIRE((**maybeBlock).elementCount() == 1);
+                }
+            }
+        }
+    }
+    GIVEN("A Subroutine is parsed")
+    {
+        const std::vector<Token> input = {Token::makeKeyword(TokenKind::KeywordSubroutine),
+                                          Token::makeIdentifier("abc"),
+                                          Token::makeSymbol(TokenKind::CurlyBraceLeft),
+                                          Token::makeSymbol(TokenKind::CurlyBraceRight)};
+        parser.setSource(&input);
+        parser.setIndex(0);
+        auto maybeBlock = parser.parseSubroutine();
+
+        THEN("A Block is returned")
+        {
+            REQUIRE(maybeBlock.has_value());
+
+            AND_THEN("Its identifier is the Subroutine's name")
+            {
+                REQUIRE(maybeBlock.value()->identifier() == "abc");
+            }
+        }
+    }
+}
 
 SCENARIO("Parsing labels", "[Frontend][Parsing]")
 {
