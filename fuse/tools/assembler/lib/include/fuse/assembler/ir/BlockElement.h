@@ -10,6 +10,9 @@ enum class BlockElementKind
     Directive
 };
 
+class Object;
+class SymbolTable;
+
 class BlockElement
 {
 public:
@@ -21,6 +24,8 @@ public:
     bool isNamedLabel() const;
     bool isLabel() const;
 
+    virtual void assemble(Object& object);
+    virtual auto binarySize() const -> size_t;
     virtual bool isEqual(const BlockElement& element) const;
 
 protected:

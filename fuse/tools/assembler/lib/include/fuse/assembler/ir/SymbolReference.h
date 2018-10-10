@@ -1,16 +1,15 @@
 #pragma once
 
 #include "Expression.h"
-#include <string>
 
 namespace fuse::assembler {
 
 class Symbol;
 
-class Reference : public Expression
+class SymbolReference : public Expression
 {
 public:
-    explicit Reference(const Symbol* symbol);
+    explicit SymbolReference(const Symbol* symbol);
 
     auto symbol() const -> const Symbol&;
 
@@ -20,7 +19,6 @@ public:
 
 private:
     const Symbol* m_symbol{nullptr};
-    std::string m_identifier;
 };
 
 } // namespace fuse::assembler

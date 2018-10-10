@@ -10,6 +10,7 @@ class ExpressionOperand : public InstructionOperand
 {
 public:
     auto expression() const -> const Expression&;
+    auto expression() -> Expression&;
 
 private:
     std::unique_ptr<Expression> m_expression;

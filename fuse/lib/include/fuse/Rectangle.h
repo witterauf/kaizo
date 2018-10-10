@@ -1,0 +1,89 @@
+#pragma once
+
+namespace fuse {
+
+template <class T> class Rectangle
+{
+public:
+    explicit Rectangle(T x, T y, T width, T height)
+        : m_left{x}
+        , m_top{y}
+        , m_width{width}
+        , m_height{height}
+    {
+    }
+
+    auto width() const -> T
+    {
+        return m_width;
+    }
+
+    auto height() const -> T
+    {
+        return m_height;
+    }
+
+    auto left() const -> T
+    {
+        return m_left;
+    }
+
+    auto right() const -> T
+    {
+        return m_left + m_width;
+    }
+
+    auto top() const -> T
+    {
+        return m_top;
+    }
+
+    auto bottom() const -> T
+    {
+        return m_top + m_height;
+    }
+
+    void setLeft(T left)
+    {
+        m_left = left;
+    }
+
+    void setRight(T right)
+    {
+        if (right > m_left)
+        {
+            m_width = right - m_left;
+        }
+        else
+        {
+            m_width = m_left - right;
+            m_left = right;
+        }
+    }
+
+    void setTop(T top)
+    {
+        m_top = top;
+    }
+
+    void setBottom(T bottom)
+    {
+        if (bottom > m_left)
+        {
+            m_height = bottom - m_top;
+        }
+        else
+        {
+            m_height = m_top - bottom;
+            m_top = bottom;
+        }
+    }
+
+private:
+    T m_left;
+    T m_top;
+    T m_width;
+    T m_height;
+};
+
+} // namespace fuse

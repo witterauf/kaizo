@@ -1,11 +1,8 @@
 #include <cctype>
 #include <diagnostics/Contracts.h>
 #include <diagnostics/SourceReporter.h>
-#include <fstream>
 #include <fuse/assembler/frontend/Classifier.h>
 #include <fuse/assembler/frontend/Lexer.h>
-
-namespace fs = std::filesystem;
 
 namespace fuse::assembler {
 

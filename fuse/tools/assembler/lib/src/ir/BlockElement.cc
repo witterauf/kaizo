@@ -42,4 +42,13 @@ bool BlockElement::isEqual(const BlockElement&) const
     return false;
 }
 
+auto BlockElement::binarySize() const -> size_t
+{
+    return 0;
+}
+
+void BlockElement::assemble(Object&)
+{
+}
+
 } // namespace fuse::assembler

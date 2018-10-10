@@ -22,6 +22,7 @@ public:
     void append(std::unique_ptr<BlockElement>&& element);
     auto elementCount() const -> size_t;
     auto element(size_t index) const -> const BlockElement&;
+    auto element(size_t index) -> BlockElement&;
 
     bool isEqual(const Block& rhs) const;
 

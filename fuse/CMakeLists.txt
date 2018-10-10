@@ -9,4 +9,5 @@ enable_testing()
 include(TargetWarnings)
 
 add_subdirectory(external)
+add_subdirectory(lib)
 add_subdirectory(tools)
