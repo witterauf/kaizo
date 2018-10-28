@@ -1,3 +1,4 @@
+#include "private/LuaFontLoader.h"
 #include <diagnostics/Contracts.h>
 #include <fuse/graphics/GraphicsLuaLibrary.h>
 #include <fuse/graphics/font/Font.h>

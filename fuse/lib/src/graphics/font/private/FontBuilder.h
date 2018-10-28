@@ -19,7 +19,7 @@ public:
         bool shrinkToFit{true};
     };
 
-    using FontMetrics = Font::FontMetrics;
+    using FontMetrics = Font::Metrics;
 
     struct GlyphPixelFormat
     {

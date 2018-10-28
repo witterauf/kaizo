@@ -94,6 +94,7 @@ auto GlyphBuilder::build() -> Glyph
 
 void GlyphBuilder::validate()
 {
+    /*
     if (!m_shrinkToFit)
     {
         const bool fitsTile =
@@ -113,6 +114,7 @@ void GlyphBuilder::validate()
     {
         throw std::runtime_error{"empty characters not allowed in glyph"};
     }
+    */
 }
 
 void GlyphBuilder::shrinkToFit(Glyph& glyph)
@@ -136,15 +138,18 @@ void GlyphBuilder::shrinkToFit(Glyph& glyph)
         }
     }
 
+    /*
     m_region.setLeft(left);
     m_region.setRight(right);
     m_region.setTop(top);
     m_region.setBottom(bottom);
+    */
     extractRegion(glyph);
 }
 
-void GlyphBuilder::extractRegion(Glyph& glyph)
+void GlyphBuilder::extractRegion(Glyph&)
 {
+    /*
     glyph.m_tile = Tile{m_region.width(), m_region.height()};
     for (auto y = m_region.top(); y < m_region.bottom(); ++y)
     {
@@ -154,6 +159,7 @@ void GlyphBuilder::extractRegion(Glyph& glyph)
             glyph.m_tile.setPixel(x - m_region.left(), y - m_region.top(), pixel);
         }
     }
+    */
 }
 
 } // namespace fuse::graphics
