@@ -1,17 +1,20 @@
 #pragma once
 
-#include <fuse/Rectangle.h>
 #include <cstddef>
 #include <cstdint>
+#include <fuse/Rectangle.h>
 #include <vector>
 
 namespace fuse::graphics {
 
 using TileRegion = Rectangle<size_t>;
+class Image;
 
 class Tile
 {
 public:
+    static auto extractFrom(const Image& image, const TileRegion& region) -> Tile;
+
     using pixel_t = uint32_t;
 
     Tile() = default;

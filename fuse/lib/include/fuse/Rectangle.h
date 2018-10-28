@@ -5,6 +5,8 @@ namespace fuse {
 template <class T> class Rectangle
 {
 public:
+    Rectangle() = default;
+
     explicit Rectangle(T x, T y, T width, T height)
         : m_left{x}
         , m_top{y}
@@ -80,10 +82,10 @@ public:
     }
 
 private:
-    T m_left;
-    T m_top;
-    T m_width;
-    T m_height;
+    T m_left{0};
+    T m_top{0};
+    T m_width{0};
+    T m_height{0};
 };
 
 } // namespace fuse

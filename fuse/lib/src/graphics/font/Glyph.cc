@@ -54,12 +54,6 @@ auto GlyphBuilder::baseline(size_t y) -> GlyphBuilder&
     return *this;
 }
 
-auto GlyphBuilder::background(Glyph::pixel_t color) -> GlyphBuilder&
-{
-    m_background = color;
-    return *this;
-}
-
 auto GlyphBuilder::characters(const std::string& characters) -> GlyphBuilder&
 {
     m_characters = characters;
@@ -72,16 +66,9 @@ auto GlyphBuilder::data(const Tile& tile) -> GlyphBuilder&
     return *this;
 }
 
-auto GlyphBuilder::region(const Rectangle<size_t>& rectangle) -> GlyphBuilder&
+auto GlyphBuilder::shrinkToFit(bool shrink) -> GlyphBuilder&
 {
-    m_shrinkToFit = false;
-    m_region = rectangle;
-    return *this;
-}
-
-auto GlyphBuilder::shrinkToFit() -> GlyphBuilder&
-{
-    m_shrinkToFit = true;
+    m_shrinkToFit = shrink;
     return *this;
 }
 
@@ -92,8 +79,6 @@ auto GlyphBuilder::build() -> Glyph
     Glyph glyph;
     glyph.m_characters = m_characters;
     glyph.m_baseline = m_baseline;
-    glyph.m_background = m_background;
-    glyph.m_bitsPerPixel = m_bitsPerPixel;
 
     if (m_shrinkToFit)
     {
@@ -141,7 +126,7 @@ void GlyphBuilder::shrinkToFit(Glyph& glyph)
     {
         for (size_t x = 0; x < m_data.width(); ++x)
         {
-            if (m_data.pixel(x, y) != m_background)
+            if (m_data.pixel(x, y) != m_backgroundColor)
             {
                 left = std::min(left, x);
                 right = std::max(right, x);
