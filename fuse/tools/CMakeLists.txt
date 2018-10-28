@@ -1,2 +1,2 @@
 add_subdirectory(assembler)
-add_subdirectory(link)
+#add_subdirectory(link)
