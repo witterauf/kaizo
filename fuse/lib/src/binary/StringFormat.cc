@@ -16,6 +16,7 @@ auto TableStringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         auto [newOffset, string] = m_decoder.decode(reader.binary(), reader.offset());
         auto data = std::make_unique<StringData>();
         data->setValue(string);
+        reader.annotateRange(reader.offset(), newOffset - reader.offset());
         reader.setOffset(newOffset);
         return std::move(data);
     }

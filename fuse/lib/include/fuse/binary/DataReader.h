@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DataAnnotation.h"
 #include <cstddef>
 #include <fuse/Binary.h>
 #include <map>
@@ -19,15 +20,34 @@ public:
     void advance(size_t size);
     void setOffset(size_t offset);
 
-    void clearStorage();
-    void store(const std::string& label, std::unique_ptr<Data>&& data);
-    bool has(const std::string& label) const;
-    auto load(const std::string& label) const -> const Data&;
+    void enter(const DataPathElement& element);
+    void annotateRange(size_t, size_t);
+    void leave(const Data* data);
+
+    struct Range
+    {
+        size_t address;
+        size_t size;
+    };
+
+    auto ranges() const -> const DataAnnotation<Range>&;
 
 private:
     size_t m_offset{0};
     Binary m_source;
-    std::map<std::string, std::unique_ptr<Data>> m_storage;
+    DataPath m_path;
+    DataAnnotation<Range> m_ranges;
+
+    struct DataStructure
+    {
+        DataPathElement pathElement;
+        const Data* data;
+        DataStructure* parent;
+        std::vector<std::unique_ptr<DataStructure>> children;
+    };
+
+    DataStructure m_root;
+    DataStructure* m_currentNode{&m_root};
 };
 
 } // namespace fuse::binary

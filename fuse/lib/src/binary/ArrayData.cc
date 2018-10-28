@@ -20,7 +20,7 @@ auto ArrayData::elementCount() const -> size_t
 
 auto ArrayData::element(size_t index) const -> const Data&
 {
-    Expects(index);
+    Expects(index < elementCount());
     return *m_elements[index];
 }
 

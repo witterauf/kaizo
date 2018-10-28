@@ -33,25 +33,34 @@ void DataReader::setOffset(size_t offset)
     m_offset = offset;
 }
 
-void DataReader::clearStorage()
+void DataReader::enter(const DataPathElement& element)
 {
-    m_storage.clear();
+    Expects(element.isStatic());
+    m_path /= element;
+
+    auto structure = std::make_unique<DataStructure>();
+    structure->pathElement = element;
+    structure->data = nullptr;
+    structure->parent = m_currentNode;
+    m_currentNode->children.push_back(std::move(structure));
+    m_currentNode = m_currentNode->children.back().get();
 }
 
-void DataReader::store(const std::string& label, std::unique_ptr<Data>&& data)
+void DataReader::annotateRange(size_t address, size_t size)
 {
-    m_storage.insert(std::make_pair(label, std::move(data)));
+    m_ranges.annotate(m_path, Range{address, size});
 }
 
-bool DataReader::has(const std::string& label) const
+void DataReader::leave(const Data* data)
 {
-    return m_storage.find(label) != m_storage.cend();
+    m_currentNode->data = data;
+    m_currentNode = m_currentNode->parent;
+    m_path.goUp();
 }
 
-auto DataReader::load(const std::string& label) const -> const Data&
+auto DataReader::ranges() const -> const DataAnnotation<Range>&
 {
-    Expects(has(label));
-    return *m_storage.at(label);
+    return m_ranges;
 }
 
 } // namespace fuse::binary

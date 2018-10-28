@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <diagnostics/Contracts.h>
+#include <fuse/binary/DataReader.h>
 #include <fuse/binary/RecordData.h>
 #include <fuse/binary/RecordFormat.h>
 
@@ -40,12 +41,15 @@ auto RecordFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     auto record = std::make_unique<RecordData>();
     for (auto const& element : m_elements)
     {
+        reader.enter(DataPathElement::makeName(element.name));
         if (auto data = element.format->decode(reader))
         {
             record->set(element.name, std::move(data));
+            reader.leave(record.get());
         }
         else
         {
+            reader.leave(record.get());
             return {};
         }
     }

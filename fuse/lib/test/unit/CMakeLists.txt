@@ -1,9 +1,13 @@
 add_executable(GraphicsUnitTest
     graphics/TilesTest.cc
+    graphics/LuaTest.cc
+    graphics/LuaFontLoaderTest.cc
 )
 target_link_libraries(GraphicsUnitTest
     PRIVATE
         Fuse::Fuse
+        Catch2::Main
+        sol2
 )
 
 add_executable(TextUnitTest

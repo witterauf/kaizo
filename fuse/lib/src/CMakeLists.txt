@@ -26,6 +26,9 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/BinaryFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/BinaryData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/LuaWriter.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/Address.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/DataPath.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
     binary/StringData.cc
     binary/IntegerData.cc
     binary/PointerData.cc
@@ -42,6 +45,8 @@ set(FUSE_BINARY_SOURCES
     binary/BinaryFormat.cc
     binary/BinaryData.cc
     binary/LuaWriter.cc
+    binary/Address.cc
+    binary/DataPath.cc
 )
 
 set(FUSE_TEXT_SOURCES
@@ -56,9 +61,11 @@ set(FUSE_TEXT_SOURCES
 )
 
 set(FUSE_GRAPHICS_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/graphics/GraphicsLuaLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/Glyph.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/Font.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/FontWriter.h
+    ${FUSE_INCLUDE_DIRECTORY}/graphics/font/FontLoader.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/Image.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/ImageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/Palette.h
@@ -68,9 +75,16 @@ set(FUSE_GRAPHICS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/TileImageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/TileList.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/TileTransformation.h
+    ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/TilesLuaLibrary.h
+    graphics/GraphicsLuaLibrary.cc
     graphics/font/Glyph.cc
     graphics/font/Font.cc
     graphics/font/FontWriter.cc
+    graphics/font/FontLoader.cc
+    graphics/font/private/LuaFontLoader.h
+    graphics/font/private/LuaFontLoader.cc
+    graphics/font/private/FontBuilder.h
+    graphics/font/private/FontBuilder.cc
     graphics/image/Image.cc
     graphics/image/ImageFormat.cc
     graphics/image/PngFormat.h
@@ -81,6 +95,12 @@ set(FUSE_GRAPHICS_SOURCES
     graphics/tiles/TileFormat.cc
     graphics/tiles/TileImageFormat.cc
     graphics/tiles/TileList.cc
+    graphics/tiles/TilesLuaLibrary.cc
+)
+
+set(FUSE_SYSTEMS_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/systems/gbc/GameboyColorAddress.h
+    systems/gbc/GameboyColorAddress.cc
 )
 
 set(FUSE_SOURCES
@@ -88,12 +108,14 @@ set(FUSE_SOURCES
     ${FUSE_BINARY_SOURCES}
     ${FUSE_TEXT_SOURCES}
     ${FUSE_GRAPHICS_SOURCES}
+    ${FUSE_SYSTEMS_SOURCES}
 )
 
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
 source_group("Binary" FILES ${FUSE_BINARY_SOURCES})
 source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
+source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 
 ###[ library ]#####################################################################################
 
@@ -103,11 +125,13 @@ add_library(FuseLibrary
 target_include_directories(FuseLibrary
     PUBLIC
         $<BUILD_INTERFACE:${FUSE_BASE_INCLUDE_DIRECTORY}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 target_link_libraries(FuseLibrary
     PRIVATE
         Diagnostics::Diagnostics
         LodePNG::LodePNG
+        sol2
 )
 target_compile_features(FuseLibrary PUBLIC cxx_std_17)
 target_all_warnings(FuseLibrary)

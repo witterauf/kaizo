@@ -15,6 +15,16 @@ public:
     auto data(size_t offset = 0) const -> const uint8_t*;
     auto read(size_t offset, size_t length) const -> Binary;
 
+    template <class T> auto readAs(size_t offset, size_t length) const -> T
+    {
+        T result{0};
+        for (auto i = 0U; i < length; ++i)
+        {
+            result |= m_data[offset + i] << (i * 8);
+        }
+        return result;
+    }
+
     auto begin() const -> const uint8_t*;
     auto end() const -> const uint8_t*;
 

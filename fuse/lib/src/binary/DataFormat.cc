@@ -16,12 +16,7 @@ void DataFormat::doNotStore()
 
 auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
 {
-    auto data = doDecode(reader);
-    if (m_storeAs)
-    {
-        reader.store(*m_storeAs, data->copy());
-    }
-    return std::move(data);
+    return doDecode(reader);
 }
 
 } // namespace fuse::binary
