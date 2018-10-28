@@ -5,6 +5,14 @@ namespace fuse {
 
 namespace fs = std::filesystem;
 
+auto Binary::fromArray(const uint8_t* data, size_t size) -> Binary
+{
+    Binary binary;
+    binary.m_data.resize(size);
+    memcpy(binary.m_data.data(), data, size);
+    return binary;
+}
+
 auto Binary::load(const std::filesystem::path& filename) -> Binary
 {
     if (!fs::exists(filename))
@@ -62,6 +70,34 @@ auto Binary::read(size_t offset, size_t length) const -> Binary
     Binary binary;
     binary.m_data = std::vector<uint8_t>(m_data.begin() + offset, m_data.begin() + offset + length);
     return std::move(binary);
+}
+
+auto Binary::asVector() const -> std::vector<uint8_t>
+{
+    return m_data;
+}
+
+void Binary::save(const std::filesystem::path& filename)
+{
+    std::ofstream output{ filename, std::ofstream::binary };
+    if (output.good())
+    {
+        output.write(reinterpret_cast<const char*>(m_data.data()), m_data.size());
+    }
+    else
+    {
+        throw std::runtime_error{ "could not open file: " + filename.string() };
+    }
+}
+
+void Binary::clear()
+{
+    m_data.clear();
+}
+
+void Binary::append(uint8_t value)
+{
+    m_data.push_back(value);
 }
 
 } // namespace fuse

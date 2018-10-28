@@ -10,6 +10,9 @@ class Binary
 {
 public:
     static auto load(const std::filesystem::path& filename) -> Binary;
+    static auto fromArray(const uint8_t* data, size_t size) -> Binary;
+
+    void save(const std::filesystem::path& filename);
 
     auto size() const -> size_t;
     auto data(size_t offset = 0) const -> const uint8_t*;
@@ -24,6 +27,11 @@ public:
         }
         return result;
     }
+
+    auto asVector() const -> std::vector<uint8_t>;
+
+    void clear();
+    void append(uint8_t value);
 
     auto begin() const -> const uint8_t*;
     auto end() const -> const uint8_t*;
