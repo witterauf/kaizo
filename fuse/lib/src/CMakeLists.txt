@@ -6,7 +6,9 @@ set(FUSE_INCLUDE_DIRECTORY "${FUSE_BASE_INCLUDE_DIRECTORY}/fuse")
 set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/Binary.h
     ${FUSE_INCLUDE_DIRECTORY}/Rectangle.h
+    ${FUSE_INCLUDE_DIRECTORY}/UsageMap.h
     Binary.cc
+    UsageMap.cc
 )
 
 set(FUSE_BINARY_SOURCES
@@ -50,14 +52,17 @@ set(FUSE_BINARY_SOURCES
 )
 
 set(FUSE_TEXT_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/text/ShiftJis.h
     ${FUSE_INCLUDE_DIRECTORY}/text/Table.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableReader.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableDecoder.h
+    text/ShiftJis.cc
+    text/ShiftJisToUnicode.h
     text/Table.cc
-    text/TableReader.cc
+    text/TableDecoder.cc
     text/TableParser.h
     text/TableParser.cc
-    text/TableDecoder.cc
+    text/TableReader.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES
