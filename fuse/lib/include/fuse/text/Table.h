@@ -25,10 +25,18 @@ public:
         Binary
     };
 
+    enum class Endianess
+    {
+        Little,
+        Big
+    };
+
     struct Parameter
     {
         std::string name;
-        ParameterFormat format;
+        unsigned int size{1};
+        Endianess endianess{Endianess::Little};
+        ParameterFormat format{ParameterFormat::Hexadecimal};
     };
 
     struct Label
