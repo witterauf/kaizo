@@ -10,6 +10,8 @@ namespace fuse::graphics {
 class TileColorRemapper : public TileTransformation
 {
 public:
+    static auto makeGrayScaler(unsigned bitsPerPixel) -> TileColorRemapper;
+
     TileColorRemapper() = default;
     explicit TileColorRemapper(
         std::initializer_list<std::pair<const Tile::pixel_t, Tile::pixel_t>> remap,

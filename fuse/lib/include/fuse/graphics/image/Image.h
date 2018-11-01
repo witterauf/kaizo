@@ -8,6 +8,8 @@
 
 namespace fuse::graphics {
 
+class Tile;
+
 class Image
 {
 public:
@@ -21,9 +23,11 @@ public:
     };
 
     static auto load(const std::filesystem::path& path) -> std::optional<Image>;
+    void save(const std::filesystem::path& path) const;
 
     Image() = default;
     explicit Image(size_t width, size_t height, PixelFormat format, uint8_t bitsPerPixel);
+    explicit Image(const Tile& tile, PixelFormat format, uint8_t bitsPerPixel);
 
     auto width() const -> size_t;
     auto height() const -> size_t;
