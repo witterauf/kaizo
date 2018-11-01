@@ -56,10 +56,54 @@ auto PlanarTileFormat::write(std::vector<uint8_t>& buffer, offset_t offset, cons
     return offset;
 }
 
-auto PlanarTileFormat::read(const std::vector<uint8_t>&, offset_t)
+auto PlanarTileFormat::read(const std::vector<uint8_t>&, offset_t) -> std::pair<Tile, offset_t>
+{
+    return {{}, 0};
+}
+
+void Psp4bppFormat::setTileSize(size_t width, size_t height)
+{
+    m_width = width;
+    m_height = height;
+}
+
+auto Psp4bppFormat::requiredSize(size_t count) const -> size_t
+{
+    return count * m_width * m_height / 2;
+}
+
+auto Psp4bppFormat::write(std::vector<uint8_t>& buffer, offset_t offset, const Tile& tile)
+    -> offset_t
+{
+    Expects(offset % 8 == 0);
+    for (auto y = 0U; y < m_height; ++y)
+    {
+        for (auto x = 0U; x < m_width; x += 2)
+        {
+            auto const byteOffset = offset / 8;
+            buffer[byteOffset] = (tile.pixel(x, y) & 0x0F) | ((tile.pixel(x, y) & 0x0F) << 4);
+            offset += 8;
+        }
+    }
+    return offset;
+}
+
+auto Psp4bppFormat::read(const std::vector<uint8_t>& buffer, offset_t offset)
     -> std::pair<Tile, offset_t>
 {
-    return { {}, 0 };
+    Expects(offset % 8 == 0);
+    Tile tile{m_width, m_height};
+    for (auto y = 0U; y < m_height; ++y)
+    {
+        for (auto x = 0U; x < m_width; x += 2)
+        {
+            auto const byteOffset = offset / 8;
+            tile.setPixel(x, y, buffer[byteOffset] & 0x0F);
+            tile.setPixel(x + 1, y, buffer[byteOffset] >> 4);
+            offset += 8;
+        }
+    }
+    return std::make_pair(tile, offset);
 }
 
 } // namespace fuse::graphics

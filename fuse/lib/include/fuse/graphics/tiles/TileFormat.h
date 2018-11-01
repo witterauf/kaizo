@@ -43,4 +43,19 @@ private:
     uint8_t m_bitsPerPixel{0};
 };
 
+class Psp4bppFormat : public TileFormat
+{
+public:
+    void setTileSize(size_t width, size_t height);
+
+    auto requiredSize(size_t count) const -> size_t override;
+    auto write(std::vector<uint8_t>& buffer, offset_t offset, const Tile& tile)
+        -> offset_t override;
+    auto read(const std::vector<uint8_t>& buffer, offset_t offset)
+        -> std::pair<Tile, offset_t> override;
+
+private:
+    size_t m_width{0}, m_height{0};
+};
+
 } // namespace fuse::graphics
