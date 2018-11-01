@@ -37,6 +37,7 @@ public:
     auto end() const -> const uint8_t*;
 
     auto operator[](size_t offset) const -> uint8_t;
+    auto operator[](size_t offset) -> uint8_t&;
 
     bool operator==(const Binary& rhs) const;
 

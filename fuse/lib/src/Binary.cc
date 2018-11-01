@@ -60,6 +60,11 @@ auto Binary::operator[](size_t offset) const -> uint8_t
     return m_data[offset];
 }
 
+auto Binary::operator[](size_t offset) -> uint8_t&
+{
+    return m_data[offset];
+}
+
 bool Binary::operator==(const Binary& rhs) const
 {
     return m_data == rhs.m_data;
@@ -79,14 +84,14 @@ auto Binary::asVector() const -> std::vector<uint8_t>
 
 void Binary::save(const std::filesystem::path& filename)
 {
-    std::ofstream output{ filename, std::ofstream::binary };
+    std::ofstream output{filename, std::ofstream::binary};
     if (output.good())
     {
         output.write(reinterpret_cast<const char*>(m_data.data()), m_data.size());
     }
     else
     {
-        throw std::runtime_error{ "could not open file: " + filename.string() };
+        throw std::runtime_error{"could not open file: " + filename.string()};
     }
 }
 

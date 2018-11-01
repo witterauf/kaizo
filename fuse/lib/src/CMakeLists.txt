@@ -8,9 +8,13 @@ set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/BinaryStream.h
     ${FUSE_INCLUDE_DIRECTORY}/Rectangle.h
     ${FUSE_INCLUDE_DIRECTORY}/UsageMap.h
+    ${FUSE_INCLUDE_DIRECTORY}/LuaBaseLibrary.h
+    ${FUSE_INCLUDE_DIRECTORY}/LuaFuseLibrary.h
     Binary.cc
     BinaryStream.cc
     UsageMap.cc
+    LuaBaseLibrary.cc
+    LuaFuseLibrary.cc
 )
 
 set(FUSE_BINARY_SOURCES
@@ -77,6 +81,7 @@ set(FUSE_GRAPHICS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/FontLoader.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/Image.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/ImageFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/graphics/image/LuaImageLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/Palette.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/Tile.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/tiles/TileColorRemapper.h
@@ -98,6 +103,7 @@ set(FUSE_GRAPHICS_SOURCES
     graphics/image/ImageFormat.cc
     graphics/image/PngFormat.h
     graphics/image/PngFormat.cc
+    graphics/image/LuaImageLibrary.cc
     graphics/tiles/Palette.cc
     graphics/tiles/Tile.cc
     graphics/tiles/TileColorRemapper.cc
