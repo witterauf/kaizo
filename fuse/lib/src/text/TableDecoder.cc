@@ -69,15 +69,15 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
             length += maybeMatch->binary().size();
             switch (maybeMatch->text().kind())
             {
-            case TextSequence::Kind::Text: text += decodeText(maybeMatch->text()); break;
-            case TextSequence::Kind::End:
+            case TableEntry::Kind::Text: text += decodeText(maybeMatch->text()); break;
+            case TableEntry::Kind::End:
                 text += decodeEnd(maybeMatch->text());
                 finished = true;
                 break;
-            case TextSequence::Kind::TableSwitch:
+            case TableEntry::Kind::TableSwitch:
                 text += decodeTableSwitch(maybeMatch->text());
                 break;
-            case TextSequence::Kind::Control: text += decodeControl(maybeMatch->text()); break;
+            case TableEntry::Kind::Control: text += decodeControl(maybeMatch->text()); break;
             }
         }
         else
@@ -101,16 +101,7 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
     return std::make_pair(offset + length, text);
 }
 
-static auto appendLineBreaks(std::string text, size_t count) -> std::string
-{
-    for (auto i = 0U; i < count; ++i)
-    {
-        text += '\n';
-    }
-    return text;
-}
-
-auto TableDecoder::decodeControl(const TextSequence& control) -> std::string
+auto TableDecoder::decodeControl(const TableEntry& control) -> std::string
 {
     std::string text = "{" + control.labelName();
     if (control.parameterCount() > 0)
@@ -122,25 +113,26 @@ auto TableDecoder::decodeControl(const TextSequence& control) -> std::string
             {
                 text += ",";
             }
+            text += control.parameter(i).decode();
         }
     }
     text += "}";
-    text = appendLineBreaks(text, control.label().lineBreaks);
+    text += control.label().postLabel;
     return text;
 }
 
-auto TableDecoder::decodeText(const TextSequence& text) -> std::string
+auto TableDecoder::decodeText(const TableEntry& text) -> std::string
 {
     return text.text();
 }
 
-auto TableDecoder::decodeEnd(const TextSequence& end) -> std::string
+auto TableDecoder::decodeEnd(const TableEntry& end) -> std::string
 {
     std::string text = "{" + end.labelName() + "}";
     return text;
 }
 
-auto TableDecoder::decodeTableSwitch(const TextSequence& tableSwitch) -> std::string
+auto TableDecoder::decodeTableSwitch(const TableEntry& tableSwitch) -> std::string
 {
     if (!hasTable(tableSwitch.targetTable()))
     {

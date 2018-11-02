@@ -25,13 +25,7 @@ public:
     bool encodeControl();
     bool encodeControl(const std::string& label, const std::vector<long>& arguments);
 
-    auto parseLabel() -> std::optional<std::string>;
-    auto parseArguments() -> std::optional<std::vector<long>>;
-    auto parseArgument() -> std::optional<long>;
-
 private:
-    auto fetch(size_t offset = 0) -> char;
-    void consume(size_t size = 1);
     auto textLength() const -> size_t;
 
     const std::string* m_text{nullptr};

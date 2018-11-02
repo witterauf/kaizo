@@ -32,6 +32,23 @@ public:
 
     void clear();
     void append(uint8_t value);
+    void append(char value);
+
+    template <class InputIterator> void append(InputIterator begin, InputIterator end)
+    {
+        for (; begin != end; ++begin)
+        {
+            append(*begin);
+        }
+    }
+
+    template <class Container> void append(const Container& container)
+    {
+        for (auto value : container)
+        {
+            append(value);
+        }
+    }
 
     auto begin() const -> const uint8_t*;
     auto end() const -> const uint8_t*;

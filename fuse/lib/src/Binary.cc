@@ -105,4 +105,9 @@ void Binary::append(uint8_t value)
     m_data.push_back(value);
 }
 
+void Binary::append(char value)
+{
+    m_data.push_back(static_cast<uint8_t>(value));
+}
+
 } // namespace fuse

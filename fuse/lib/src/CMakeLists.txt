@@ -64,6 +64,7 @@ set(FUSE_TEXT_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/text/TableDecoder.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoder.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableReader.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/TableEntry.h
     text/ShiftJis.cc
     text/ShiftJisToUnicode.h
     text/Table.cc
@@ -73,6 +74,9 @@ set(FUSE_TEXT_SOURCES
     text/TableReader.cc
     text/TableEncoder.cc
     text/LuaTableReader.cc
+    text/TableEntry.cc
+    text/TableControlParser.h
+    text/TableControlParser.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES
