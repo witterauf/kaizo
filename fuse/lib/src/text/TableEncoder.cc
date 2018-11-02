@@ -1,3 +1,4 @@
+#include "TableControlParser.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <fuse/text/TableEncoder.h>
@@ -81,13 +82,12 @@ auto TableEncoder::encode(const std::string& text) -> Binary
 
 void TableEncoder::encodeCharacters()
 {
+    // TODO: actually implement optimal-path algorithm
+
     if (auto maybeEntry =
             activeTable().findLongestTextMatch(m_text->begin() + m_index, m_text->end()))
     {
-        for (auto c : maybeEntry->binary())
-        {
-            m_binary.append(static_cast<uint8_t>(c));
-        }
+        m_binary.append(maybeEntry->binary());
         m_index += maybeEntry->text().text().length();
     }
     else
@@ -99,54 +99,43 @@ void TableEncoder::encodeCharacters()
 
 bool TableEncoder::encodeControl()
 {
-    consume();
-    if (auto maybeLabel = parseLabel())
+    TableControlParser parser;
+    if (auto maybeControl = parser.parse(*m_text, m_index))
     {
-        if (auto maybeArguments = parseArguments())
-        {
-        }
+        return encodeControl(maybeControl->label, maybeControl->arguments);
     }
     return false;
 }
 
-auto TableEncoder::parseLabel() -> std::optional<std::string>
+bool TableEncoder::encodeControl(const std::string& label, const std::vector<long>& arguments)
 {
-    std::string label;
-    while (fetch() != ':' && fetch() != '}')
+    if (auto maybeControl = activeTable().control(label))
     {
-        if (m_index >= textLength())
-        {
-            return {};
-        }
-        else
-        {
-            label += fetch();
-            ++m_index;
-        }
-    }
-    return label;
-}
+        m_binary.append(maybeControl->binary());
 
-auto TableEncoder::parseArguments() -> std::optional<std::vector<long>>
-{
-    std::vector<long> arguments;
-    while (fetch() != '}')
-    {
-        if (m_index >= textLength())
+        auto const& control = maybeControl->text();
+        if (arguments.size() != control.parameterCount())
         {
-            return {};
+            return false;
         }
-        else
+        for (auto i = 0U; i < arguments.size(); ++i)
         {
-        }
-    }
-    return arguments;
-}
+            auto const parameter = arguments[i];
+            auto const parameterFormat = control.parameter(i);
 
-auto TableEncoder::parseArgument() -> std::optional<long>
-{
-    long argument;
-    return argument;
+            if (parameterFormat.isCompatible(parameter))
+            {
+                auto binary = parameterFormat.encode(parameter);
+                m_binary.append(binary);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 } // namespace fuse::text
