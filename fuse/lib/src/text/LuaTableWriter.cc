@@ -1,6 +1,9 @@
 #include <diagnostics/Contracts.h>
 #include <fstream>
 #include <fuse/text/LuaTableWriter.h>
+#include <fuse/utilities/StringAlgorithms.h>
+
+using namespace fuse::utilities;
 
 namespace fuse::text {
 
@@ -47,7 +50,7 @@ auto LuaTableWriter::writeBinary(const BinarySequence& binary) -> std::string
         {
             lua += ",";
         }
-        lua += "0x";
+        lua += "0x" + toString(static_cast<uint8_t>(binary[i]), 16, 2);
     }
     lua += "}";
     return lua;

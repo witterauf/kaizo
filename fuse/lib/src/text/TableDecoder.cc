@@ -1,6 +1,9 @@
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <fuse/text/TableDecoder.h>
+#include <fuse/utilities/StringAlgorithms.h>
+
+using namespace fuse::utilities;
 
 namespace fuse::text {
 
@@ -127,23 +130,6 @@ auto TableDecoder::decodeControl(const TableEntry& control) -> std::string
     text += "}";
     text += control.label().postfix;
     return text;
-}
-
-template <class T> static auto toString(T value, unsigned base) -> std::string
-{
-    if (value == 0)
-    {
-        return "0";
-    }
-    static constexpr char Digits[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                                      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    std::string result;
-    while (value > 0)
-    {
-        result += Digits[value % base];
-        value /= base;
-    }
-    return std::string{result.rbegin(), result.rend()};
 }
 
 auto TableDecoder::decodeArgument(const TableEntry::ParameterFormat& format) -> std::string

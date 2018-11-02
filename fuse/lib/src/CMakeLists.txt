@@ -123,6 +123,10 @@ set(FUSE_GRAPHICS_SOURCES
     graphics/tiles/TilesLuaLibrary.cc
 )
 
+set(FUSE_UTILITIES_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/utilities/StringAlgorithms.h
+)
+
 set(FUSE_SYSTEMS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/systems/gbc/GameboyColorAddress.h
     systems/gbc/GameboyColorAddress.cc
@@ -134,6 +138,7 @@ set(FUSE_SOURCES
     ${FUSE_TEXT_SOURCES}
     ${FUSE_GRAPHICS_SOURCES}
     ${FUSE_SYSTEMS_SOURCES}
+    ${FUSE_UTILITIES_SOURCES}
 )
 
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
@@ -141,6 +146,7 @@ source_group("Binary" FILES ${FUSE_BINARY_SOURCES})
 source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
+source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
 
 ###[ library ]#####################################################################################
 
