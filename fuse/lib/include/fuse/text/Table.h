@@ -44,6 +44,7 @@ public:
     auto size() const -> size_t;
     bool hasControl(const std::string& label) const;
     auto control(const std::string& label) const -> std::optional<EntryReference>;
+    auto entry(size_t index) const -> EntryReference;
 
     void insert(const BinarySequence& binary, const TableEntry& text);
 

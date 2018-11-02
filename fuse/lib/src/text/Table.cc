@@ -47,9 +47,17 @@ auto Table::control(const std::string& label) const -> std::optional<EntryRefere
     return {};
 }
 
-void Table::insert(const BinarySequence& binary, const TextSequence& text)
+void Table::insert(const BinarySequence& binary, const TableEntry& text)
 {
     m_mapping.insert(std::make_pair(binary, text));
+}
+
+auto Table::entry(size_t index) const -> EntryReference
+{
+    Expects(index < size());
+    auto iter = m_mapping.begin();
+    std::advance(iter, index);
+    return EntryReference{ &iter->first, &iter->second };
 }
 
 } // namespace fuse::text

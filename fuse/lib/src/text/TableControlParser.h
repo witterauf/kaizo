@@ -10,7 +10,7 @@ namespace fuse::text {
 class TableControlParser
 {
 public:
-    using argument_t = TextSequence::Parameter::argument_t;
+    using argument_t = TableEntry::ParameterFormat::argument_t;
 
     struct ControlCode
     {
@@ -32,7 +32,7 @@ private:
     bool hasNext() const;
     bool expectAndConsume(char c);
     auto fetch(size_t offset = 0) -> char;
-    auto fetchThenConsume(char c) -> char;
+    bool fetchThenConsume(char c);
     auto fetchAndConsume() -> char;
     void consume(size_t size = 1);
 

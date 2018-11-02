@@ -10,6 +10,9 @@ namespace fuse::text {
 class TableDecoder
 {
 public:
+    TableDecoder() = default;
+    explicit TableDecoder(const Table& table);
+
     auto tableCount() const -> size_t;
     void addTable(Table&& table);
     bool hasTable(const std::string& name) const;
@@ -22,15 +25,22 @@ public:
 
     auto decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>;
 
-    auto decodeControl(const TextSequence& control) -> std::string;
-    auto decodeText(const TextSequence& text) -> std::string;
-    auto decodeEnd(const TextSequence& end) -> std::string;
-    auto decodeTableSwitch(const TextSequence& tableSwitch) -> std::string;
+    auto decodeControl(const TableEntry& control) -> std::string;
+    auto decodeText(const TableEntry& text) -> std::string;
+    auto decodeEnd(const TableEntry& end) -> std::string;
+    auto decodeTableSwitch(const TableEntry& tableSwitch) -> std::string;
+    auto decodeArgument(const TableEntry::ParameterFormat& format) -> std::string;
 
 private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
+
+    auto data() const -> const uint8_t*;
+    void advance(size_t size);
+
+    const Binary* m_binary{nullptr};
+    size_t m_offset{0};
 };
 
 } // namespace fuse::text

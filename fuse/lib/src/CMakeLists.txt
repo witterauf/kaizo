@@ -60,23 +60,27 @@ set(FUSE_BINARY_SOURCES
 set(FUSE_TEXT_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/text/ShiftJis.h
     ${FUSE_INCLUDE_DIRECTORY}/text/Table.h
-    ${FUSE_INCLUDE_DIRECTORY}/text/TableReader.h
+    #${FUSE_INCLUDE_DIRECTORY}/text/TableReader.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableDecoder.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoder.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableReader.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableWriter.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEntry.h
     text/ShiftJis.cc
     text/ShiftJisToUnicode.h
     text/Table.cc
     text/TableDecoder.cc
-    text/TableParser.h
-    text/TableParser.cc
-    text/TableReader.cc
+    #text/TableParser.h
+    #text/TableParser.cc
+    #text/TableReader.cc
     text/TableEncoder.cc
     text/LuaTableReader.cc
+    text/LuaTableWriter.cc
     text/TableEntry.cc
     text/TableControlParser.h
     text/TableControlParser.cc
+    text/LuaTableLibrary.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES

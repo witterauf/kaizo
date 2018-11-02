@@ -38,7 +38,7 @@ public:
 
         bool isCompatible(argument_t value) const;
         auto encode(argument_t value) const -> BinarySequence;
-        template <class InputIterator> auto decode(InputIterator begin) -> argument_t;
+        template <class InputIterator> auto decode(InputIterator begin) const -> argument_t;
 
         unsigned int size{1};
         Endianess endianess{Endianess::Little};
@@ -82,7 +82,7 @@ private:
 //##[ implementation ]#############################################################################
 
 template <class InputIterator>
-auto TableEntry::ParameterFormat::decode(InputIterator begin) -> argument_t
+auto TableEntry::ParameterFormat::decode(InputIterator begin) const -> argument_t
 {
     if (endianess == Endianess::Little)
     {

@@ -4,6 +4,12 @@
 
 namespace fuse::text {
 
+TableDecoder::TableDecoder(const Table& table)
+{
+    m_tables.push_back(table);
+    m_activeTable = 0;
+}
+
 auto TableDecoder::tableCount() const -> size_t
 {
     return m_tables.size();
@@ -58,15 +64,16 @@ void TableDecoder::unsetFixedLength()
 
 auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>
 {
+    m_binary = &binary;
+    m_offset = offset;
+
     std::string text;
-    size_t length{0};
     bool finished{false};
     while (!finished)
     {
-        if (auto maybeMatch =
-                activeTable().findLongestBinaryMatch(binary.data(offset + length), binary.end()))
+        if (auto maybeMatch = activeTable().findLongestBinaryMatch(data(), binary.end()))
         {
-            length += maybeMatch->binary().size();
+            advance(maybeMatch->binary().size());
             switch (maybeMatch->text().kind())
             {
             case TableEntry::Kind::Text: text += decodeText(maybeMatch->text()); break;
@@ -82,13 +89,14 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
         }
         else
         {
-            text += "{" + std::to_string(*binary.data(offset + length)) + "}";
-            length++;
+            text += "{" + std::to_string(*data()) + "}";
+            advance(1);
         }
 
         if (m_fixedLength)
         {
-            if (*m_fixedLength == length)
+            auto const length = m_offset - offset;
+            if (length == *m_fixedLength)
             {
                 finished = true;
             }
@@ -98,7 +106,7 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
             }
         }
     }
-    return std::make_pair(offset + length, text);
+    return std::make_pair(m_offset, text);
 }
 
 auto TableDecoder::decodeControl(const TableEntry& control) -> std::string
@@ -113,12 +121,43 @@ auto TableDecoder::decodeControl(const TableEntry& control) -> std::string
             {
                 text += ",";
             }
-            text += control.parameter(i).decode();
+            text += decodeArgument(control.parameter(i));
         }
     }
     text += "}";
-    text += control.label().postLabel;
+    text += control.label().postfix;
     return text;
+}
+
+template <class T> static auto toString(T value, unsigned base) -> std::string
+{
+    if (value == 0)
+    {
+        return "0";
+    }
+    static constexpr char Digits[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                                      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    std::string result;
+    while (value > 0)
+    {
+        result += Digits[value % base];
+        value /= base;
+    }
+    return std::string{result.rbegin(), result.rend()};
+}
+
+auto TableDecoder::decodeArgument(const TableEntry::ParameterFormat& format) -> std::string
+{
+    auto const argument = format.decode(data());
+    advance(format.size);
+
+    switch (format.preferedDisplay)
+    {
+    case TableEntry::ParameterFormat::Display::Decimal: return std::to_string(argument);
+    case TableEntry::ParameterFormat::Display::Hexadecimal: return "0x" + toString(argument, 16);
+    case TableEntry::ParameterFormat::Display::Binary: return "0b" + toString(argument, 2);
+    default: InvalidCase(format.preferedDisplay);
+    }
 }
 
 auto TableDecoder::decodeText(const TableEntry& text) -> std::string
@@ -140,6 +179,16 @@ auto TableDecoder::decodeTableSwitch(const TableEntry& tableSwitch) -> std::stri
     }
     setActiveTable(tableSwitch.targetTable());
     return {};
+}
+
+auto TableDecoder::data() const -> const uint8_t*
+{
+    return m_binary->data() + m_offset;
+}
+
+void TableDecoder::advance(size_t size)
+{
+    m_offset += size;
 }
 
 } // namespace fuse::text

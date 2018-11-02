@@ -188,12 +188,14 @@ auto TableControlParser::fetch(size_t offset) -> char
     }
 }
 
-auto TableControlParser::fetchThenConsume(char c) -> char
+bool TableControlParser::fetchThenConsume(char c)
 {
     if (fetch() == c)
     {
         consume();
+        return true;
     }
+    return false;
 }
 
 auto TableControlParser::fetchAndConsume() -> char
