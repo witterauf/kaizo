@@ -14,6 +14,7 @@ public:
 
     struct ControlCode
     {
+        size_t offset;
         std::string label;
         std::vector<argument_t> arguments;
     };
@@ -23,10 +24,10 @@ public:
     void setSource(const std::string& text, size_t index);
     auto parseControl() -> std::optional<ControlCode>;
     auto parseLabel() -> std::optional<std::string>;
-    auto parseArguments() -> std::optional<std::vector<long>>;
-    auto parseArgument() -> std::optional<long>;
-    auto parseHexadecimalArgument() -> std::optional<long>;
-    auto parseDecimalArgument() -> std::optional<long>;
+    auto parseArguments() -> std::optional<std::vector<argument_t>>;
+    auto parseArgument() -> std::optional<argument_t>;
+    auto parseHexadecimalArgument() -> std::optional<argument_t>;
+    auto parseDecimalArgument() -> std::optional<argument_t>;
 
 private:
     bool hasNext() const;

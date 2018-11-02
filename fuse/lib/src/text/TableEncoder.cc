@@ -2,8 +2,15 @@
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <fuse/text/TableEncoder.h>
+#include <iostream>
 
 namespace fuse::text {
+
+TableEncoder::TableEncoder(const Table& table)
+{
+    m_tables.push_back(table);
+    m_activeTable = 0;
+}
 
 auto TableEncoder::tableCount() const -> size_t
 {
@@ -65,36 +72,63 @@ auto TableEncoder::encode(const std::string& text) -> Binary
 
     while (m_index < text.length())
     {
-        if (text[m_index] == '{')
+        if (auto maybeNextControl = findNextControl())
         {
-            if (encodeControl())
+            if (*maybeNextControl > m_index)
             {
-                return std::move(m_binary);
+                if (auto maybeBinary = encodeCharacters(m_index, *maybeNextControl))
+                {
+                    m_binary.append(maybeBinary->second);
+                    m_index += maybeBinary->first;
+                }
+                else
+                {
+                    throw std::runtime_error{ "could not encode characters" };
+                }
+            }
+            if (!encodeControl())
+            {
+                throw std::runtime_error{"could not encode control code"};
             }
         }
         else
         {
-            encodeCharacters();
+            if (auto maybeBinary = encodeCharacters(m_index, text.size()))
+            {
+                m_binary.append(maybeBinary->second);
+                m_index += maybeBinary->first;
+            }
+            else
+            {
+                throw std::runtime_error{"could not encode characters"};
+            }
         }
     }
     return std::move(m_binary);
 }
 
-void TableEncoder::encodeCharacters()
+auto TableEncoder::encodeCharacters(size_t begin, size_t end)
+    -> std::optional<std::pair<size_t, BinarySequence>>
 {
-    // TODO: actually implement optimal-path algorithm
-
-    if (auto maybeEntry =
-            activeTable().findLongestTextMatch(m_text->begin() + m_index, m_text->end()))
+    if (auto maybeEntries =
+            activeTable().findNextTextMatches(m_text->begin() + begin, m_text->begin() + end))
     {
-        m_binary.append(maybeEntry->binary());
-        m_index += maybeEntry->text().text().length();
+        for (auto const& entry : *maybeEntries)
+        {
+            auto const length = entry.text().text().length();
+            auto const newBegin = begin + length;
+            if (newBegin == end)
+            {
+                return std::make_pair(length, entry.binary());
+            }
+            if (auto maybeBinary = encodeCharacters(newBegin, end))
+            {
+                return std::make_pair(length + maybeBinary->first,
+                                      entry.binary() + maybeBinary->second);
+            }
+        }
     }
-    else
-    {
-        // TODO: check other tables
-        throw std::runtime_error{"no encoding found"};
-    }
+    return {};
 }
 
 bool TableEncoder::encodeControl()
@@ -102,12 +136,17 @@ bool TableEncoder::encodeControl()
     TableControlParser parser;
     if (auto maybeControl = parser.parse(*m_text, m_index))
     {
-        return encodeControl(maybeControl->label, maybeControl->arguments);
+        if (encodeControl(maybeControl->label, maybeControl->arguments))
+        {
+            m_index = maybeControl->offset;
+            return true;
+        }
     }
     return false;
 }
 
-bool TableEncoder::encodeControl(const std::string& label, const std::vector<long>& arguments)
+bool TableEncoder::encodeControl(
+    const std::string& label, const std::vector<TableEntry::ParameterFormat::argument_t>& arguments)
 {
     if (auto maybeControl = activeTable().control(label))
     {
@@ -136,6 +175,23 @@ bool TableEncoder::encodeControl(const std::string& label, const std::vector<lon
         return true;
     }
     return false;
+}
+
+auto TableEncoder::findNextControl() const -> std::optional<size_t>
+{
+    for (auto i = m_index; i < textLength(); ++i)
+    {
+        if ((*m_text)[i] == '{')
+        {
+            return i;
+        }
+    }
+    return {};
+}
+
+auto TableEncoder::textLength() const -> size_t
+{
+    return m_text->length();
 }
 
 } // namespace fuse::text

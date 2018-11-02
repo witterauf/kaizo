@@ -34,7 +34,7 @@ public:
             Big
         };
 
-        using argument_t = long;
+        using argument_t = long long;
 
         bool isCompatible(argument_t value) const;
         auto encode(argument_t value) const -> BinarySequence;

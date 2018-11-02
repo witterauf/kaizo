@@ -258,7 +258,7 @@ auto LuaTableReader::readParameterFormat(const sol::table& table)
         return {};
     }
 
-    if (has(table, "size"))
+    if (has(table, "display"))
     {
         if (auto maybeDisplay =
                 table.get<sol::optional<TableEntry::ParameterFormat::Display>>("display"))

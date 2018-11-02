@@ -3,20 +3,20 @@
 
 namespace fuse::text {
 
-bool TableEntry::ParameterFormat::isCompatible(long value) const
+bool TableEntry::ParameterFormat::isCompatible(argument_t value) const
 {
     if (value < 0)
     {
         return false;
     }
-    if (value >= (1 << (size * 8)))
+    if (value >= (1LL << (size * 8)))
     {
         return false;
     }
     return true;
 }
 
-auto TableEntry::ParameterFormat::encode(long value) const -> BinarySequence
+auto TableEntry::ParameterFormat::encode(argument_t value) const -> BinarySequence
 {
     BinarySequence binary;
     if (endianess == Endianess::Little)

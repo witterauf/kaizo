@@ -26,7 +26,7 @@ auto TableControlParser::parseControl() -> std::optional<ControlCode>
         {
             if (expectAndConsume('}'))
             {
-                return ControlCode{*maybeLabel, *maybeArguments};
+                return ControlCode{m_index, *maybeLabel, *maybeArguments};
             }
         }
     }
@@ -44,16 +44,20 @@ auto TableControlParser::parseLabel() -> std::optional<std::string>
         }
         else
         {
-            label += fetch();
-            consume();
+            label += fetchAndConsume();
         }
     }
     return label;
 }
 
-auto TableControlParser::parseArguments() -> std::optional<std::vector<long>>
+auto TableControlParser::parseArguments() -> std::optional<std::vector<argument_t>>
 {
-    std::vector<long> arguments;
+    if (!fetchThenConsume(':'))
+    {
+        return std::vector<argument_t>{};
+    }
+
+    std::vector<argument_t> arguments;
     if (auto maybeArgument = parseArgument())
     {
         arguments.push_back(*maybeArgument);
@@ -63,7 +67,7 @@ auto TableControlParser::parseArguments() -> std::optional<std::vector<long>>
         return {};
     }
 
-    while (fetch() == ',')
+    while (fetchThenConsume(','))
     {
         if (auto maybeArgument = parseArgument())
         {
@@ -77,14 +81,14 @@ auto TableControlParser::parseArguments() -> std::optional<std::vector<long>>
     return arguments;
 }
 
-auto TableControlParser::parseArgument() -> std::optional<long>
+auto TableControlParser::parseArgument() -> std::optional<argument_t>
 {
     bool negative{false};
     if (fetchThenConsume('-'))
     {
         negative = true;
     }
-    long argument;
+    argument_t argument;
     if (fetch(0) == '0' && fetch(1) == 'x')
     {
         consume(2);
@@ -111,26 +115,26 @@ auto TableControlParser::parseArgument() -> std::optional<long>
     return negative ? -argument : argument;
 }
 
-static auto hexadecimalDigitValue(char c) -> long
+static auto hexadecimalDigitValue(char c) -> long long
 {
     if (c >= '0' && c <= '9')
     {
-        return static_cast<long>(c - '0');
+        return static_cast<long long>(c - '0');
     }
     else if (c >= 'a' && c <= 'f')
     {
-        return static_cast<long>(c - 'a' + 10);
+        return static_cast<long long>(c - 'a' + 10);
     }
     else if (c >= 'A' && c <= 'F')
     {
-        return static_cast<long>(c - 'A' + 10);
+        return static_cast<long long>(c - 'A' + 10);
     }
     throw std::logic_error{"should never happen"};
 }
 
-auto TableControlParser::parseHexadecimalArgument() -> std::optional<long>
+auto TableControlParser::parseHexadecimalArgument() -> std::optional<argument_t>
 {
-    long argument{0};
+    argument_t argument{0};
     if (!std::isxdigit(fetch()))
     {
         return {};
@@ -143,9 +147,9 @@ auto TableControlParser::parseHexadecimalArgument() -> std::optional<long>
     return argument;
 }
 
-auto TableControlParser::parseDecimalArgument() -> std::optional<long>
+auto TableControlParser::parseDecimalArgument() -> std::optional<argument_t>
 {
-    long argument{0};
+    argument_t argument{0};
     if (!std::isdigit(fetch()))
     {
         return {};
@@ -178,9 +182,9 @@ bool TableControlParser::expectAndConsume(char c)
 
 auto TableControlParser::fetch(size_t offset) -> char
 {
-    if (hasNext())
+    if (m_index + offset < m_text->length())
     {
-        return m_text->at(offset);
+        return m_text->at(m_index + offset);
     }
     else
     {

@@ -1,12 +1,13 @@
+#include <diagnostics/ConsoleDiagnosticsConsumer.h>
+#include <diagnostics/DiagnosticsReporter.h>
 #include <fuse/text/LuaTableLibrary.h>
 #include <fuse/text/LuaTableReader.h>
 #include <fuse/text/LuaTableWriter.h>
 #include <fuse/text/Table.h>
 #include <fuse/text/TableDecoder.h>
+#include <fuse/text/TableEncoder.h>
 #include <fuse/text/TableEntry.h>
 #include <sol.hpp>
-#include <diagnostics/DiagnosticsReporter.h>
-#include <diagnostics/ConsoleDiagnosticsConsumer.h>
 
 namespace fuse::text {
 
@@ -45,12 +46,16 @@ auto openTextLibrary(sol::this_state state) -> sol::table
     module.new_enum("ENDIANNESS", "LITTLE", TableEntry::ParameterFormat::Endianess::Little, "BIG",
                     TableEntry::ParameterFormat::Endianess::Big);
 
-    module.new_usertype<Table>("Table", "load", sol::factories(&loadTableFromLua),
-        "save", &saveTableToLua);
+    module.new_usertype<Table>("Table", "load", sol::factories(&loadTableFromLua), "save",
+                               &saveTableToLua);
 
     module.new_usertype<TableDecoder>(
         "TableDecoder", "new", sol::constructors<TableDecoder(), TableDecoder(const Table&)>(),
         "decode", &TableDecoder::decode);
+
+    module.new_usertype<TableEncoder>(
+        "TableEncoder", "new", sol::constructors<TableEncoder(), TableEncoder(const Table&)>(),
+        "encode", &TableEncoder::encode);
 
     return module;
 }

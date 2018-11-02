@@ -53,15 +53,56 @@ public:
     auto findLongestBinaryMatch(InputIterator begin, InputIterator end) const
         -> std::optional<EntryReference>;
     template <class InputIterator>
-    auto findLongestTextMatch(InputIterator begin, InputIterator end) const
-        -> std::optional<EntryReference>;
+    auto findNextTextMatches(InputIterator begin, InputIterator end) const
+        -> std::optional<std::vector<EntryReference>>;
 
 private:
     std::string m_name;
     std::map<BinarySequence, TableEntry> m_mapping;
+    std::multimap<std::string, BinarySequence> m_textMapping;
+    std::map<std::string, BinarySequence> m_control;
 };
 
 //##[ implementation ]#############################################################################
+
+template <class InputIterator>
+auto Table::findNextTextMatches(InputIterator begin, InputIterator end) const
+    -> std::optional<std::vector<EntryReference>>
+{
+    std::string text;
+    std::vector<EntryReference> matches;
+    while (begin != end)
+    {
+        text += *begin++;
+        auto pos = m_textMapping.lower_bound(text);
+        if (pos != m_textMapping.cend())
+        {
+            if (pos->first == text)
+            {
+                do
+                {
+                    auto const iter = m_mapping.find(pos->second);
+                    matches.push_back(EntryReference{&iter->first, &iter->second});
+                    ++pos;
+                } while (pos->first == text);
+            }
+            else if (pos->first.substr(0, text.length()) == text)
+            {
+                continue;
+            }
+        }
+        break;
+    }
+
+    if (!matches.empty())
+    {
+        return matches;
+    }
+    else
+    {
+        return {};
+    }
+}
 
 template <typename InputIterator>
 auto Table::findLongestBinaryMatch(InputIterator begin, InputIterator end) const

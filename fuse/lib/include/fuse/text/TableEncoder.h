@@ -9,6 +9,9 @@ namespace fuse::text {
 class TableEncoder
 {
 public:
+    TableEncoder() = default;
+    explicit TableEncoder(const Table& table);
+
     auto tableCount() const -> size_t;
     void addTable(Table&& table);
     bool hasTable(const std::string& name) const;
@@ -21,11 +24,14 @@ public:
 
     auto encode(const std::string& text) -> Binary;
 
-    void encodeCharacters();
+    auto encodeCharacters(size_t begin, size_t end)
+        -> std::optional<std::pair<size_t, BinarySequence>>;
     bool encodeControl();
-    bool encodeControl(const std::string& label, const std::vector<long>& arguments);
+    bool encodeControl(const std::string& label,
+                       const std::vector<TableEntry::ParameterFormat::argument_t>& arguments);
 
 private:
+    auto findNextControl() const -> std::optional<size_t>;
     auto textLength() const -> size_t;
 
     const std::string* m_text{nullptr};

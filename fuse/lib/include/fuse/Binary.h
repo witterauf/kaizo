@@ -12,7 +12,7 @@ public:
     static auto load(const std::filesystem::path& filename) -> Binary;
     static auto fromArray(const uint8_t* data, size_t size) -> Binary;
 
-    void save(const std::filesystem::path& filename);
+    void save(const std::filesystem::path& filename) const;
 
     auto size() const -> size_t;
     auto data(size_t offset = 0) const -> const uint8_t*;

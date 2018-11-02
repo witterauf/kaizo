@@ -82,7 +82,7 @@ auto Binary::asVector() const -> std::vector<uint8_t>
     return m_data;
 }
 
-void Binary::save(const std::filesystem::path& filename)
+void Binary::save(const std::filesystem::path& filename) const
 {
     std::ofstream output{filename, std::ofstream::binary};
     if (output.good())

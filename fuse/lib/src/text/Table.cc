@@ -37,19 +37,26 @@ bool Table::hasControl(const std::string& label) const
 
 auto Table::control(const std::string& label) const -> std::optional<EntryReference>
 {
-    for (auto const& pair : m_mapping)
+    auto iter = m_control.find(label);
+    if (iter != m_control.cend())
     {
-        if (pair.second.isControl() && pair.second.labelName() == label)
-        {
-            return EntryReference{&pair.first, &pair.second};
-        }
+        auto const entry = m_mapping.find(iter->second);
+        return EntryReference{&entry->first, &entry->second};
     }
     return {};
 }
 
-void Table::insert(const BinarySequence& binary, const TableEntry& text)
+void Table::insert(const BinarySequence& binary, const TableEntry& entry)
 {
-    m_mapping.insert(std::make_pair(binary, text));
+    m_mapping.insert(std::make_pair(binary, entry));
+    if (entry.isText())
+    {
+        m_textMapping.insert(std::make_pair(entry.text(), binary));
+    }
+    else
+    {
+        m_control.insert(std::make_pair(entry.label().name, binary));
+    }
 }
 
 auto Table::entry(size_t index) const -> EntryReference
@@ -57,7 +64,7 @@ auto Table::entry(size_t index) const -> EntryReference
     Expects(index < size());
     auto iter = m_mapping.begin();
     std::advance(iter, index);
-    return EntryReference{ &iter->first, &iter->second };
+    return EntryReference{&iter->first, &iter->second};
 }
 
 } // namespace fuse::text
