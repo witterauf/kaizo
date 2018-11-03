@@ -9,6 +9,7 @@ class BinaryData;
 class RecordData;
 class StringData;
 class ArrayData;
+class IntegerData;
 
 class LuaWriter
 {
@@ -20,6 +21,7 @@ public:
     auto write(const RecordData& data) -> std::string;
     auto write(const BinaryData& data) -> std::string;
     auto write(const ArrayData& data) -> std::string;
+    auto write(const IntegerData& data) -> std::string;
 };
 
 } // namespace fuse::binary

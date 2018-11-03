@@ -37,6 +37,9 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/Address.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataPath.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/LuaBinaryLibrary.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/LuaDataFormatLoader.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/Integers.h
     binary/StringData.cc
     binary/IntegerData.cc
     binary/PointerData.cc
@@ -55,6 +58,10 @@ set(FUSE_BINARY_SOURCES
     binary/LuaWriter.cc
     binary/Address.cc
     binary/DataPath.cc
+    binary/LuaBinaryLibrary.cc
+    binary/LuaDataFormatLoader.cc
+    binary/loaders/LuaIntegerFormatLoader.h
+    binary/loaders/LuaIntegerFormatLoader.cc    
 )
 
 set(FUSE_TEXT_SOURCES
@@ -132,6 +139,11 @@ set(FUSE_SYSTEMS_SOURCES
     systems/gbc/GameboyColorAddress.cc
 )
 
+set(FUSE_LUA_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaLoader.h
+    lua/LuaLoader.cc
+)
+
 set(FUSE_SOURCES
     ${FUSE_BASE_SOURCES}
     ${FUSE_BINARY_SOURCES}
@@ -139,6 +151,7 @@ set(FUSE_SOURCES
     ${FUSE_GRAPHICS_SOURCES}
     ${FUSE_SYSTEMS_SOURCES}
     ${FUSE_UTILITIES_SOURCES}
+    ${FUSE_LUA_SOURCES}
 )
 
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
@@ -147,6 +160,7 @@ source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
+source_group("Lua" FILES ${FUSE_LUA_SOURCES})
 
 ###[ library ]#####################################################################################
 

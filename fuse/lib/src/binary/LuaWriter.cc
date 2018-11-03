@@ -2,6 +2,7 @@
 #include <fuse/binary/ArrayData.h>
 #include <fuse/binary/BinaryData.h>
 #include <fuse/binary/Data.h>
+#include <fuse/binary/IntegerData.h>
 #include <fuse/binary/LuaWriter.h>
 #include <fuse/binary/RecordData.h>
 #include <fuse/binary/StringData.h>
@@ -51,6 +52,7 @@ auto LuaWriter::write(const Data& data) -> std::string
     case DataType::Record: return write(static_cast<const RecordData&>(data));
     case DataType::Binary: return write(static_cast<const BinaryData&>(data));
     case DataType::Array: return write(static_cast<const ArrayData&>(data));
+    case DataType::Integer: return write(static_cast<const IntegerData&>(data));
     default: InvalidCase(data.type());
     }
 }
@@ -108,6 +110,20 @@ auto LuaWriter::write(const ArrayData& data) -> std::string
         lua += "[" + std::to_string(i + 1) + "] = " + write(data.element(i)) + ",\n";
     }
     lua += "}\n";
+    return lua;
+}
+
+auto LuaWriter::write(const IntegerData& data) -> std::string
+{
+    std::string lua;
+    if (data.isNegative())
+    {
+        lua += std::to_string(data.asSigned());
+    }
+    else
+    {
+        lua += std::to_string(data.asUnsigned());
+    }
     return lua;
 }
 

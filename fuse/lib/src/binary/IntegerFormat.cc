@@ -5,6 +5,14 @@
 
 namespace fuse::binary {
 
+IntegerFormat::IntegerFormat(size_t size, Signedness signedness, Endianness endianness)
+{
+    Expects(size > 0);
+    m_size = size;
+    m_isSigned = signedness == Signedness::Signed;
+    m_isLittleEndian = endianness == Endianness::Little;
+}
+
 bool IntegerFormat::isSigned() const
 {
     return m_isSigned;
@@ -27,12 +35,12 @@ bool IntegerFormat::isBigEndian() const
 
 auto IntegerFormat::sizeInBits() const -> size_t
 {
-    return m_size;
+    return m_size * 8;
 }
 
 auto IntegerFormat::sizeInBytes() const -> size_t
 {
-    return m_size / 8;
+    return m_size;
 }
 
 auto IntegerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
