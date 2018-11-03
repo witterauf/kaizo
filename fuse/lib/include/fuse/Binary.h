@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <fuse/binary/Integers.h>
 #include <vector>
 
 namespace fuse {
@@ -34,6 +35,9 @@ public:
     void append(uint8_t value);
     void append(char value);
 
+    template <size_t N, class T> void appendLittle(T value);
+    template <size_t N, class T> void writeLittle(size_t offset, T value);
+
     template <class InputIterator> void append(InputIterator begin, InputIterator end)
     {
         for (; begin != end; ++begin)
@@ -65,5 +69,25 @@ private:
 };
 
 auto operator+(Binary lhs, const Binary& rhs) -> Binary;
+
+//##[ implementation ]#############################################################################
+
+template <size_t N, class T> void Binary::appendLittle(T value)
+{
+    for (auto i = 0U; i < N; ++i)
+    {
+        m_data.push_back(value & 0xFF);
+        value >>= 8;
+    }
+}
+
+template <size_t N, class T> void Binary::writeLittle(size_t offset, T value)
+{
+    for (auto i = 0U; i < N; ++i)
+    {
+        m_data[offset + i] = value & 0xFF;
+        value >>= 8;
+    }
+}
 
 } // namespace fuse
