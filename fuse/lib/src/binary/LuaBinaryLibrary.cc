@@ -9,10 +9,10 @@
 
 namespace fuse::binary {
 
-auto loadDataFormat(const sol::table& format) -> std::unique_ptr<DataFormat>
+auto loadDataFormat(const sol::table& format, sol::this_state state) -> std::unique_ptr<DataFormat>
 {
     LuaDataFormatLoader loader;
-    if (auto maybeFormat = loader.load(format))
+    if (auto maybeFormat = loader.load(format, state))
     {
         return std::move(*maybeFormat);
     }
@@ -39,8 +39,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<DataReader>("DataReader", "new", sol::factories(&makeDataReader));
     module.new_usertype<DataFormat>("DataFormat", "load", sol::factories(&loadDataFormat), "decode",
                                     &DataFormat::decode);
-    module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(),
-        "write", sol::resolve<std::string(const Data&)>(&LuaWriter::write));
+    module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(), "write",
+                                   sol::resolve<std::string(const Data&)>(&LuaWriter::write));
 
     return module;
 }

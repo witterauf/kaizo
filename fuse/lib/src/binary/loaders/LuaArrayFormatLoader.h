@@ -16,7 +16,8 @@ public:
 
     explicit LuaArrayFormatLoader(LuaDataFormatLoader* loader);
 
-    auto load(const sol::table& format) -> std::optional<std::unique_ptr<DataFormat>> override;
+    auto load(const sol::table& format, sol::this_state state)
+        -> std::optional<std::unique_ptr<DataFormat>> override;
     auto loadSize(const sol::object& object) -> std::optional<std::unique_ptr<ArraySizeProvider>>;
     auto loadFixedSize(const sol::object& object)
         -> std::optional<std::unique_ptr<ArraySizeProvider>>;

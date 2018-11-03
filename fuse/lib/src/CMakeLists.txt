@@ -64,9 +64,11 @@ set(FUSE_BINARY_SOURCES
 
 set(FUSE_BINARY_LOADERS_SOURCES
     binary/loaders/LuaIntegerFormatLoader.h
-    binary/loaders/LuaIntegerFormatLoader.cc    
+    binary/loaders/LuaIntegerFormatLoader.cc
     binary/loaders/LuaArrayFormatLoader.h
-    binary/loaders/LuaArrayFormatLoader.cc    
+    binary/loaders/LuaArrayFormatLoader.cc
+    binary/loaders/LuaStringFormatLoader.h
+    binary/loaders/LuaStringFormatLoader.cc
 )
 
 set(FUSE_TEXT_SOURCES

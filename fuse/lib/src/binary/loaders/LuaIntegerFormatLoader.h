@@ -12,7 +12,7 @@ public:
         static constexpr char InvalidSize[] = "LuaIntegerFormatLoader.InvalidSize";
     };
 
-    auto load(const sol::table& format) -> std::optional<std::unique_ptr<DataFormat>> override;
+    auto load(const sol::table& format, sol::this_state) -> std::optional<std::unique_ptr<DataFormat>> override;
 
 private:
     void reportInvalidSize(size_t size);

@@ -7,7 +7,7 @@ using namespace diagnostics;
 
 namespace fuse::binary {
 
-auto LuaIntegerFormatLoader::load(const sol::table& format)
+auto LuaIntegerFormatLoader::load(const sol::table& format, sol::this_state)
     -> std::optional<std::unique_ptr<DataFormat>>
 {
     size_t size;

@@ -15,13 +15,15 @@ class LuaFormatLoader : public ::fuse::lua::LuaLoader
 {
 public:
     void setOtherFormatLoader(LuaDataFormatLoader* loader);
-    virtual auto load(const sol::table& format) -> std::optional<std::unique_ptr<DataFormat>> = 0;
+    virtual auto load(const sol::table& format, sol::this_state state)
+        -> std::optional<std::unique_ptr<DataFormat>> = 0;
 
 protected:
-    auto loadOtherFormat(const sol::table& format) -> std::optional<std::unique_ptr<DataFormat>>;
+    auto loadOtherFormat(const sol::table& format, sol::this_state state)
+        -> std::optional<std::unique_ptr<DataFormat>>;
 
 private:
-    LuaDataFormatLoader* m_loader;
+    LuaDataFormatLoader* m_loader{nullptr};
 };
 
 class LuaDataFormatLoader : public LuaFormatLoader
@@ -35,7 +37,8 @@ public:
     LuaDataFormatLoader();
 
     void registerFormat(const std::string& name, std::unique_ptr<LuaFormatLoader>&& loader);
-    auto load(const sol::table& format) -> std::optional<std::unique_ptr<DataFormat>> override;
+    auto load(const sol::table& format, sol::this_state state)
+        -> std::optional<std::unique_ptr<DataFormat>> override;
 
 private:
     std::map<std::string, std::unique_ptr<LuaFormatLoader>> m_loaders;

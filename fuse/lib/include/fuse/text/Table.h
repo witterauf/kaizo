@@ -122,11 +122,7 @@ auto Table::findLongestBinaryMatch(InputIterator begin, InputIterator end) const
             {
                 match = pos;
             }
-            else if (pos->first.substr(0, length) == sequence)
-            {
-                begin += length - 1;
-            }
-            else
+            else if (pos->first.substr(0, length) != sequence)
             {
                 break;
             }
