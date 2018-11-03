@@ -58,8 +58,12 @@ public:
 
     bool operator==(const Binary& rhs) const;
 
+    auto operator+=(const Binary& rhs) -> Binary&;
+
 private:
     std::vector<uint8_t> m_data;
 };
+
+auto operator+(Binary lhs, const Binary& rhs) -> Binary;
 
 } // namespace fuse

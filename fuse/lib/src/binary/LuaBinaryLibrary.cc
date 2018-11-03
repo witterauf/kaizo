@@ -36,7 +36,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);
 
     module.new_usertype<Data>("Data");
-    module.new_usertype<DataReader>("DataReader", "new", sol::factories(&makeDataReader));
+    module.new_usertype<DataReader>("DataReader", "new", sol::factories(&makeDataReader),
+                                    "set_offset", &DataReader::setOffset);
     module.new_usertype<DataFormat>("DataFormat", "load", sol::factories(&loadDataFormat), "decode",
                                     &DataFormat::decode);
     module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(), "write",

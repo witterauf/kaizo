@@ -59,7 +59,7 @@ auto LuaWriter::write(const Data& data) -> std::string
 
 auto LuaWriter::write(const StringData& data) -> std::string
 {
-    return "\"" + data.value() + "\"";
+    return "[[" + data.value() + "]]";
 }
 
 auto LuaWriter::write(const RecordData& data) -> std::string

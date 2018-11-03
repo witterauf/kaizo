@@ -110,4 +110,15 @@ void Binary::append(char value)
     m_data.push_back(static_cast<uint8_t>(value));
 }
 
+auto Binary::operator+=(const Binary& rhs) -> Binary&
+{
+    m_data.insert(m_data.end(), rhs.m_data.cbegin(), rhs.m_data.cend());
+    return *this;
+}
+
+auto operator+(Binary lhs, const Binary& rhs) -> Binary
+{
+    return lhs += rhs;
+}
+
 } // namespace fuse

@@ -43,7 +43,7 @@ auto LuaTableWriter::writeTable(const Table& table) -> std::string
 auto LuaTableWriter::writeBinary(const BinarySequence& binary) -> std::string
 {
     std::string lua;
-    lua += "{";
+    lua += "[{";
     for (auto i = 0U; i < binary.size(); ++i)
     {
         if (i > 0)
@@ -52,7 +52,7 @@ auto LuaTableWriter::writeBinary(const BinarySequence& binary) -> std::string
         }
         lua += "0x" + toString(static_cast<uint8_t>(binary[i]), 16, 2);
     }
-    lua += "}";
+    lua += "}]";
     return lua;
 }
 
@@ -70,7 +70,15 @@ auto LuaTableWriter::writeTableEntry(const TableEntry& entry) -> std::string
 
 auto LuaTableWriter::writeText(const TableEntry& entry) -> std::string
 {
-    return "[[" + entry.text() + "]]";
+    bool endsWithBracket = !entry.text().empty() && entry.text().back() == ']';
+    if (endsWithBracket)
+    {
+        return "[[" + entry.text().substr(0, entry.text().length() - 1) + "\\]]]";
+    }
+    else
+    {
+        return "[[" + entry.text() + "]]";
+    }
 }
 
 auto LuaTableWriter::writeControl(const TableEntry& entry) -> std::string
