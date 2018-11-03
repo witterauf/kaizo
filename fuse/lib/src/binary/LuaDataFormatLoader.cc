@@ -1,3 +1,4 @@
+#include "loaders/LuaArrayFormatLoader.h"
 #include "loaders/LuaIntegerFormatLoader.h"
 #include <diagnostics/Contracts.h>
 #include <diagnostics/DiagnosticsReporter.h>
@@ -8,6 +9,12 @@
 using namespace diagnostics;
 
 namespace fuse::binary {
+
+LuaArrayFormatLoader::LuaArrayFormatLoader(LuaDataFormatLoader* loader)
+{
+    Expects(loader);
+    setOtherFormatLoader(loader);
+}
 
 void LuaFormatLoader::setOtherFormatLoader(LuaDataFormatLoader* loader)
 {
@@ -24,6 +31,7 @@ auto LuaFormatLoader::loadOtherFormat(const sol::table& format)
 LuaDataFormatLoader::LuaDataFormatLoader()
 {
     m_loaders["integer"] = std::make_unique<LuaIntegerFormatLoader>();
+    m_loaders["array"] = std::make_unique<LuaArrayFormatLoader>(this);
 }
 
 void LuaDataFormatLoader::registerFormat(const std::string& name,

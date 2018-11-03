@@ -60,8 +60,13 @@ set(FUSE_BINARY_SOURCES
     binary/DataPath.cc
     binary/LuaBinaryLibrary.cc
     binary/LuaDataFormatLoader.cc
+)
+
+set(FUSE_BINARY_LOADERS_SOURCES
     binary/loaders/LuaIntegerFormatLoader.h
     binary/loaders/LuaIntegerFormatLoader.cc    
+    binary/loaders/LuaArrayFormatLoader.h
+    binary/loaders/LuaArrayFormatLoader.cc    
 )
 
 set(FUSE_TEXT_SOURCES
@@ -147,6 +152,7 @@ set(FUSE_LUA_SOURCES
 set(FUSE_SOURCES
     ${FUSE_BASE_SOURCES}
     ${FUSE_BINARY_SOURCES}
+    ${FUSE_BINARY_LOADERS_SOURCES}
     ${FUSE_TEXT_SOURCES}
     ${FUSE_GRAPHICS_SOURCES}
     ${FUSE_SYSTEMS_SOURCES}
@@ -156,6 +162,7 @@ set(FUSE_SOURCES
 
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
 source_group("Binary" FILES ${FUSE_BINARY_SOURCES})
+source_group("Binary\\Loaders" FILES ${FUSE_BINARY_LOADERS_SOURCES})
 source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})

@@ -103,10 +103,12 @@ bool DataPathElement::operator<(const DataPathElement& element) const
 
 auto DataPath::operator/=(const DataPathElement& element) -> DataPath&
 {
+    /*
     if (element.isIndexExpression() && m_elements.size() == 0)
     {
         throw std::invalid_argument{"index expression cannot be the first element of a DataPath"};
     }
+    */
     m_elements.push_back(element);
     return *this;
 }
