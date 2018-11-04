@@ -83,7 +83,8 @@ auto TableEncoder::encode(const std::string& text) -> Binary
                 }
                 else
                 {
-                    throw std::runtime_error{ "could not encode characters" };
+                    throw std::runtime_error{"could not encode characters starting with '" +
+                                             m_text->substr(m_index, 1) + "'"};
                 }
             }
             if (!encodeControl())
@@ -100,7 +101,8 @@ auto TableEncoder::encode(const std::string& text) -> Binary
             }
             else
             {
-                throw std::runtime_error{"could not encode characters"};
+                throw std::runtime_error{"could not encode characters starting with '" +
+                                         m_text->substr(m_index, 1) + "'"};
             }
         }
     }

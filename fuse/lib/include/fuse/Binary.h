@@ -29,6 +29,8 @@ public:
         return result;
     }
 
+    template <size_t N, class T> auto readLittle(size_t offset) const -> T;
+
     auto asVector() const -> std::vector<uint8_t>;
 
     void clear();
@@ -37,6 +39,8 @@ public:
 
     template <size_t N, class T> void appendLittle(T value);
     template <size_t N, class T> void writeLittle(size_t offset, T value);
+    template <size_t N, class T> void appendBig(T value);
+    template <size_t N, class T> void writeBig(size_t offset, T value);
 
     template <class InputIterator> void append(InputIterator begin, InputIterator end)
     {
@@ -72,6 +76,16 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary;
 
 //##[ implementation ]#############################################################################
 
+template <size_t N, class T> auto Binary::readLittle(size_t offset) const -> T
+{
+    T result{0};
+    for (auto i = 0U; i < N; ++i)
+    {
+        result |= m_data[offset + i] << (i * 8);
+    }
+    return result;
+}
+
 template <size_t N, class T> void Binary::appendLittle(T value)
 {
     for (auto i = 0U; i < N; ++i)
@@ -87,6 +101,24 @@ template <size_t N, class T> void Binary::writeLittle(size_t offset, T value)
     {
         m_data[offset + i] = value & 0xFF;
         value >>= 8;
+    }
+}
+
+template <size_t N, class T> void Binary::appendBig(T value)
+{
+    for (auto i = 0U; i < N; ++i)
+    {
+        auto const byte = static_cast<uint8_t>((value >> ((N - i - 1) * 8)) & 0xFF);
+        m_data.push_back(byte);
+    }
+}
+
+template <size_t N, class T> void Binary::writeBig(size_t offset, T value)
+{
+    for (auto i = 0U; i < N; ++i)
+    {
+        auto const byte = static_cast<uint8_t>((value >> ((N - i - 1) * 8)) & 0xFF);
+        m_data[offset + i] = byte;
     }
 }
 

@@ -88,10 +88,23 @@ auto LuaTableReader::load(const std::filesystem::path& luaFile, sol::this_state 
     }
 }
 
+static constexpr char TableMerge[] = R"lua(table["merge"] = function(table1, table2)
+  local table = {}
+  for k, v in pairs(table1) do
+    table[k] = v
+  end
+  for k, v in pairs(table2) do
+    table[k] = v
+  end
+  return table
+end)lua";
+
 auto LuaTableReader::load(const std::filesystem::path& luaFile) -> std::optional<Table>
 {
     sol::state lua;
+    lua.open_libraries(sol::lib::base, sol::lib::table);
     lua["text"] = openTextLibrary(lua.lua_state());
+    lua.script(TableMerge);
     return load(luaFile, lua.lua_state());
 }
 

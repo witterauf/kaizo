@@ -84,7 +84,7 @@ auto Table::findNextTextMatches(InputIterator begin, InputIterator end) const
                     auto const iter = m_mapping.find(pos->second);
                     matches.push_back(EntryReference{&iter->first, &iter->second});
                     ++pos;
-                } while (pos->first == text);
+                } while (pos != m_textMapping.end() && pos->first == text);
             }
             else if (pos->first.substr(0, text.length()) == text)
             {

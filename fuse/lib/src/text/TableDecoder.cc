@@ -92,8 +92,8 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
         }
         else
         {
-            text += "{" + std::to_string(*data()) + "}";
-            advance(1);
+            throw std::runtime_error{"not match for 0x" + toString(binary[m_offset], 16, 2) +
+                                     " in table"};
         }
 
         if (m_fixedLength)
@@ -134,7 +134,7 @@ auto TableDecoder::decodeControl(const TableEntry& control) -> std::string
 
 auto TableDecoder::decodeArgument(const TableEntry::ParameterFormat& format) -> std::string
 {
-    auto const argument = format.decode(data());
+    auto const argument = static_cast<uint64_t>(format.decode(data()));
     advance(format.size);
 
     switch (format.preferedDisplay)

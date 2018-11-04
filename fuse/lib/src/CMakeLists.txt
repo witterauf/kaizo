@@ -151,6 +151,10 @@ set(FUSE_LUA_SOURCES
     lua/LuaLoader.cc
 )
 
+set(FUSE_ELF_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/elf/Elf.h
+)
+
 set(FUSE_SOURCES
     ${FUSE_BASE_SOURCES}
     ${FUSE_BINARY_SOURCES}
@@ -160,6 +164,7 @@ set(FUSE_SOURCES
     ${FUSE_SYSTEMS_SOURCES}
     ${FUSE_UTILITIES_SOURCES}
     ${FUSE_LUA_SOURCES}
+    ${FUSE_ELF_SOURCES}
 )
 
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
@@ -170,6 +175,7 @@ source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
 source_group("Lua" FILES ${FUSE_LUA_SOURCES})
+source_group("ELF" FILES ${FUSE_ELF_SOURCES})
 
 ###[ library ]#####################################################################################
 

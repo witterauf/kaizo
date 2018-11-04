@@ -34,7 +34,7 @@ public:
             Big
         };
 
-        using argument_t = long long;
+        using argument_t = int64_t;
 
         bool isCompatible(argument_t value) const;
         auto encode(argument_t value) const -> BinarySequence;
@@ -89,7 +89,10 @@ auto TableEntry::ParameterFormat::decode(InputIterator begin) const -> argument_
         uint64_t value{0};
         for (auto i = 0U; i < size; ++i, ++begin)
         {
-            value |= static_cast<uint8_t>(*begin) << (i * 8);
+            // circumvent implicit unsigned -> signed conversions
+            uint64_t byte = static_cast<uint64_t>(static_cast<uint8_t>(*begin))
+                            << static_cast<uint8_t>(i * 8U);
+            value |= byte;
         }
         return static_cast<argument_t>(value);
     }
@@ -98,7 +101,7 @@ auto TableEntry::ParameterFormat::decode(InputIterator begin) const -> argument_
         uint64_t value{0};
         for (auto i = 0U; i < size; ++i, ++begin)
         {
-            value <<= 8;
+            value <<= 8U;
             value |= static_cast<uint8_t>(*begin);
         }
         return static_cast<argument_t>(value);
