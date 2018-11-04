@@ -1,9 +1,12 @@
-#include <fuse/BinaryStream.h>
 #include <diagnostics/Contracts.h>
+#include <fuse/BinaryStream.h>
+
+using namespace fuse::binary;
 
 namespace fuse {
 
 BinaryStream::BinaryStream(const std::filesystem::path& filename, Mode mode)
+    : m_mode{mode}
 {
     switch (mode)
     {
@@ -17,8 +20,7 @@ BinaryStream::BinaryStream(const std::filesystem::path& filename, Mode mode)
         m_stream =
             std::fstream{filename, std::fstream::binary | std::fstream::out | std::fstream::in};
         break;
-    default:
-        InvalidCase(mode);
+    default: InvalidCase(mode);
     }
 }
 
@@ -35,6 +37,48 @@ void BinaryStream::setLittleEndian()
 void BinaryStream::setBigEndian()
 {
     m_endianness = Endianness::Big;
+}
+
+void BinaryStream::seek(size_t offset)
+{
+    if (m_mode == Mode::Input)
+    {
+        m_stream.seekg(offset);
+    }
+    else if (m_mode == Mode::Output)
+    {
+        m_stream.seekp(offset);
+    }
+    else if (m_mode == Mode::InputOutput)
+    {
+        m_stream.seekp(offset);
+        m_stream.seekg(offset);
+    }
+}
+
+auto BinaryStream::writeOffset() -> size_t
+{
+    return m_stream.tellp();
+}
+
+auto BinaryStream::size() -> size_t
+{
+    if (m_mode == Mode::Output)
+    {
+        auto const offset = m_stream.tellp();
+        m_stream.seekp(0, std::fstream::end);
+        auto const size = m_stream.tellp();
+        m_stream.seekp(offset);
+        return size;
+    }
+    else
+    {
+        auto const offset = m_stream.tellg();
+        m_stream.seekg(0, std::fstream::end);
+        auto const size = m_stream.tellg();
+        m_stream.seekg(offset);
+        return size;
+    }
 }
 
 void BinaryStream::write(uint8_t value)
@@ -89,6 +133,21 @@ void BinaryStream::write(const Binary& binary)
 void BinaryStream::write(const std::string& string)
 {
     m_stream.write(string.data(), string.size());
+}
+
+void BinaryStream::write(uint8_t value, size_t count)
+{
+    for (auto i = 0U; i < count; ++i)
+    {
+        write(value);
+    }
+}
+
+auto BinaryStream::readBinary(size_t length) -> Binary
+{
+    std::vector<uint8_t> data(length);
+    m_stream.read(reinterpret_cast<char*>(data.data()), length);
+    return Binary::fromArray(data.data(), length);
 }
 
 BinaryStream::operator bool() const
