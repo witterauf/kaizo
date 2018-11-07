@@ -5,6 +5,11 @@ namespace fuse {
 
 namespace fs = std::filesystem;
 
+Binary::Binary(size_t size)
+    : m_data(size)
+{
+}
+
 auto Binary::fromArray(const uint8_t* data, size_t size) -> Binary
 {
     Binary binary;

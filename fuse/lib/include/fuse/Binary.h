@@ -13,6 +13,9 @@ public:
     static auto load(const std::filesystem::path& filename) -> Binary;
     static auto fromArray(const uint8_t* data, size_t size) -> Binary;
 
+    Binary() = default;
+    explicit Binary(size_t size);
+
     void save(const std::filesystem::path& filename) const;
 
     auto size() const -> size_t;

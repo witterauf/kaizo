@@ -92,8 +92,8 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
         }
         else
         {
-            throw std::runtime_error{"not match for 0x" + toString(binary[m_offset], 16, 2) +
-                                     " in table"};
+            throw std::runtime_error{"offset " + toString(m_offset, 16, 8) + ": no match for 0x" +
+                                     toString(binary[m_offset], 16, 2) + " in table"};
         }
 
         if (m_fixedLength)
