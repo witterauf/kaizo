@@ -7,6 +7,13 @@
 
 namespace fuse::text {
 
+class MissingDecoder
+{
+public:
+    virtual auto decode(const Binary& binary, size_t offset)
+        -> std::optional<std::pair<size_t, std::string>> = 0;
+};
+
 class TableDecoder
 {
 public:
@@ -19,6 +26,7 @@ public:
     void setActiveTable(size_t index);
     void setActiveTable(const std::string& name);
     auto activeTable() const -> const Table&;
+    void setMissingDecoder(MissingDecoder* missingDecoder);
 
     void setFixedLength(size_t length);
     void unsetFixedLength();
@@ -35,6 +43,7 @@ private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
+    MissingDecoder* m_missingDecoder;
 
     auto data() const -> const uint8_t*;
     void advance(size_t size);

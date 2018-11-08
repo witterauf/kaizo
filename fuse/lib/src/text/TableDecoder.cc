@@ -65,6 +65,11 @@ void TableDecoder::unsetFixedLength()
     m_fixedLength = {};
 }
 
+void TableDecoder::setMissingDecoder(MissingDecoder* missingDecoder)
+{
+    m_missingDecoder = std::move(missingDecoder);
+}
+
 auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>
 {
     m_binary = &binary;
@@ -92,8 +97,27 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
         }
         else
         {
-            throw std::runtime_error{"offset " + toString(m_offset, 16, 8) + ": no match for 0x" +
-                                     toString(binary[m_offset], 16, 2) + " in table"};
+            if (m_missingDecoder)
+            {
+                if (auto maybePair = m_missingDecoder->decode(binary, m_offset))
+                {
+                    auto [newOffset, decoded] = *maybePair;
+                    m_offset = newOffset;
+                    text += decoded;
+                }
+                else
+                {
+                    throw std::runtime_error{"offset " + toString(m_offset, 16, 8) +
+                                             ": no match for 0x" +
+                                             toString(binary[m_offset], 16, 2) + " in table"};
+                }
+            }
+            else
+            {
+                throw std::runtime_error{"offset " + toString(m_offset, 16, 8) +
+                                         ": no match for 0x" + toString(binary[m_offset], 16, 2) +
+                                         " in table"};
+            }
         }
 
         if (m_fixedLength)
