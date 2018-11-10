@@ -192,6 +192,7 @@ target_link_libraries(FuseLibrary
         Diagnostics::Diagnostics
         LodePNG::LodePNG
         sol2
+        Lua::FileSystem
 )
 target_compile_features(FuseLibrary PUBLIC cxx_std_17)
 target_all_warnings(FuseLibrary)

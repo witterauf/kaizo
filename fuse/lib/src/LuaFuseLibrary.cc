@@ -4,6 +4,7 @@
 #include <fuse/graphics/GraphicsLuaLibrary.h>
 #include <fuse/text/LuaTableLibrary.h>
 #include <sol.hpp>
+#include <lfs.h>
 
 namespace fuse {
 
@@ -14,6 +15,7 @@ void openFuseLibrary(sol::this_state state)
     lua["binary"] = binary::openBinaryLibrary(state);
     lua["graphics"] = graphics::openGraphicsLibrary(state);
     lua["text"] = text::openTextLibrary(state);
+    luaopen_lfs(lua.lua_state());
 }
 
 } // namespace fuse
