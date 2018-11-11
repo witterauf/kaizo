@@ -1,5 +1,4 @@
 #include <fuse/graphics/font/Glyph.h>
-#include <algorithm>
 
 namespace fuse::graphics {
 
@@ -28,6 +27,11 @@ auto Glyph::descent() const -> size_t
     return height() - baseline();
 }
 
+auto Glyph::advanceWidth() const -> size_t
+{
+    return width() + 1;
+}
+
 auto Glyph::characters() const -> const std::string&
 {
     return m_characters;
@@ -54,6 +58,12 @@ auto GlyphBuilder::baseline(size_t y) -> GlyphBuilder&
     return *this;
 }
 
+auto GlyphBuilder::background(Glyph::pixel_t color) -> GlyphBuilder&
+{
+    m_backgroundColor = color;
+    return *this;
+}
+
 auto GlyphBuilder::characters(const std::string& characters) -> GlyphBuilder&
 {
     m_characters = characters;
@@ -77,36 +87,19 @@ auto GlyphBuilder::build() -> Glyph
     validate();
 
     Glyph glyph;
-    glyph.m_characters = m_characters;
-    glyph.m_baseline = m_baseline;
-
     if (m_shrinkToFit)
     {
-        shrinkToFit(glyph);
+        shrink();
     }
-    else
-    {
-        extractRegion(glyph);
-    }
-
+    glyph.m_tile = m_data;
+    glyph.m_characters = m_characters;
+    glyph.m_baseline = m_baseline;
     return glyph;
 }
 
 void GlyphBuilder::validate()
 {
-    /*
-    if (!m_shrinkToFit)
-    {
-        const bool fitsTile =
-            m_region.left() < m_data.width() && m_region.right() <= m_data.width() &&
-            m_region.top() < m_data.height() && m_region.bottom() <= m_data.height();
-        if (!fitsTile)
-        {
-            throw std::runtime_error{"region does not fit tile"};
-        }
-    }
-    const bool baseLineFits = m_baseline < m_data.height();
-    if (!baseLineFits)
+    if (m_baseline >= m_data.height())
     {
         throw std::runtime_error{"baseline does not fit tile"};
     }
@@ -114,52 +107,24 @@ void GlyphBuilder::validate()
     {
         throw std::runtime_error{"empty characters not allowed in glyph"};
     }
-    */
 }
 
-void GlyphBuilder::shrinkToFit(Glyph& glyph)
+void GlyphBuilder::shrink()
 {
-    size_t left{m_data.width()};
-    size_t right{0};
-    size_t top{m_data.height()};
-    size_t bottom{0};
-
-    for (size_t y = 0; y < m_data.height(); ++y)
+    auto const boundingBox = m_data.boundingBox(m_backgroundColor);
+    if (boundingBox.hasArea())
     {
-        for (size_t x = 0; x < m_data.width(); ++x)
+        if (m_baseline < boundingBox.top() || m_baseline >= boundingBox.bottom())
         {
-            if (m_data.pixel(x, y) != m_backgroundColor)
-            {
-                left = std::min(left, x);
-                right = std::max(right, x);
-                top = std::min(top, y);
-                bottom = std::max(bottom, y);
-            }
+            throw std::runtime_error{"GlyphBuilder: baseline is not within bounding box"};
         }
+        m_baseline -= boundingBox.top();
+        m_data = m_data.clip(boundingBox);
     }
-
-    /*
-    m_region.setLeft(left);
-    m_region.setRight(right);
-    m_region.setTop(top);
-    m_region.setBottom(bottom);
-    */
-    extractRegion(glyph);
-}
-
-void GlyphBuilder::extractRegion(Glyph&)
-{
-    /*
-    glyph.m_tile = Tile{m_region.width(), m_region.height()};
-    for (auto y = m_region.top(); y < m_region.bottom(); ++y)
+    else
     {
-        for (auto x = m_region.left(); x < m_region.right(); ++x)
-        {
-            auto const pixel = m_data.pixel(x, y);
-            glyph.m_tile.setPixel(x - m_region.left(), y - m_region.top(), pixel);
-        }
+        throw std::runtime_error{"GlyphBuilder: shrunk region is empty"};
     }
-    */
 }
 
 } // namespace fuse::graphics

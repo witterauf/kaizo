@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fuse/Rectangle.h>
 #include <string>
 #include <vector>
 
@@ -31,9 +32,10 @@ public:
     void setMonospace(size_t characterWidth);
     void setProportional();
 
-    void write(const std::string& text, Image& image);
+    void write(const std::string& text, Image& image, size_t x, size_t y);
     auto width(const std::string& text) -> size_t;
     auto height(const std::string& text) -> size_t;
+    auto boundingBox(const std::string& text) -> BitmapRegion;
 
 private:
     Alignment m_alignment{Alignment::Left};

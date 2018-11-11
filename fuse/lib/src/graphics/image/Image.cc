@@ -123,4 +123,10 @@ auto Image::data() const -> const pixel_t*
     return m_data.data();
 }
 
+bool Image::contains(const ImageRegion& region) const
+{
+    return region.left() < m_width && region.right() <= m_width && region.top() < m_height &&
+           region.bottom() <= m_height;
+}
+
 } // namespace fuse::graphics

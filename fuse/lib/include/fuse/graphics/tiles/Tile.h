@@ -23,6 +23,10 @@ public:
     auto width() const -> size_t;
     auto height() const -> size_t;
 
+    bool contains(const TileRegion& region) const;
+    auto clip(const TileRegion& region) const -> Tile;
+    auto boundingBox(pixel_t background) const -> TileRegion;
+
     void setPixel(size_t x, size_t y, pixel_t value);
     auto pixel(size_t x, size_t y) const -> pixel_t;
     auto operator()(size_t x, size_t y) -> pixel_t&;

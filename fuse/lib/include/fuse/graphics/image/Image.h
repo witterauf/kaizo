@@ -3,12 +3,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <fuse/Rectangle.h>
 #include <optional>
 #include <vector>
 
 namespace fuse::graphics {
 
 class Tile;
+using ImageRegion = BitmapRegion;
 
 class Image
 {
@@ -32,6 +34,7 @@ public:
     auto width() const -> size_t;
     auto height() const -> size_t;
     auto pixelCount() const -> size_t;
+    bool contains(const ImageRegion& region) const;
 
     auto data() const -> const pixel_t*;
     void setPixel(size_t x, size_t y, pixel_t value);

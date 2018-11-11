@@ -123,8 +123,8 @@ auto LuaFontLoader::loadGlyph(const sol::table& table)
 auto LuaFontLoader::loadGlyphPixelFormat(const sol::table& table)
     -> std::optional<FontBuilder::GlyphPixelFormat>
 {
-    auto maybeBackgroundColor = table.get<sol::optional<Glyph::pixel_t>>("background_color");
-    auto maybeBitsPerPixel = table.get<sol::optional<unsigned int>>("bits_per_pixel");
+    auto maybeBackgroundColor = requireField<Glyph::pixel_t>(table, "background_color");
+    auto maybeBitsPerPixel = requireField<unsigned int>(table, "bits_per_pixel");
     if (maybeBackgroundColor && maybeBitsPerPixel)
     {
         FontBuilder::GlyphPixelFormat format;
@@ -140,7 +140,7 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     FontBuilder builder;
 
     bool imageSuccess{false};
-    if (auto maybeImageFile = table.get<sol::optional<std::string>>("bitmap"))
+    if (auto maybeImageFile = requireField<std::string>(table, "bitmap"))
     {
         if (auto maybeBitmap = loadImage(*maybeImageFile))
         {
@@ -150,11 +150,10 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     }
 
     bool pixelConversionSuccess{true};
-    if (table["pixel_conversion"].valid())
+    if (hasField(table, "pixel_conversion"))
     {
         pixelConversionSuccess = false;
-        if (auto maybePixelConversionTable =
-                table.get<sol::optional<sol::table>>("pixel_conversion"))
+        if (auto maybePixelConversionTable = readField<sol::table>(table, "pixel_conversion"))
         {
             if (auto maybePixelConversion = loadPixelConversion(*maybePixelConversionTable))
             {
@@ -165,7 +164,7 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     }
 
     bool pixelFormatSuccess{false};
-    if (auto maybePixelFormatTable = table.get<sol::optional<sol::table>>("glyph_pixel_format"))
+    if (auto maybePixelFormatTable = requireField<sol::table>(table, "glyph_pixel_format"))
     {
         if (auto maybePixelFormat = loadGlyphPixelFormat(*maybePixelFormatTable))
         {
@@ -175,7 +174,7 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     }
 
     bool metricsSuccess{false};
-    if (auto maybeMetricsTable = table.get<sol::optional<sol::table>>("metrics"))
+    if (auto maybeMetricsTable = requireField<sol::table>(table, "metrics"))
     {
         if (auto maybeMetrics = loadMetrics(*maybeMetricsTable))
         {
@@ -185,7 +184,7 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     }
 
     bool glyphsSuccess{false};
-    if (auto maybeGlyphsTable = table.get<sol::optional<sol::table>>("glyphs"))
+    if (auto maybeGlyphsTable = requireField<sol::table>(table, "glyphs"))
     {
         if (auto maybeGlyphs = loadGlyphs(*maybeGlyphsTable))
         {

@@ -45,8 +45,7 @@ public:
 
 private:
     void validate();
-    void shrinkToFit(Glyph& glyph);
-    void extractRegion(Glyph& glyph);
+    void shrink();
 
     bool m_shrinkToFit{false};
     size_t m_baseline;

@@ -70,7 +70,7 @@ public:
 
     void setBottom(T bottom)
     {
-        if (bottom > m_left)
+        if (bottom > m_top)
         {
             m_height = bottom - m_top;
         }
@@ -81,11 +81,18 @@ public:
         }
     }
 
+    auto const hasArea() const
+    {
+        return m_width > 0 && m_height > 0;
+    }
+
 private:
     T m_left{0};
     T m_top{0};
     T m_width{0};
     T m_height{0};
 };
+
+using BitmapRegion = Rectangle<size_t>;
 
 } // namespace fuse

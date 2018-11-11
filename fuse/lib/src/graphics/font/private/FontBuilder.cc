@@ -17,6 +17,16 @@ void FontBuilder::setPixelTransformation(std::unique_ptr<TileTransformation>&& t
     m_transformation = std::move(transformation);
 }
 
+void FontBuilder::setBitmap(const Image& image)
+{
+    m_bitmap = image;
+}
+
+void FontBuilder::setGlyphPixelFormat(const GlyphPixelFormat& format)
+{
+    m_pixelFormat = format;
+}
+
 auto FontBuilder::build() const -> Font
 {
     Font font;
@@ -31,7 +41,6 @@ auto FontBuilder::build() const -> Font
         {
             tile = m_transformation->transform(tile);
         }
-
         builder.baseline(glyph.baseLine);
         builder.characters(glyph.characters);
         builder.data(tile);
@@ -55,6 +64,11 @@ auto FontBuilder::bitmap() const -> const Image&
 auto FontBuilder::transformation() const -> const TileTransformation*
 {
     return m_transformation.get();
+}
+
+auto FontBuilder::backgroundColor() const -> Glyph::pixel_t
+{
+    return m_pixelFormat.backgroundColor;
 }
 
 } // namespace fuse::graphics

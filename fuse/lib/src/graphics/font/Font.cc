@@ -31,25 +31,41 @@ auto Font::find(const std::string& characters) const -> std::optional<size_t>
     return {};
 }
 
-auto Font::findLongestMatch(const std::string& string, size_t index) const -> std::optional<size_t>
+auto Font::findStartingWith(const std::string& characters) const -> std::vector<size_t>
 {
-    std::optional<size_t> maybeMatch;
-    std::string characters;
-    size_t length = 0;
-    while (index + length < string.length())
+    std::vector<size_t> matchingGlyphs;
+    for (auto i = 0U; i < glyphCount(); ++i)
     {
-        characters += string[index + length];
-        if (auto maybeIndex = find(characters))
+        if (glyph(i).characters().substr(0, characters.size()) == characters)
         {
-            maybeMatch = maybeIndex;
-            length++;
-        }
-        else
-        {
-            break;
+            matchingGlyphs.push_back(i);
         }
     }
-    return maybeMatch;
+    return matchingGlyphs;
+}
+
+auto Font::findLongestMatch(const std::string& string, size_t index) const -> std::optional<size_t>
+{
+    std::optional<size_t> longestMatch;
+    size_t matchSize{0};
+    for (auto glyphIndex = 0U; glyphIndex < glyphCount(); ++glyphIndex)
+    {
+        auto const characters = glyph(glyphIndex).characters();
+        auto i = 0U;
+        for (; i < characters.size(); ++i)
+        {
+            if (characters[i] != string[index + i])
+            {
+                break;
+            }
+        }
+        if (i == characters.size() && i > matchSize)
+        {
+            longestMatch = glyphIndex;
+            matchSize = i;
+        }
+    }
+    return longestMatch;
 }
 
 auto Font::toGlyphs(const std::string& string) const -> std::vector<std::optional<size_t>>
@@ -70,6 +86,32 @@ auto Font::toGlyphs(const std::string& string) const -> std::vector<std::optiona
         }
     }
     return glyphs;
+}
+
+void Font::setMetrics(const Metrics& metrics)
+{
+    Expects(metrics.baseLine < metrics.lineHeight);
+    m_metrics = metrics;
+}
+
+auto Font::lineHeight() const -> size_t
+{
+    return m_metrics.lineHeight;
+}
+
+auto Font::baseLine() const -> size_t
+{
+    return m_metrics.baseLine;
+}
+
+auto Font::backgroundColor() const -> Glyph::pixel_t
+{
+    return m_backgroundColor;
+}
+
+void Font::setBackgroundColor(Glyph::pixel_t color)
+{
+    m_backgroundColor = color;
 }
 
 } // namespace fuse::graphics

@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fuse/graphics/font/Font.h>
 #include <fuse/graphics/image/Image.h>
+#include <fuse/lua/LuaLoader.h>
 #include <map>
 #include <memory>
 #include <optional>
@@ -14,7 +15,7 @@ namespace fuse::graphics {
 
 class TileTransformation;
 
-class LuaFontLoader
+class LuaFontLoader : public ::fuse::lua::LuaLoader
 {
 public:
     void setBasePath(const std::filesystem::path& path);
