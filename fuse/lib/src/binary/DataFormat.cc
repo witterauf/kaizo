@@ -1,3 +1,4 @@
+#include <diagnostics/Contracts.h>
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataFormat.h>
 #include <fuse/binary/DataReader.h>
@@ -14,8 +15,19 @@ void DataFormat::doNotStore()
     m_storeAs = {};
 }
 
+void DataFormat::setAlignment(size_t alignment)
+{
+    Expects(alignment > 0);
+    m_alignment = alignment;
+}
+
 auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
 {
+    auto const unalignedOffset = reader.offset();
+    if (unalignedOffset % m_alignment != 0)
+    {
+        reader.setOffset(unalignedOffset + (m_alignment - (unalignedOffset % m_alignment)));
+    }
     return doDecode(reader);
 }
 

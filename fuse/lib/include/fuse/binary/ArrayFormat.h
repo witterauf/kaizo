@@ -32,6 +32,7 @@ class ArrayFormat : public DataFormat
 public:
     void setSizeProvider(std::unique_ptr<ArraySizeProvider>&& sizeProvider);
     void setElementFormat(std::unique_ptr<DataFormat>&& format);
+    auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;

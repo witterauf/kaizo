@@ -20,6 +20,8 @@ public:
     auto sizeInBits() const -> size_t;
     auto sizeInBytes() const -> size_t;
 
+    auto copy() const -> std::unique_ptr<DataFormat> override;
+
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
 

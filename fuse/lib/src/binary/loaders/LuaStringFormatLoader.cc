@@ -10,37 +10,15 @@ using namespace diagnostics;
 
 namespace fuse::binary {
 
-namespace {
-
-class OwnerStringFormat : public DataFormat
-{
-public:
-    OwnerStringFormat(std::unique_ptr<text::TextEncoding>&& encoding)
-        : m_encoding{std::move(encoding)}
-    {
-        m_stringFormat.setEncoding(m_encoding.get());
-    }
-
-protected:
-    auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override
-    {
-        return m_stringFormat.decode(reader);
-    }
-
-private:
-    std::unique_ptr<text::TextEncoding> m_encoding;
-    StringFormat m_stringFormat;
-};
-
-} // namespace
-
 auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state)
-    -> std::optional<std::unique_ptr<DataFormat>>
+    -> std::optional<std::unique_ptr<StringFormat>>
 {
-    m_lua = &state;
+    m_lua = &state;    
     if (auto maybeEncoding = format.get<sol::optional<text::TextEncoding*>>("encoding"))
     {
-        return std::make_unique<OwnerStringFormat>((*maybeEncoding)->copy());
+        auto stringFormat = std::make_unique<StringFormat>((*maybeEncoding)->copy());
+        readDataFormat(format, state, *stringFormat);
+        return std::move(stringFormat);
     }
     else if (auto maybeEncodingName = requireField<std::string>(format, "encoding"))
     {
@@ -57,7 +35,7 @@ auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state
 }
 
 auto LuaStringFormatLoader::loadTableFormat(const sol::table& format)
-    -> std::optional<std::unique_ptr<DataFormat>>
+    -> std::optional<std::unique_ptr<StringFormat>>
 {
     std::unique_ptr<text::TableEncoding> encoding;
     bool tableSuccess{false};
@@ -72,7 +50,9 @@ auto LuaStringFormatLoader::loadTableFormat(const sol::table& format)
 
     if (tableSuccess)
     {
-        return std::make_unique<OwnerStringFormat>(std::move(encoding));
+        auto stringFormat = std::make_unique<StringFormat>(std::move(encoding));
+        readDataFormat(format, *m_lua, *stringFormat);
+        return std::move(stringFormat);
     }
     else
     {

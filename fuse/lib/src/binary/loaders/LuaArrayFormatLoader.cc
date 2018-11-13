@@ -6,19 +6,16 @@ using namespace diagnostics;
 
 namespace fuse::binary {
 
-auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state state)
-    -> std::optional<std::unique_ptr<DataFormat>>
+auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state)
+    -> std::optional<std::unique_ptr<ArrayFormat>>
 {
     auto arrayFormat = std::make_unique<ArrayFormat>();
 
     bool elementFormatSuccess{false};
-    if (auto maybeTable = requireField<sol::table>(format, "element_format"))
+    if (auto maybeElementFormat = requireField<DataFormat*>(format, "element_format"))
     {
-        if (auto maybeElementFormat = loadOtherFormat(*maybeTable, state))
-        {
-            arrayFormat->setElementFormat(std::move(*maybeElementFormat));
-            elementFormatSuccess = true;
-        }
+        arrayFormat->setElementFormat((*maybeElementFormat)->copy());
+        elementFormatSuccess = true;
     }
 
     bool sizeSuccess{false};

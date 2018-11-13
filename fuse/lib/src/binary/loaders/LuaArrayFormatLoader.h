@@ -1,11 +1,11 @@
 #pragma once
 
 #include <fuse/binary/ArrayFormat.h>
-#include <fuse/binary/LuaDataFormatLoader.h>
+#include <fuse/lua/LuaLoader.h>
 
 namespace fuse::binary {
 
-class LuaArrayFormatLoader : public LuaFormatLoader
+class LuaArrayFormatLoader : public lua::LuaLoader
 {
 public:
     struct DiagnosticTags
@@ -14,10 +14,8 @@ public:
         static constexpr char InvalidSizeType[] = "LuaArrayFormatLoader.InvalidSizeType";
     };
 
-    explicit LuaArrayFormatLoader(LuaDataFormatLoader* loader);
-
     auto load(const sol::table& format, sol::this_state state)
-        -> std::optional<std::unique_ptr<DataFormat>> override;
+        -> std::optional<std::unique_ptr<ArrayFormat>>;
     auto loadSize(const sol::object& object) -> std::optional<std::unique_ptr<ArraySizeProvider>>;
     auto loadFixedSize(const sol::object& object)
         -> std::optional<std::unique_ptr<ArraySizeProvider>>;

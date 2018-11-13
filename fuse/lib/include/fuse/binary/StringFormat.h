@@ -8,14 +8,17 @@ namespace fuse::binary {
 class StringFormat : public DataFormat
 {
 public:
-    void setEncoding(text::TextEncoding* encoding);
-    auto copy() const -> std::unique_ptr<DataFormat>;
+    StringFormat() = default;
+    explicit StringFormat(std::unique_ptr<text::TextEncoding>&& encoding);
+
+    void setEncoding(std::unique_ptr<text::TextEncoding>&& encoding);
+    auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
 
 private:
-    text::TextEncoding* m_encoding{nullptr};
+    std::unique_ptr<text::TextEncoding> m_encoding;
 };
 
 } // namespace fuse::binary

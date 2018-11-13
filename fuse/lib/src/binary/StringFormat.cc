@@ -5,9 +5,14 @@
 
 namespace fuse::binary {
 
-void StringFormat::setEncoding(text::TextEncoding* encoding)
+StringFormat::StringFormat(std::unique_ptr<text::TextEncoding>&& encoding)
+    : m_encoding{std::move(encoding)}
 {
-    m_encoding = encoding;
+}
+
+void StringFormat::setEncoding(std::unique_ptr<text::TextEncoding>&& encoding)
+{
+    m_encoding = std::move(encoding);
 }
 
 auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
@@ -30,8 +35,7 @@ auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 
 auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto data = std::make_unique<StringFormat>();
-    data->m_encoding = m_encoding;
+    auto data = std::make_unique<StringFormat>(m_encoding->copy());
     return std::move(data);
 }
 

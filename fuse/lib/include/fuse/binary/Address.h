@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -21,6 +22,7 @@ public:
     virtual auto delinearize(size_t address) const -> std::optional<Address> = 0;
     virtual auto read(const Binary& binary, size_t offset) const
         -> std::optional<std::pair<size_t, Address>> = 0;
+    virtual auto copy() const -> std::unique_ptr<AddressFormat> = 0;
 
 protected:
     auto makeAddress(size_t address) const -> Address;

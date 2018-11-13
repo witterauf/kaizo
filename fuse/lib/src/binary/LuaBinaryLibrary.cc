@@ -1,24 +1,26 @@
+#include "loaders/LuaStringFormatLoader.h"
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataFormat.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/IntegerFormat.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
-#include <fuse/binary/LuaDataFormatLoader.h>
 #include <fuse/binary/LuaWriter.h>
+#include <fuse/binary/StringFormat.h>
 #include <sol.hpp>
 
 namespace fuse::binary {
 
-auto loadDataFormat(const sol::table& format, sol::this_state state) -> std::unique_ptr<DataFormat>
+auto loadStringFormat(const sol::table& format, sol::this_state state)
+    -> std::unique_ptr<StringFormat>
 {
-    LuaDataFormatLoader loader;
-    if (auto maybeFormat = loader.load(format, state))
+    LuaStringFormatLoader loader;
+    if (auto maybeStringFormat = loader.load(format, state))
     {
-        return std::move(*maybeFormat);
+        return std::move(*maybeStringFormat);
     }
     else
     {
-        throw std::runtime_error{"could not load data format description"};
+        throw std::runtime_error{"could not construct StringFormat"};
     }
 }
 
@@ -38,8 +40,9 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<Data>("Data");
     module.new_usertype<DataReader>("DataReader", "new", sol::factories(&makeDataReader),
                                     "set_offset", &DataReader::setOffset);
-    module.new_usertype<DataFormat>("DataFormat", "load", sol::factories(&loadDataFormat), "decode",
-                                    &DataFormat::decode);
+    module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode);
+    module.new_usertype<StringFormat>("StringFormat", sol::call_constructor, &loadStringFormat,
+                                      sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(), "write",
                                    sol::resolve<std::string(const Data&)>(&LuaWriter::write));
 

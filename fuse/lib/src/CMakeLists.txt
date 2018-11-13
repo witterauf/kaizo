@@ -38,7 +38,6 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataPath.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/LuaBinaryLibrary.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/LuaDataFormatLoader.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/Integers.h
     binary/StringData.cc
     binary/IntegerData.cc
@@ -59,10 +58,11 @@ set(FUSE_BINARY_SOURCES
     binary/Address.cc
     binary/DataPath.cc
     binary/LuaBinaryLibrary.cc
-    binary/LuaDataFormatLoader.cc
 )
 
 set(FUSE_BINARY_LOADERS_SOURCES
+    binary/loaders/LuaDataFormatLoader.h
+    binary/loaders/LuaDataFormatLoader.cc
     binary/loaders/LuaIntegerFormatLoader.h
     binary/loaders/LuaIntegerFormatLoader.cc
     binary/loaders/LuaArrayFormatLoader.h

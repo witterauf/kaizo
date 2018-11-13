@@ -8,7 +8,7 @@ using namespace diagnostics;
 namespace fuse::binary {
 
 auto LuaIntegerFormatLoader::load(const sol::table& format, sol::this_state)
-    -> std::optional<std::unique_ptr<DataFormat>>
+    -> std::optional<std::unique_ptr<IntegerFormat>>
 {
     size_t size;
     if (auto maybeSize = requireField<size_t>(format, "size"))
