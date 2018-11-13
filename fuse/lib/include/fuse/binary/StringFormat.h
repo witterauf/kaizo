@@ -1,28 +1,21 @@
 #pragma once
 
 #include "DataFormat.h"
-#include <fuse/text/TableDecoder.h>
+#include <fuse/text/TextEncoding.h>
 
 namespace fuse::binary {
 
 class StringFormat : public DataFormat
 {
 public:
-private:
-};
-
-class TableStringFormat : public DataFormat
-{
-public:
-    void addTable(text::Table&& table);
-
+    void setEncoding(text::TextEncoding* encoding);
     auto copy() const -> std::unique_ptr<DataFormat>;
 
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
 
 private:
-    text::TableDecoder m_decoder;
+    text::TextEncoding* m_encoding{nullptr};
 };
 
 } // namespace fuse::binary

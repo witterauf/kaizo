@@ -12,6 +12,7 @@ class MissingDecoder
 public:
     virtual auto decode(const Binary& binary, size_t offset)
         -> std::optional<std::pair<size_t, std::string>> = 0;
+    virtual auto copy() const -> std::unique_ptr<MissingDecoder> = 0;
 };
 
 class TableDecoder
@@ -22,6 +23,7 @@ public:
 
     auto tableCount() const -> size_t;
     void addTable(Table&& table);
+    void addTable(const Table& table);
     bool hasTable(const std::string& name) const;
     void setActiveTable(size_t index);
     void setActiveTable(const std::string& name);

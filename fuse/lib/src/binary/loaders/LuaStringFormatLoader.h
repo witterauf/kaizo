@@ -6,6 +6,13 @@
 
 namespace fuse::binary {
 
+class LuaEncodingLoader
+{
+public:
+    virtual auto load(const sol::table& format, sol::this_state state)
+        -> std::optional<std::unique_ptr<text::TextEncoding>> = 0;
+};
+
 class LuaStringFormatLoader : public LuaFormatLoader
 {
 public:
@@ -21,6 +28,7 @@ public:
 
 private:
     void reportUnknownEncoding(const std::string& name);
+    void reportCouldNotLoadEncoding(const std::string& name);
 
     sol::this_state* m_lua{nullptr};
 };

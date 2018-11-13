@@ -14,6 +14,7 @@ public:
 
     auto tableCount() const -> size_t;
     void addTable(Table&& table);
+    void addTable(const Table& table);
     bool hasTable(const std::string& name) const;
     void setActiveTable(size_t index);
     void setActiveTable(const std::string& name);

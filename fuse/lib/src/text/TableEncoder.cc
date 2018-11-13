@@ -35,6 +35,12 @@ void TableEncoder::addTable(Table&& table)
     m_tables.push_back(std::move(table));
 }
 
+void TableEncoder::addTable(const Table& table)
+{
+    Expects(!hasTable(table.name()));
+    m_tables.push_back(table);
+}
+
 void TableEncoder::setActiveTable(size_t index)
 {
     Expects(index < tableCount());

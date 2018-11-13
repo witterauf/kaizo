@@ -81,6 +81,8 @@ set(FUSE_TEXT_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEntry.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/TextEncoding.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoding.h
     text/ShiftJis.cc
     text/ShiftJisToUnicode.h
     text/Table.cc
@@ -95,6 +97,7 @@ set(FUSE_TEXT_SOURCES
     text/TableControlParser.h
     text/TableControlParser.cc
     text/LuaTableLibrary.cc
+    text/TableEncoding.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES
