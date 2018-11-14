@@ -1,5 +1,6 @@
 #include "loaders/LuaArrayFormatLoader.h"
 #include "loaders/LuaIntegerFormatLoader.h"
+#include "loaders/LuaRecordFormatLoader.h"
 #include "loaders/LuaRelativeOffsetFormatLoader.h"
 #include "loaders/LuaStringFormatLoader.h"
 #include <fuse/binary/ArrayFormat.h>
@@ -10,6 +11,7 @@
 #include <fuse/binary/LuaBinaryLibrary.h>
 #include <fuse/binary/LuaWriter.h>
 #include <fuse/binary/PointerFormat.h>
+#include <fuse/binary/RecordFormat.h>
 #include <fuse/binary/StringFormat.h>
 #include <fuse/binary/address_formats/AbsoluteOffset.h>
 #include <sol.hpp>
@@ -41,6 +43,20 @@ auto loadArrayFormat(const sol::table& format, sol::this_state state)
     else
     {
         throw std::runtime_error{"could not construct ArrayFormat"};
+    }
+}
+
+auto loadRecordFormat(const sol::table& format, sol::this_state state)
+    -> std::unique_ptr<RecordFormat>
+{
+    LuaRecordFormatLoader loader;
+    if (auto maybeRecordFormat = loader.load(format, state))
+    {
+        return std::move(*maybeRecordFormat);
+    }
+    else
+    {
+        throw std::runtime_error{"could not construct RecordFormat"};
     }
 }
 
@@ -98,6 +114,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
                                       sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<ArrayFormat>("ArrayFormat", sol::call_constructor, &loadArrayFormat,
                                      sol::base_classes, sol::bases<DataFormat>());
+    module.new_usertype<RecordFormat>("RecordFormat", sol::call_constructor, &loadRecordFormat,
+                                      sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<PointerFormat>("PointerFormat", sol::base_classes,
                                        sol::bases<DataFormat>());
     module.new_usertype<IntegerFormat>("IntegerFormat", sol::call_constructor, &loadIntegerFormat,

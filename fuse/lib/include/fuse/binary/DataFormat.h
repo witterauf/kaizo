@@ -16,6 +16,8 @@ public:
     void doNotStore();
 
     void setAlignment(size_t alignment);
+    void setSkipAfter(size_t size);
+    void setSkipBefore(size_t size);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
 
     template <class T> auto copyAs() -> std::unique_ptr<T>;
@@ -27,6 +29,8 @@ protected:
 
 private:
     size_t m_alignment{1};
+    size_t m_skipBefore{0};
+    size_t m_skipAfter{0};
     std::optional<std::string> m_storeAs;
 };
 

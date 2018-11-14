@@ -2,7 +2,6 @@
 
 #include "LuaDataFormatLoader.h"
 #include <fuse/binary/PointerFormat.h>
-#include <fuse/text/Table.h>
 
 namespace fuse::binary {
 

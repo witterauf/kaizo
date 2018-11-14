@@ -73,6 +73,8 @@ set(FUSE_BINARY_LOADERS_SOURCES
     binary/loaders/LuaStringFormatLoader.cc
     binary/loaders/LuaRelativeOffsetFormatLoader.h
     binary/loaders/LuaRelativeOffsetFormatLoader.cc
+    binary/loaders/LuaRecordFormatLoader.h
+    binary/loaders/LuaRecordFormatLoader.cc
 )
 
 set(FUSE_TEXT_SOURCES

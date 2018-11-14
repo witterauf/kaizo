@@ -18,6 +18,28 @@ bool LuaDataFormatLoader::readDataFormat(const sol::table& table, sol::this_stat
             return false;
         }
     }
+    if (hasField(table, "skip_after"))
+    {
+        if (auto maybeSkip = readField<size_t>(table, "skip_after"))
+        {
+            format.setSkipAfter(*maybeSkip);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    if (hasField(table, "skip_before"))
+    {
+        if (auto maybeSkip = readField<size_t>(table, "skip_before"))
+        {
+            format.setSkipBefore(*maybeSkip);
+        }
+        else
+        {
+            return false;
+        }
+    }
     return true;
 }
 

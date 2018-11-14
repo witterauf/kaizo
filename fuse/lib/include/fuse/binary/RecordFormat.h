@@ -22,8 +22,10 @@ public:
     auto element(size_t index) const -> const Element&;
     auto element(const std::string& name) -> const Element&;
 
+    auto copy() const -> std::unique_ptr<DataFormat> override;
+
 protected:
-    auto doDecode(DataReader& reader)->std::unique_ptr<Data> override;
+    auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
 
 private:
     std::vector<Element> m_elements;
