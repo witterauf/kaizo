@@ -29,8 +29,8 @@ auto ArrayFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         reader.enter(DataPathElement::makeIndex(i));
         if (auto data = m_elementFormat->decode(reader))
         {
-            arrayData->append(std::move(data));
             reader.leave(data.get());
+            arrayData->append(std::move(data));
         }
         else
         {
@@ -39,6 +39,15 @@ auto ArrayFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         }
     }
     return std::move(arrayData);
+}
+
+auto ArrayFormat::copy() const -> std::unique_ptr<DataFormat>
+{
+    auto arrayFormat = std::make_unique<ArrayFormat>();
+    arrayFormat->m_elementFormat = m_elementFormat->copy();
+    arrayFormat->m_sizeProvider = m_sizeProvider->copy();
+    copyTo(*arrayFormat);
+    return std::move(arrayFormat);
 }
 
 } // namespace fuse::binary

@@ -22,6 +22,7 @@ public:
 
 protected:
     virtual auto doDecode(DataReader& reader) -> std::unique_ptr<Data> = 0;
+    void copyTo(DataFormat& format) const;
 
 private:
     size_t m_alignment{1};

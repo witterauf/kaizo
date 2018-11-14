@@ -1,4 +1,6 @@
 #include "loaders/LuaStringFormatLoader.h"
+#include "loaders/LuaArrayFormatLoader.h"
+#include <fuse/binary/ArrayFormat.h>
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataFormat.h>
 #include <fuse/binary/DataReader.h>
@@ -24,6 +26,20 @@ auto loadStringFormat(const sol::table& format, sol::this_state state)
     }
 }
 
+auto loadArrayFormat(const sol::table& format, sol::this_state state)
+    -> std::unique_ptr<ArrayFormat>
+{
+    LuaArrayFormatLoader loader;
+    if (auto maybeArrayFormat = loader.load(format, state))
+    {
+        return std::move(*maybeArrayFormat);
+    }
+    else
+    {
+        throw std::runtime_error{"could not construct ArrayFormat"};
+    }
+}
+
 auto makeDataReader(const std::string& filename) -> std::unique_ptr<DataReader>
 {
     return std::make_unique<DataReader>(filename);
@@ -43,6 +59,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode);
     module.new_usertype<StringFormat>("StringFormat", sol::call_constructor, &loadStringFormat,
                                       sol::base_classes, sol::bases<DataFormat>());
+    module.new_usertype<ArrayFormat>("ArrayFormat", sol::call_constructor, &loadArrayFormat,
+                                     sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(), "write",
                                    sol::resolve<std::string(const Data&)>(&LuaWriter::write));
 

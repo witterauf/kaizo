@@ -6,7 +6,7 @@ using namespace diagnostics;
 
 namespace fuse::binary {
 
-auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state)
+auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state state)
     -> std::optional<std::unique_ptr<ArrayFormat>>
 {
     auto arrayFormat = std::make_unique<ArrayFormat>();
@@ -28,7 +28,9 @@ auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state)
         }
     }
 
-    if (elementFormatSuccess && sizeSuccess)
+    bool dataFormatSuccess = readDataFormat(format, state, *arrayFormat);
+
+    if (elementFormatSuccess && sizeSuccess && dataFormatSuccess)
     {
         return arrayFormat;
     }

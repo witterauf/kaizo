@@ -7,7 +7,7 @@ using namespace diagnostics;
 
 namespace fuse::binary {
 
-auto LuaIntegerFormatLoader::load(const sol::table& format, sol::this_state)
+auto LuaIntegerFormatLoader::load(const sol::table& format, sol::this_state state)
     -> std::optional<std::unique_ptr<IntegerFormat>>
 {
     size_t size;
@@ -40,7 +40,15 @@ auto LuaIntegerFormatLoader::load(const sol::table& format, sol::this_state)
         return {};
     }
 
-    return std::make_unique<IntegerFormat>(size, *maybeSignedness, *maybeEndianness);
+    auto integerFormat = std::make_unique<IntegerFormat>(size, *maybeSignedness, *maybeEndianness);
+    if (readDataFormat(format, state, *integerFormat))
+    {
+        return std::move(integerFormat);
+    }
+    else
+    {
+        return {};
+    }
 }
 
 void LuaIntegerFormatLoader::reportInvalidSize(size_t size)

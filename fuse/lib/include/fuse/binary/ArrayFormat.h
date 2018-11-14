@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataFormat.h"
+#include <memory>
 
 namespace fuse::binary {
 
@@ -8,6 +9,7 @@ class ArraySizeProvider
 {
 public:
     virtual auto provideSize(const DataReader& reader) const -> size_t = 0;
+    virtual auto copy() const -> std::unique_ptr<ArraySizeProvider> = 0;
 };
 
 class FixedSizeProvider : public ArraySizeProvider
@@ -21,6 +23,11 @@ public:
     auto provideSize(const DataReader&) const -> size_t override
     {
         return m_fixedSize;
+    }
+
+    auto copy() const -> std::unique_ptr<ArraySizeProvider>
+    {
+        return std::make_unique<FixedSizeProvider>(m_fixedSize);
     }
 
 private:

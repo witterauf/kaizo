@@ -1,11 +1,11 @@
 #pragma once
 
+#include "LuaDataFormatLoader.h"
 #include <fuse/binary/IntegerFormat.h>
-#include <fuse/lua/LuaLoader.h>
 
 namespace fuse::binary {
 
-class LuaIntegerFormatLoader : public lua::LuaLoader
+class LuaIntegerFormatLoader : public LuaDataFormatLoader
 {
 public:
     struct DiagnosticTags

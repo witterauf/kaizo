@@ -13,7 +13,7 @@ namespace fuse::binary {
 auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state)
     -> std::optional<std::unique_ptr<StringFormat>>
 {
-    m_lua = &state;    
+    m_lua = &state;
     if (auto maybeEncoding = format.get<sol::optional<text::TextEncoding*>>("encoding"))
     {
         auto stringFormat = std::make_unique<StringFormat>((*maybeEncoding)->copy());
