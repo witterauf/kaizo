@@ -79,4 +79,14 @@ auto IntegerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     }
 }
 
+auto IntegerFormat::copy() const -> std::unique_ptr<DataFormat>
+{
+    auto format = std::make_unique<IntegerFormat>();
+    format->m_isSigned = m_isSigned;
+    format->m_isLittleEndian = m_isLittleEndian;
+    format->m_size = m_size;
+    copyDataFormat(*format);
+    return std::move(format);
+}
+
 } // namespace fuse::binary

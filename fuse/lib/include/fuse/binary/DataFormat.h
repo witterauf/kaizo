@@ -18,15 +18,22 @@ public:
     void setAlignment(size_t alignment);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
 
+    template <class T> auto copyAs() -> std::unique_ptr<T>;
     virtual auto copy() const -> std::unique_ptr<DataFormat> = 0;
 
 protected:
     virtual auto doDecode(DataReader& reader) -> std::unique_ptr<Data> = 0;
-    void copyTo(DataFormat& format) const;
+    void copyDataFormat(DataFormat& format) const;
 
 private:
     size_t m_alignment{1};
     std::optional<std::string> m_storeAs;
 };
+
+template <class T> auto DataFormat::copyAs() -> std::unique_ptr<T>
+{
+    auto copied = copy();
+    return std::unique_ptr<T>(static_cast<T*>(copied.release()));
+}
 
 } // namespace fuse::binary

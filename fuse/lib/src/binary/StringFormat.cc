@@ -36,7 +36,7 @@ auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
 {
     auto data = std::make_unique<StringFormat>(m_encoding->copy());
-    copyTo(*data);
+    copyDataFormat(*data);
     return std::move(data);
 }
 

@@ -1,7 +1,8 @@
 #include <diagnostics/Contracts.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/PointerFormat.h>
 #include <fuse/binary/Data.h>
+#include <fuse/binary/DataReader.h>
+#include <fuse/binary/IntegerData.h>
+#include <fuse/binary/PointerFormat.h>
 
 namespace fuse::binary {
 
@@ -42,15 +43,62 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     return {};
 }
 
+void PointerFormat::copyPointerFormat(PointerFormat& format) const
+{
+    format.m_addressFormat = m_addressFormat->copy();
+    format.m_pointedFormat = m_pointedFormat->copy();
+    copyDataFormat(format);
+}
+
 auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<Address>
 {
     if (auto maybeResult = addressFormat().read(reader.binary(), reader.offset()))
     {
-        auto[newOffset, address] = *maybeResult;
+        auto [newOffset, address] = *maybeResult;
         reader.setOffset(newOffset);
         return address;
     }
     return {};
+}
+
+auto RelativeOffsetFormat::readAddress(DataReader& reader) -> std::optional<Address>
+{
+    Expects(m_offsetFormat);
+    Expects(m_baseProvider);
+    if (auto maybeOffset = m_offsetFormat->decode(reader))
+    {
+        auto baseAddress = m_baseProvider->provideAddress();
+        auto const& offset = static_cast<const IntegerData&>(*maybeOffset);
+        if (m_offsetFormat->isSigned())
+        {
+            baseAddress = baseAddress.applyOffset(offset.asSigned());
+        }
+        else
+        {
+            baseAddress = baseAddress.applyOffset(offset.asUnsigned());
+        }
+        return baseAddress;
+    }
+    return {};
+}
+
+void RelativeOffsetFormat::setBaseAddressProvider(std::unique_ptr<BaseAddressProvider>&& provider)
+{
+    m_baseProvider = std::move(provider);
+}
+
+void RelativeOffsetFormat::setOffsetFormat(std::unique_ptr<IntegerFormat>&& offsetFormat)
+{
+    m_offsetFormat = std::move(offsetFormat);
+}
+
+auto RelativeOffsetFormat::copy() const -> std::unique_ptr<DataFormat>
+{
+    auto format = std::make_unique<RelativeOffsetFormat>();
+    format->m_baseProvider = m_baseProvider->copy();
+    format->m_offsetFormat = m_offsetFormat->copyAs<IntegerFormat>();
+    copyPointerFormat(*format);
+    return std::move(format);
 }
 
 } // namespace fuse::binary

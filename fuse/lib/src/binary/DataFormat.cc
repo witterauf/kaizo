@@ -31,7 +31,7 @@ auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
     return doDecode(reader);
 }
 
-void DataFormat::copyTo(DataFormat& format) const
+void DataFormat::copyDataFormat(DataFormat& format) const
 {
     format.m_alignment = m_alignment;
     format.m_storeAs = m_storeAs;
