@@ -10,6 +10,7 @@ class RecordData;
 class StringData;
 class ArrayData;
 class IntegerData;
+class NullData;
 
 class LuaWriter
 {
@@ -17,6 +18,7 @@ public:
     static auto format(const std::string& lua) -> std::string;
 
     auto write(const Data& data) -> std::string;
+    auto write(const NullData& data) -> std::string;
     auto write(const StringData& data) -> std::string;
     auto write(const RecordData& data) -> std::string;
     auto write(const BinaryData& data) -> std::string;

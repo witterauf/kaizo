@@ -3,6 +3,7 @@
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/IntegerData.h>
 #include <fuse/binary/PointerFormat.h>
+#include <fuse/binary/NullData.h>
 
 namespace fuse::binary {
 
@@ -31,13 +32,20 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 
     if (auto maybeAddress = readAddress(reader))
     {
-        auto const oldOffset = reader.offset();
-        // replace by AddressMap?
-        reader.setOffset(maybeAddress->linearize());
-        if (auto data = m_pointedFormat->decode(reader))
+        if (maybeAddress->address)
         {
-            reader.setOffset(oldOffset);
-            return std::move(data);
+            auto const oldOffset = reader.offset();
+            // replace by AddressMap?
+            reader.setOffset(maybeAddress->address->linearize());
+            if (auto data = m_pointedFormat->decode(reader))
+            {
+                reader.setOffset(oldOffset);
+                return std::move(data);
+            }
+        }
+        else
+        {
+            return std::make_unique<NullData>();
         }
     }
     return {};
@@ -50,7 +58,7 @@ void PointerFormat::copyPointerFormat(PointerFormat& format) const
     copyDataFormat(format);
 }
 
-auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<Address>
+auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<AddressDescriptor>
 {
     if (auto maybeResult = addressFormat().read(reader.binary(), reader.offset()))
     {
@@ -61,25 +69,37 @@ auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<Add
     return {};
 }
 
-auto RelativeOffsetFormat::readAddress(DataReader& reader) -> std::optional<Address>
+auto RelativeOffsetFormat::readAddress(DataReader& reader) -> std::optional<AddressDescriptor>
 {
     Expects(m_offsetFormat);
     Expects(m_baseProvider);
     if (auto maybeOffset = m_offsetFormat->decode(reader))
     {
-        auto baseAddress = m_baseProvider->provideAddress();
         auto const& offset = static_cast<const IntegerData&>(*maybeOffset);
-        if (m_offsetFormat->isSigned())
+        if (!m_validator || m_validator->isValid(offset))
         {
-            baseAddress = baseAddress.applyOffset(offset.asSigned());
+            auto baseAddress = m_baseProvider->provideAddress();
+            if (m_offsetFormat->isSigned())
+            {
+                baseAddress = baseAddress.applyOffset(offset.asSigned());
+            }
+            else
+            {
+                baseAddress = baseAddress.applyOffset(offset.asUnsigned());
+            }
+            return baseAddress;
         }
         else
         {
-            baseAddress = baseAddress.applyOffset(offset.asUnsigned());
+            return AddressDescriptor::ignoreAddress();
         }
-        return baseAddress;
     }
     return {};
+}
+
+void RelativeOffsetFormat::setOffsetValidator(std::unique_ptr<OffsetValidator>&& validator)
+{
+    m_validator = std::move(validator);
 }
 
 void RelativeOffsetFormat::setBaseAddressProvider(std::unique_ptr<BaseAddressProvider>&& provider)
@@ -95,8 +115,18 @@ void RelativeOffsetFormat::setOffsetFormat(std::unique_ptr<IntegerFormat>&& offs
 auto RelativeOffsetFormat::copy() const -> std::unique_ptr<DataFormat>
 {
     auto format = std::make_unique<RelativeOffsetFormat>();
-    format->m_baseProvider = m_baseProvider->copy();
-    format->m_offsetFormat = m_offsetFormat->copyAs<IntegerFormat>();
+    if (m_baseProvider)
+    {
+        format->m_baseProvider = m_baseProvider->copy();
+    }
+    if (m_offsetFormat)
+    {
+        format->m_offsetFormat = m_offsetFormat->copyAs<IntegerFormat>();
+    }
+    if (m_validator)
+    {
+        format->m_validator = m_validator->copy();
+    }
     copyPointerFormat(*format);
     return std::move(format);
 }

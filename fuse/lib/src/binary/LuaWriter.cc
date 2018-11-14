@@ -4,6 +4,7 @@
 #include <fuse/binary/Data.h>
 #include <fuse/binary/IntegerData.h>
 #include <fuse/binary/LuaWriter.h>
+#include <fuse/binary/NullData.h>
 #include <fuse/binary/RecordData.h>
 #include <fuse/binary/StringData.h>
 
@@ -48,6 +49,7 @@ auto LuaWriter::write(const Data& data) -> std::string
 {
     switch (data.type())
     {
+    case DataType::Null: return write(static_cast<const NullData&>(data));
     case DataType::String: return write(static_cast<const StringData&>(data));
     case DataType::Record: return write(static_cast<const RecordData&>(data));
     case DataType::Binary: return write(static_cast<const BinaryData&>(data));
@@ -55,6 +57,11 @@ auto LuaWriter::write(const Data& data) -> std::string
     case DataType::Integer: return write(static_cast<const IntegerData&>(data));
     default: InvalidCase(data.type());
     }
+}
+
+auto LuaWriter::write(const NullData&) -> std::string
+{
+    return "nil";
 }
 
 auto LuaWriter::write(const StringData& data) -> std::string

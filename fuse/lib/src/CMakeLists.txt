@@ -26,6 +26,7 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/PointerFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/StringFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/Data.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/NullData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/IntegerData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/ArrayData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/RecordData.h
@@ -58,6 +59,7 @@ set(FUSE_BINARY_SOURCES
     binary/LuaWriter.cc
     binary/Address.cc
     binary/DataPath.cc
+    binary/NullData.cc
     binary/LuaBinaryLibrary.cc
     binary/address_formats/AbsoluteOffset.cc
 )

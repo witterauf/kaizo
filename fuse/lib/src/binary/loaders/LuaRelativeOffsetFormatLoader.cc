@@ -8,7 +8,8 @@ auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_sta
 {
     auto pointerFormat = std::make_unique<RelativeOffsetFormat>();
     if (loadOffsetFormat(format, *pointerFormat) && loadAddressFormat(format, *pointerFormat) &&
-        loadBaseAddress(format, *pointerFormat) && loadPointeeFormat(format, *pointerFormat))
+        loadBaseAddress(format, *pointerFormat) && loadPointeeFormat(format, *pointerFormat) &&
+        loadIgnoredOffset(format, *pointerFormat))
     {
         if (readDataFormat(format, state, *pointerFormat))
         {
@@ -52,7 +53,8 @@ bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
         {
             if (auto maybeAddress = format.addressFormat().delinearize(field.as<int64_t>()))
             {
-                format.setBaseAddressProvider(std::make_unique<FixedBaseAddressProvider>(*maybeAddress));
+                format.setBaseAddressProvider(
+                    std::make_unique<FixedBaseAddressProvider>(*maybeAddress));
                 return true;
             }
         }
@@ -75,6 +77,37 @@ bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
         return true;
     }
     return false;
+}
+
+bool LuaRelativeOffsetFormatLoader::loadIgnoredOffset(const sol::table& table,
+                                                      RelativeOffsetFormat& format)
+{
+    if (hasField(table, "ignore_if"))
+    {
+        auto field = table.get<sol::object>("ignore_if");
+        if (field.is<int64_t>())
+        {
+            auto const offset = field.as<int64_t>();
+            std::unique_ptr<FixedOffsetValidator> validator;
+            if (offset < 0)
+            {
+                validator =
+                    std::make_unique<FixedOffsetValidator>(std::make_unique<IntegerData>(offset));
+            }
+            else
+            {
+                validator = std::make_unique<FixedOffsetValidator>(
+                    std::make_unique<IntegerData>(field.as<uint64_t>()));
+            }
+            format.setOffsetValidator(std::move(validator));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 } // namespace fuse::binary
