@@ -9,7 +9,7 @@ auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_sta
     auto pointerFormat = std::make_unique<RelativeOffsetFormat>();
     if (loadOffsetFormat(format, *pointerFormat) && loadAddressFormat(format, *pointerFormat) &&
         loadBaseAddress(format, *pointerFormat) && loadPointeeFormat(format, *pointerFormat) &&
-        loadIgnoredOffset(format, *pointerFormat))
+        loadIgnoredOffset(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
     {
         if (readDataFormat(format, state, *pointerFormat))
         {
@@ -51,7 +51,7 @@ bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
         auto field = table.get<sol::object>("base");
         if (field.is<int64_t>())
         {
-            if (auto maybeAddress = format.addressFormat().delinearize(field.as<int64_t>()))
+            if (auto maybeAddress = format.addressFormat().fromInteger(field.as<int64_t>()))
             {
                 format.setBaseAddressProvider(
                     std::make_unique<FixedBaseAddressProvider>(*maybeAddress));
@@ -101,6 +101,24 @@ bool LuaRelativeOffsetFormatLoader::loadIgnoredOffset(const sol::table& table,
             }
             format.setOffsetValidator(std::move(validator));
             return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool LuaRelativeOffsetFormatLoader::loadUseAddressMap(const sol::table& table,
+                                                      RelativeOffsetFormat& format)
+{
+    if (hasField(table, "use_address_map"))
+    {
+        auto field = table.get<sol::object>("use_address_map");
+        if (field.is<bool>())
+        {
+            format.useAddressMap(field.as<bool>());
         }
         else
         {

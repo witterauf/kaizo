@@ -1,5 +1,6 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 #include <fuse/binary/IntegerData.h>
 #include <fuse/binary/IntegerFormat.h>
 
@@ -76,6 +77,38 @@ auto IntegerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     else
     {
         return std::make_unique<IntegerData>(value);
+    }
+}
+
+void IntegerFormat::doEncode(DataWriter& writer, const Data& data)
+{
+    if (data.type() != DataType::Integer)
+    {
+        throw std::runtime_error{"type mismatch"};
+    }
+    auto const& integerData = static_cast<const IntegerData&>(data);
+
+    if (isLittleEndian())
+    {
+        if (isUnsigned())
+        {
+            writer.binary().appendLittle(integerData.asUnsigned(), sizeInBytes());
+        }
+        else if (isSigned())
+        {
+            writer.binary().appendLittle(integerData.asSigned(), sizeInBytes());
+        }
+    }
+    else
+    {
+        if (isUnsigned())
+        {
+            writer.binary().appendBig(integerData.asUnsigned(), sizeInBytes());
+        }
+        else if (isSigned())
+        {
+            writer.binary().appendBig(integerData.asSigned(), sizeInBytes());
+        }
     }
 }
 

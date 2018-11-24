@@ -8,10 +8,10 @@ namespace fuse::systems::gbc {
 auto GameboyColorAddressFormat::applyOffset(const binary::Address& address, int64_t offset) const
     -> binary::Address
 {
-    return makeAddress(address.linearize() + offset);
+    return makeAddress(address.toInteger() + offset);
 }
 
-auto GameboyColorAddressFormat::delinearize(size_t address) const -> std::optional<binary::Address>
+auto GameboyColorAddressFormat::fromInteger(uint64_t address) const -> std::optional<binary::Address>
 {
     auto const bank = (address & 0xff0000) >> 16;
     auto const offset = address & 0x3fff;
@@ -24,7 +24,7 @@ auto GameboyColorAddressFormat::read(const Binary& binary, size_t offset) const
     if (offset + 3 <= binary.size())
     {
         auto const address = binary.readAs<size_t>(offset, 3);
-        return std::make_pair(offset + 3, *delinearize(address));
+        return std::make_pair(offset + 3, *fromInteger(address));
     }
     else
     {

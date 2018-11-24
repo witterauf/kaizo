@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 #include <fuse/binary/RecordData.h>
 #include <fuse/binary/RecordFormat.h>
 
@@ -54,6 +55,26 @@ auto RecordFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         }
     }
     return std::move(record);
+}
+
+void RecordFormat::doEncode(DataWriter& writer, const Data& data)
+{
+    if (data.type() != DataType::Record)
+    {
+        throw std::runtime_error{"type mismatch"};
+    }
+    auto const& recordData = static_cast<const RecordData&>(data);
+
+    for (auto const& element : m_elements)
+    {
+        if (!recordData.has(element.name))
+        {
+            throw std::runtime_error{"type mismatch (no such record element)"};
+        }
+        writer.enter(DataPathElement::makeName(element.name));
+        element.format->encode(writer, recordData.element(element.name));
+        writer.leave();
+    }
 }
 
 auto RecordFormat::copy() const -> std::unique_ptr<DataFormat>

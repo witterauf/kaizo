@@ -2,6 +2,7 @@
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataFormat.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 
 namespace fuse::binary {
 
@@ -45,6 +46,13 @@ auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
     auto data = doDecode(reader);
     reader.setOffset(reader.offset() + m_skipAfter);
     return std::move(data);
+}
+
+void DataFormat::encode(DataWriter& writer, const Data& data)
+{
+    writer.skip(m_skipBefore);
+    doEncode(writer, data);
+    writer.skip(m_skipAfter);
 }
 
 void DataFormat::copyDataFormat(DataFormat& format) const

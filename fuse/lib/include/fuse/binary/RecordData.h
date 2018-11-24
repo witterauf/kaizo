@@ -15,7 +15,7 @@ public:
     void set(const std::string& name, std::unique_ptr<Data>&& data);
 
     auto elementCount() const -> size_t;
-    auto has(const std::string& name) const;
+    bool has(const std::string& name) const;
     auto element(const std::string& name) const -> const Data&;
     auto elementNames() const -> std::vector<std::string>;
 

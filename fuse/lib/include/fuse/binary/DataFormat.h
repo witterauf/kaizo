@@ -8,6 +8,7 @@ namespace fuse::binary {
 
 class Data;
 class DataReader;
+class DataWriter;
 
 class DataFormat
 {
@@ -19,12 +20,14 @@ public:
     void setSkipAfter(size_t size);
     void setSkipBefore(size_t size);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
+    void encode(DataWriter& writer, const Data& data);
 
     template <class T> auto copyAs() -> std::unique_ptr<T>;
     virtual auto copy() const -> std::unique_ptr<DataFormat> = 0;
 
 protected:
     virtual auto doDecode(DataReader& reader) -> std::unique_ptr<Data> = 0;
+    virtual void doEncode(DataWriter& writer, const Data& data) = 0;
     void copyDataFormat(DataFormat& format) const;
 
 private:

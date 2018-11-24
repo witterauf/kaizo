@@ -2,10 +2,15 @@
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/IntegerData.h>
-#include <fuse/binary/PointerFormat.h>
 #include <fuse/binary/NullData.h>
+#include <fuse/binary/PointerFormat.h>
 
 namespace fuse::binary {
+
+void PointerFormat::useAddressMap(bool on)
+{
+    m_useAddressMap = on;
+}
 
 void PointerFormat::setAddressFormat(std::unique_ptr<AddressFormat>&& format)
 {
@@ -35,8 +40,30 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         if (maybeAddress->address)
         {
             auto const oldOffset = reader.offset();
-            // replace by AddressMap?
-            reader.setOffset(maybeAddress->address->linearize());
+            uint64_t newOffset;
+            if (m_useAddressMap)
+            {
+                auto const addresses =
+                    reader.addressMap().toSourceAddresses(*maybeAddress->address);
+                if (addresses.size() == 1)
+                {
+                    newOffset = addresses.front().toInteger();
+                }
+                else if (addresses.empty())
+                {
+                    throw std::runtime_error{"could not map address"};
+                }
+                else
+                {
+                    throw std::runtime_error{"address maps to more than one source address"};
+                }
+            }
+            else
+            {
+                newOffset = maybeAddress->address->toInteger();
+            }
+
+            reader.setOffset(newOffset);
             if (auto data = m_pointedFormat->decode(reader))
             {
                 reader.setOffset(oldOffset);
@@ -51,10 +78,17 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     return {};
 }
 
+void PointerFormat::doEncode(DataWriter&, const Data&)
+{
+    Expects(m_addressFormat);
+    Expects(m_pointedFormat);
+}
+
 void PointerFormat::copyPointerFormat(PointerFormat& format) const
 {
     format.m_addressFormat = m_addressFormat->copy();
     format.m_pointedFormat = m_pointedFormat->copy();
+    format.m_useAddressMap = m_useAddressMap;
     copyDataFormat(format);
 }
 

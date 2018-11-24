@@ -2,6 +2,7 @@
 #include <fuse/binary/ArrayData.h>
 #include <fuse/binary/ArrayFormat.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 
 namespace fuse::binary {
 
@@ -39,6 +40,22 @@ auto ArrayFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         }
     }
     return std::move(arrayData);
+}
+
+void ArrayFormat::doEncode(DataWriter& writer, const Data& data)
+{
+    if (data.type() != DataType::Array)
+    {
+        return throw std::runtime_error{"type mismatch"};
+    }
+    auto const& arrayData = static_cast<const ArrayData&>(data);
+
+    for (auto i = 0U; i < arrayData.elementCount(); ++i)
+    {
+        writer.enter(DataPathElement::makeIndex(i));
+        m_elementFormat->encode(writer, arrayData.element(i));
+        writer.leave();
+    }
 }
 
 auto ArrayFormat::copy() const -> std::unique_ptr<DataFormat>

@@ -18,7 +18,7 @@ auto RecordData::elementCount() const -> size_t
     return m_elements.size();
 }
 
-auto RecordData::has(const std::string& name) const
+bool RecordData::has(const std::string& name) const
 {
     return m_elements.cend() != m_elements.find(name);
 }

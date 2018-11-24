@@ -40,6 +40,8 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/LuaBinaryLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/Integers.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/DataWriter.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/AddressMap.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/address_formats/AbsoluteOffset.h
     binary/StringData.cc
     binary/IntegerData.cc
@@ -61,6 +63,10 @@ set(FUSE_BINARY_SOURCES
     binary/DataPath.cc
     binary/NullData.cc
     binary/LuaBinaryLibrary.cc
+    binary/LuaAddressLibrary.h
+    binary/LuaAddressLibrary.cc
+    binary/DataWriter.cc
+    binary/AddressMap.cc
     binary/address_formats/AbsoluteOffset.cc
 )
 

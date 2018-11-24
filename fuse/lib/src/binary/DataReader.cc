@@ -1,12 +1,14 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/address_formats/AbsoluteOffset.h>
 
 namespace fuse::binary {
 
 DataReader::DataReader(const std::filesystem::path& filename)
 {
     m_source = Binary::load(filename);
+    m_addressMap = std::make_unique<IdempotentAddressMap>(fileOffsetFormat());
 }
 
 DataReader::~DataReader() = default;
@@ -61,6 +63,17 @@ void DataReader::leave(const Data* data)
 auto DataReader::ranges() const -> const DataAnnotation<Range>&
 {
     return m_ranges;
+}
+
+void DataReader::setAddressMap(std::unique_ptr<AddressMap>&& addressMap)
+{
+    Expects(addressMap);
+    m_addressMap = std::move(addressMap);
+}
+
+auto DataReader::addressMap() const -> const AddressMap&
+{
+    return *m_addressMap;
 }
 
 } // namespace fuse::binary

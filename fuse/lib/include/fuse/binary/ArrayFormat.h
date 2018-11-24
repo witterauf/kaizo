@@ -43,6 +43,7 @@ public:
 
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
+    void doEncode(DataWriter& writer, const Data& data) override;
 
 private:
     std::unique_ptr<ArraySizeProvider> m_sizeProvider;

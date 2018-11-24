@@ -17,6 +17,7 @@ private:
     bool loadBaseAddress(const sol::table& table, RelativeOffsetFormat& format);
     bool loadPointeeFormat(const sol::table& table, RelativeOffsetFormat& format);
     bool loadIgnoredOffset(const sol::table& table, RelativeOffsetFormat& format);
+    bool loadUseAddressMap(const sol::table& table, RelativeOffsetFormat& format);
 };
 
 } // namespace fuse::binary

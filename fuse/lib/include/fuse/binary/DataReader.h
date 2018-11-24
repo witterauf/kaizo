@@ -1,9 +1,11 @@
 #pragma once
 
+#include "AddressMap.h"
 #include "DataAnnotation.h"
 #include <cstddef>
 #include <fuse/Binary.h>
 #include <map>
+#include <memory>
 
 namespace fuse::binary {
 
@@ -19,6 +21,8 @@ public:
     auto offset() const -> size_t;
     void advance(size_t size);
     void setOffset(size_t offset);
+    void setAddressMap(std::unique_ptr<AddressMap>&& addressMap);
+    auto addressMap() const -> const AddressMap&;
 
     void enter(const DataPathElement& element);
     void annotateRange(size_t, size_t);
@@ -34,6 +38,7 @@ public:
 
 private:
     size_t m_offset{0};
+    std::unique_ptr<AddressMap> m_addressMap;
     Binary m_source;
     DataPath m_path;
     DataAnnotation<Range> m_ranges;

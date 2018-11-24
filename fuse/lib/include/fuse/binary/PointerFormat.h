@@ -10,12 +10,14 @@ namespace fuse::binary {
 class PointerFormat : public DataFormat
 {
 public:
+    void useAddressMap(bool on);
     void setAddressFormat(std::unique_ptr<AddressFormat>&& format);
     void setPointedFormat(std::unique_ptr<DataFormat>&& format);
     auto addressFormat() const -> const AddressFormat&;
 
 protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
+    void doEncode(DataWriter& writer, const Data& data) override;
     void copyPointerFormat(PointerFormat& format) const;
 
     struct AddressDescriptor
@@ -35,16 +37,19 @@ protected:
     };
 
     virtual auto readAddress(DataReader& reader) -> std::optional<AddressDescriptor> = 0;
+    virtual void writeAddressPlaceHolder(DataWriter& writer) = 0;
 
 private:
     std::unique_ptr<AddressFormat> m_addressFormat;
     std::unique_ptr<DataFormat> m_pointedFormat;
+    bool m_useAddressMap{false};
 };
 
 class AbsolutePointerFormat : public PointerFormat
 {
 protected:
     auto readAddress(DataReader& reader) -> std::optional<AddressDescriptor> override;
+    void writeAddressPlaceHolder(DataWriter&) override{};
 };
 
 class BaseAddressProvider
@@ -115,6 +120,7 @@ public:
 
 protected:
     auto readAddress(DataReader& reader) -> std::optional<AddressDescriptor> override;
+    void writeAddressPlaceHolder(DataWriter&) override{};
 
 private:
     std::unique_ptr<OffsetValidator> m_validator;
