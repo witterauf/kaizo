@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Address.h"
 #include "AnnotatedBinary.h"
 #include "DataPath.h"
 #include <fuse/Binary.h>
+#include <fuse/addresses/Address.h>
 #include <map>
 #include <vector>
 

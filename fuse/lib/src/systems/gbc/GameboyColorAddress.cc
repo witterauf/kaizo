@@ -1,17 +1,15 @@
 #include <fuse/Binary.h>
+#include <fuse/addresses/Address.h>
 #include <fuse/systems/gbc/GameboyColorAddress.h>
-
-using namespace fuse::binary;
 
 namespace fuse::systems::gbc {
 
-auto GameboyColorAddressFormat::applyOffset(const binary::Address& address, int64_t offset) const
-    -> binary::Address
+auto GameboyColorAddressFormat::applyOffset(const Address& address, int64_t offset) const -> Address
 {
     return makeAddress(address.toInteger() + offset);
 }
 
-auto GameboyColorAddressFormat::fromInteger(uint64_t address) const -> std::optional<binary::Address>
+auto GameboyColorAddressFormat::fromInteger(address_t address) const -> std::optional<Address>
 {
     auto const bank = (address & 0xff0000) >> 16;
     auto const offset = address & 0x3fff;
@@ -19,7 +17,7 @@ auto GameboyColorAddressFormat::fromInteger(uint64_t address) const -> std::opti
 }
 
 auto GameboyColorAddressFormat::read(const Binary& binary, size_t offset) const
-    -> std::optional<std::pair<size_t, binary::Address>>
+    -> std::optional<std::pair<size_t, Address>>
 {
     if (offset + 3 <= binary.size())
     {

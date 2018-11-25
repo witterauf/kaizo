@@ -1,6 +1,6 @@
 #include "LuaIntegerFormatLoader.h"
 #include <diagnostics/DiagnosticsReporter.h>
-#include <fuse/binary/IntegerFormat.h>
+#include <fuse/binary/formats/IntegerFormat.h>
 #include <sol.hpp>
 
 using namespace diagnostics;

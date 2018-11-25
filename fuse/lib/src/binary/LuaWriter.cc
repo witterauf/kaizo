@@ -1,12 +1,12 @@
 #include <diagnostics/Contracts.h>
-#include <fuse/binary/ArrayData.h>
-#include <fuse/binary/BinaryData.h>
-#include <fuse/binary/Data.h>
-#include <fuse/binary/IntegerData.h>
 #include <fuse/binary/LuaWriter.h>
-#include <fuse/binary/NullData.h>
-#include <fuse/binary/RecordData.h>
-#include <fuse/binary/StringData.h>
+#include <fuse/binary/data/ArrayData.h>
+#include <fuse/binary/data/BinaryData.h>
+#include <fuse/binary/data/Data.h>
+#include <fuse/binary/data/IntegerData.h>
+#include <fuse/binary/data/NullData.h>
+#include <fuse/binary/data/RecordData.h>
+#include <fuse/binary/data/StringData.h>
 
 namespace fuse::binary {
 

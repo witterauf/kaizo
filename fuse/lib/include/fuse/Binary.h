@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <fuse/binary/Integers.h>
+#include <fuse/Integers.h>
 #include <vector>
 
 namespace fuse {
@@ -21,6 +21,7 @@ public:
     auto size() const -> size_t;
     auto data(size_t offset = 0) const -> const uint8_t*;
     auto read(size_t offset, size_t length) const -> Binary;
+    template <class T> auto readAs(size_t offset, const IntegerLayout& layout) const -> T;
 
     template <class T> auto readAs(size_t offset, size_t length) const -> T
     {
@@ -39,6 +40,9 @@ public:
     void clear();
     void append(uint8_t value);
     void append(char value);
+
+    template <class T> void append(T value, const IntegerLayout& layout);
+    template <class T> void write(size_t offset, T value, const IntegerLayout& layout);
 
     template <class T> void appendLittle(T value, size_t size);
     template <size_t N, class T> void appendLittle(T value);

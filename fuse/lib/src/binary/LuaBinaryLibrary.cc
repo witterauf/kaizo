@@ -1,19 +1,20 @@
-#include "LuaAddressLibrary.h"
 #include "loaders/LuaArrayFormatLoader.h"
 #include "loaders/LuaIntegerFormatLoader.h"
 #include "loaders/LuaRecordFormatLoader.h"
 #include "loaders/LuaRelativeOffsetFormatLoader.h"
 #include "loaders/LuaStringFormatLoader.h"
-#include <fuse/binary/ArrayFormat.h>
-#include <fuse/binary/Data.h>
-#include <fuse/binary/DataFormat.h>
+#include <fuse/addresses/Address.h>
+#include <fuse/addresses/AddressFormat.h>
 #include <fuse/binary/DataReader.h>
-#include <fuse/binary/IntegerFormat.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
 #include <fuse/binary/LuaWriter.h>
-#include <fuse/binary/PointerFormat.h>
-#include <fuse/binary/RecordFormat.h>
-#include <fuse/binary/StringFormat.h>
+#include <fuse/binary/data/Data.h>
+#include <fuse/binary/formats/ArrayFormat.h>
+#include <fuse/binary/formats/DataFormat.h>
+#include <fuse/binary/formats/IntegerFormat.h>
+#include <fuse/binary/formats/PointerFormat.h>
+#include <fuse/binary/formats/RecordFormat.h>
+#include <fuse/binary/formats/StringFormat.h>
 #include <sol.hpp>
 
 namespace fuse::binary {
@@ -116,8 +117,6 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
     auto module = lua.create_table();
-
-    openAddressLibrary(module);
 
     module.new_enum("SIGNEDNESS", "SIGNED", Signedness::Signed, "UNSIGNED", Signedness::Unsigned);
     module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);

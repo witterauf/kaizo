@@ -1,5 +1,5 @@
 #include "LuaDataFormatLoader.h"
-#include <fuse/binary/DataFormat.h>
+#include <fuse/binary/formats/DataFormat.h>
 #include <sol.hpp>
 
 namespace fuse::binary {

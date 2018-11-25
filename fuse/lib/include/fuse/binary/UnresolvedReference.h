@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Address.h"
 #include "DataPath.h"
 #include <fuse/Binary.h>
+#include <fuse/addresses/Address.h>
 #include <memory>
 #include <optional>
 

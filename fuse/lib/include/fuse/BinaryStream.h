@@ -3,7 +3,7 @@
 #include "Binary.h"
 #include <filesystem>
 #include <fstream>
-#include <fuse/binary/Integers.h>
+#include <fuse/Integers.h>
 #include <string>
 
 namespace fuse {
@@ -20,7 +20,7 @@ public:
 
     explicit BinaryStream(const std::filesystem::path& filename, Mode mode);
 
-    void setEndianness(binary::Endianness endianness);
+    void setEndianness(Endianness endianness);
     void setLittleEndian();
     void setBigEndian();
 
@@ -43,7 +43,7 @@ public:
 
 private:
     Mode m_mode;
-    binary::Endianness m_endianness{binary::Endianness::Little};
+    Endianness m_endianness{Endianness::Little};
     std::fstream m_stream;
 };
 

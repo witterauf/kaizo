@@ -1,7 +1,8 @@
 #include <diagnostics/Contracts.h>
-#include <fuse/binary/Data.h>
+#include <fuse/binary/data/Data.h>
 #include <fuse/binary/DataReader.h>
-#include <fuse/binary/address_formats/AbsoluteOffset.h>
+#include <fuse/addresses/AbsoluteOffset.h>
+#include <fuse/addresses/IdempotentAddressMap.h>
 
 namespace fuse::binary {
 

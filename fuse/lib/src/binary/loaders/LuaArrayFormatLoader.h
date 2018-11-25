@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LuaDataFormatLoader.h"
-#include <fuse/binary/ArrayFormat.h>
+#include <fuse/binary/formats/ArrayFormat.h>
 
 namespace fuse::binary {
 

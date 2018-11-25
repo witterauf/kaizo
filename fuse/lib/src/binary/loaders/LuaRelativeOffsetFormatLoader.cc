@@ -1,4 +1,5 @@
 #include "LuaRelativeOffsetFormatLoader.h"
+#include <fuse/addresses/AddressFormat.h>
 #include <sol.hpp>
 
 namespace fuse::binary {

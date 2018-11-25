@@ -1,8 +1,6 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/BinaryStream.h>
 
-using namespace fuse::binary;
-
 namespace fuse {
 
 BinaryStream::BinaryStream(const std::filesystem::path& filename, Mode mode)

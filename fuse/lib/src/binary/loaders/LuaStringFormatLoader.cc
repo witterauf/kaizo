@@ -1,7 +1,7 @@
 #include "LuaStringFormatLoader.h"
 #include <diagnostics/DiagnosticsReporter.h>
-#include <fuse/binary/Data.h>
-#include <fuse/binary/StringFormat.h>
+#include <fuse/binary/data/Data.h>
+#include <fuse/binary/formats/StringFormat.h>
 #include <fuse/text/LuaTableReader.h>
 #include <fuse/text/TableEncoding.h>
 #include <sol.hpp>

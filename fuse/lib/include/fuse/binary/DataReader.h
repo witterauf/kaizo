@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AddressMap.h"
 #include "DataAnnotation.h"
 #include <cstddef>
 #include <fuse/Binary.h>
+#include <fuse/addresses/AddressMap.h>
 #include <map>
 #include <memory>
 
