@@ -26,6 +26,13 @@ auto DataPathElement::makeIndexWildcard() -> DataPathElement
     return element;
 }
 
+auto DataPathElement::makePointer() -> DataPathElement
+{
+    DataPathElement element;
+    element.m_kind = Kind::Pointer;
+    return element;
+}
+
 auto DataPathElement::kind() const -> Kind
 {
     return m_kind;
@@ -80,6 +87,7 @@ auto DataPathElement::toString() const -> std::string
     case Kind::Name: return name();
     case Kind::Index: return "[" + std::to_string(index()) + "]";
     case Kind::IndexWildcard: return "[*]";
+    case Kind::Pointer: return "*";
     default: InvalidCase(kind());
     }
 }
@@ -136,6 +144,13 @@ auto DataPath::toString() const -> std::string
 bool DataPath::operator<(const DataPath& rhs) const
 {
     return m_elements < rhs.m_elements;
+}
+
+auto DataPath::parent() const -> DataPath
+{
+    auto path = *this;
+    path.goUp();
+    return path;
 }
 
 } // namespace fuse::binary

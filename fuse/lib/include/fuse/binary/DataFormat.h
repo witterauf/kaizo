@@ -21,6 +21,7 @@ public:
     void setSkipBefore(size_t size);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
     void encode(DataWriter& writer, const Data& data);
+    virtual bool isPointer() const { return false; }
 
     template <class T> auto copyAs() -> std::unique_ptr<T>;
     virtual auto copy() const -> std::unique_ptr<DataFormat> = 0;

@@ -20,6 +20,11 @@ public:
     auto sizeInBits() const -> size_t;
     auto sizeInBytes() const -> size_t;
 
+    auto encode(uint64_t value) const -> Binary;
+    auto encode(int64_t value) const -> Binary;
+    auto decode(const Binary& binary, size_t offset) const
+        -> std::optional<std::pair<size_t, uint64_t>>;
+
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:

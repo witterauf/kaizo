@@ -15,12 +15,14 @@ public:
         Name,
         IndexWildcard,
         Index,
-        Parent
+        Parent,
+        Pointer
     };
 
     static auto makeName(const std::string& name) -> DataPathElement;
     static auto makeIndex(size_t index) -> DataPathElement;
     static auto makeIndexWildcard() -> DataPathElement;
+    static auto makePointer() -> DataPathElement;
 
     auto kind() const -> Kind;
     bool isName() const;
@@ -47,6 +49,7 @@ public:
     static auto fromString(const std::string) -> std::optional<DataPath>;
 
     void goUp();
+    auto parent() const -> DataPath;
     auto operator/=(const DataPathElement& element) -> DataPath&;
 
     auto toString() const -> std::string;

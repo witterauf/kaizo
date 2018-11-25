@@ -1,6 +1,7 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/Data.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 #include <fuse/binary/IntegerData.h>
 #include <fuse/binary/NullData.h>
 #include <fuse/binary/PointerFormat.h>
@@ -78,10 +79,28 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     return {};
 }
 
-void PointerFormat::doEncode(DataWriter&, const Data&)
+void PointerFormat::doEncode(DataWriter& writer, const Data& data)
 {
     Expects(m_addressFormat);
     Expects(m_pointedFormat);
+
+    if (m_pointedFormat->isPointer())
+    {
+        /*
+        writer.enter(DataPath::Pointer...)
+        writer.placeHere();
+        */
+        throw std::runtime_error{"writing pointer to pointer not yet supported"};
+    }
+    else
+    {
+        writeAddressPlaceHolder(writer);
+        writer.enterLevel();
+        writer.enter(DataPathElement::makePointer());
+        m_pointedFormat->encode(writer, data);
+        writer.leave();
+        writer.leaveLevel();
+    }
 }
 
 void PointerFormat::copyPointerFormat(PointerFormat& format) const

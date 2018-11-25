@@ -42,7 +42,12 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/Integers.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/AddressMap.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/UnresolvedReference.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/AnnotatedBinary.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/address_formats/AbsoluteOffset.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/addresses/AddressStorageFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/addresses/RelativeStorageFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/addresses/AbsoluteStorageFormat.h
     binary/StringData.cc
     binary/IntegerData.cc
     binary/PointerData.cc
@@ -67,7 +72,11 @@ set(FUSE_BINARY_SOURCES
     binary/LuaAddressLibrary.cc
     binary/DataWriter.cc
     binary/AddressMap.cc
+    binary/UnresolvedReference.cc
+    binary/AnnotatedBinary.cc
     binary/address_formats/AbsoluteOffset.cc
+    binary/reference_formats/RelativeReferenceFormat.h
+    binary/reference_formats/RelativeReferenceFormat.cc
 )
 
 set(FUSE_BINARY_LOADERS_SOURCES
