@@ -1,4 +1,5 @@
 #include "LuaRelativeOffsetFormatLoader.h"
+#include "../../LuaIntegerLayoutLoader.h"
 #include <fuse/addresses/AddressFormat.h>
 #include <sol.hpp>
 
@@ -10,7 +11,7 @@ auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_sta
     auto pointerFormat = std::make_unique<RelativeOffsetFormat>();
     if (loadOffsetFormat(format, *pointerFormat) && loadAddressFormat(format, *pointerFormat) &&
         loadBaseAddress(format, *pointerFormat) && loadPointeeFormat(format, *pointerFormat) &&
-        loadIgnoredOffset(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
+        loadNullPointer(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
     {
         if (readDataFormat(format, state, *pointerFormat))
         {
@@ -23,11 +24,12 @@ auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_sta
 bool LuaRelativeOffsetFormatLoader::loadOffsetFormat(const sol::table& table,
                                                      RelativeOffsetFormat& format)
 {
-    if (auto maybeOffsetFormat = requireField<IntegerFormat*>(table, "offset_format"))
+    if (auto maybeOffsetFormat = requireField<sol::table>(table, "offset_format"))
     {
-        auto copy = (*maybeOffsetFormat)->copy();
-        format.setOffsetFormat(
-            std::unique_ptr<IntegerFormat>(static_cast<IntegerFormat*>(copy.release())));
+        auto layout = loadIntegerLayout(*maybeOffsetFormat);
+        auto storageFormat = std::make_unique<RelativeStorageFormat>();
+        storageFormat->setOffsetFormat(layout);
+        format.setOffsetFormat(std::move(storageFormat));       
         return true;
     }
     return false;
@@ -80,27 +82,47 @@ bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
     return false;
 }
 
-bool LuaRelativeOffsetFormatLoader::loadIgnoredOffset(const sol::table& table,
-                                                      RelativeOffsetFormat& format)
+bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table,
+                                                    RelativeOffsetFormat& format)
 {
-    if (hasField(table, "ignore_if"))
+    if (hasField(table, "null_pointer"))
     {
-        auto field = table.get<sol::object>("ignore_if");
-        if (field.is<int64_t>())
+        if (auto maybeNullPointer = requireField<sol::table>(table, "null_pointer"))
         {
-            auto const offset = field.as<int64_t>();
-            std::unique_ptr<FixedOffsetValidator> validator;
-            if (offset < 0)
+            if (auto maybeAddress = requireField<sol::object>(*maybeNullPointer, "address"))
             {
-                validator =
-                    std::make_unique<FixedOffsetValidator>(std::make_unique<IntegerData>(offset));
+                if (maybeAddress->is<Address>())
+                {
+                    format.setNullPointer(maybeAddress->as<Address>());
+                }
+                else if (maybeAddress->is<AddressFormat::address_t>())
+                {
+                    if (auto const address = format.addressFormat().fromInteger(
+                            maybeAddress->as<AddressFormat::address_t>()))
+                    {
+                        format.setNullPointer(*address);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
             }
             else
             {
-                validator = std::make_unique<FixedOffsetValidator>(
-                    std::make_unique<IntegerData>(field.as<uint64_t>()));
+                return false;
             }
-            format.setOffsetValidator(std::move(validator));
+
+            if (auto maybeOffset =
+                    requireField<AddressFormat::offset_t>(*maybeNullPointer, "offset"))
+            {
+                format.setNullPointerOffset(*maybeOffset);
+            }
+            else
+            {
+                return false;
+            }
+
             return true;
         }
         else

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LuaDataFormatLoader.h"
-#include <fuse/binary/formats/PointerFormat.h>
+#include <fuse/binary/formats/RelativePointerFormat.h>
 
 namespace fuse::binary {
 
@@ -16,7 +16,7 @@ private:
     bool loadAddressFormat(const sol::table& table, RelativeOffsetFormat& format);
     bool loadBaseAddress(const sol::table& table, RelativeOffsetFormat& format);
     bool loadPointeeFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadIgnoredOffset(const sol::table& table, RelativeOffsetFormat& format);
+    bool loadNullPointer(const sol::table& table, RelativeOffsetFormat& format);
     bool loadUseAddressMap(const sol::table& table, RelativeOffsetFormat& format);
 };
 

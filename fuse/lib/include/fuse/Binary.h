@@ -85,6 +85,18 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary;
 
 //##[ implementation ]#############################################################################
 
+template <class T> auto Binary::readAs(size_t offset, const IntegerLayout& layout) const -> T
+{
+    if (layout.endianness == Endianness::Little)
+    {
+        return readAs<T>(offset, layout.sizeInBytes);
+    }
+    else
+    {
+        return readAs<T>(offset, layout.sizeInBytes);
+    }
+}
+
 template <size_t N, class T> auto Binary::readLittle(size_t offset) const -> T
 {
     T result{0};
@@ -93,6 +105,18 @@ template <size_t N, class T> auto Binary::readLittle(size_t offset) const -> T
         result |= m_data[offset + i] << (i * 8);
     }
     return result;
+}
+
+template <class T> void Binary::append(T value, const IntegerLayout& layout)
+{
+    if (layout.endianness == Endianness::Little)
+    {
+        appendLittle(value, layout.sizeInBytes);
+    }
+    else
+    {
+        appendBig(value, layout.sizeInBytes);
+    }
 }
 
 template <class T> void Binary::appendLittle(T value, size_t size)

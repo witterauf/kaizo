@@ -4,71 +4,13 @@
 #include <fuse/addresses/AddressMap.h>
 #include <fuse/addresses/LuaAddressLibrary.h>
 #include <fuse/addresses/RegionAddressMap.h>
+#include <fuse/lua/Utilities.h>
 #include <fuse/utilities/StringAlgorithms.h>
 #include <sol.hpp>
 
 using namespace std::literals;
 
 namespace fuse {
-
-class FuseException : public std::runtime_error
-{
-public:
-    explicit FuseException(const std::string& what)
-        : std::runtime_error{what}
-    {
-    }
-};
-
-class FuseLuaException : public FuseException
-{
-public:
-    explicit FuseLuaException(const std::string& what)
-        : FuseException{what}
-    {
-    }
-};
-
-template <class Key> bool hasField(const sol::table& table, const Key& key)
-{
-    auto field = table.get<sol::object>(key);
-    return field.valid();
-}
-
-template <class Value, class Key>
-auto requireField(const sol::table& table, const Key& key) -> Value
-{
-    auto field = table.get<sol::object>(key);
-    if (field.valid())
-    {
-        if (field.is<Value>())
-        {
-            return field.as<Value>();
-        }
-        else
-        {
-            if constexpr (std::is_integral<Key>::value)
-            {
-                throw FuseLuaException{"field ["s + std::to_string(key) + "] has the wrong type"};
-            }
-            else
-            {
-                throw FuseLuaException{"field '"s + key + "' has the wrong type"};
-            }
-        }
-    }
-    else
-    {
-        if constexpr (std::is_integral<Key>::value)
-        {
-            throw FuseLuaException{"field ["s + std::to_string(key) + "] is required"};
-        }
-        else
-        {
-            throw FuseLuaException{"field '"s + key + "' is required"};
-        }
-    }
-}
 
 auto makeAbsoluteOffset() -> std::unique_ptr<AbsoluteOffset>
 {

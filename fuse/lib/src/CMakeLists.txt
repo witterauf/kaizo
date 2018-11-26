@@ -11,11 +11,14 @@ set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/LuaBaseLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/LuaFuseLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/Integers.h
+    ${FUSE_INCLUDE_DIRECTORY}/FuseException.h
     Binary.cc
     BinaryStream.cc
     UsageMap.cc
     LuaBaseLibrary.cc
     LuaFuseLibrary.cc
+    LuaIntegerLayoutLoader.h
+    LuaIntegerLayoutLoader.cc
 )
 
 set(FUSE_ADDRESSES_SOURCES
@@ -64,11 +67,15 @@ set(FUSE_BINARY_FORMATS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/IntegerFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/RecordFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/PointerFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/formats/RelativePointerFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/formats/AbsolutePointerFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/StringFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/BinaryFormat.h
     binary/formats/DataFormat.cc
     binary/formats/StringFormat.cc
     binary/formats/PointerFormat.cc
+    binary/formats/RelativePointerFormat.cc
+    binary/formats/AbsolutePointerFormat.cc
     binary/formats/RecordFormat.cc
     binary/formats/ArrayFormat.cc
     binary/formats/IntegerFormat.cc
@@ -188,6 +195,8 @@ set(FUSE_SYSTEMS_SOURCES
 
 set(FUSE_LUA_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/lua/LuaLoader.h
+    ${FUSE_INCLUDE_DIRECTORY}/lua/Utilities.h
+    ${FUSE_INCLUDE_DIRECTORY}/lua/FuseLuaException.h
     lua/LuaLoader.cc
 )
 

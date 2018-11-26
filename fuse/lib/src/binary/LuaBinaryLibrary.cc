@@ -76,6 +76,7 @@ auto loadIntegerFormat(const sol::table& format, sol::this_state state)
 }
 
 auto loadRelativeOffsetFormat(const sol::table& format, sol::this_state state)
+    -> std::unique_ptr<RelativeOffsetFormat>
 {
     LuaRelativeOffsetFormatLoader loader;
     if (auto maybePointerFormat = loader.load(format, state))

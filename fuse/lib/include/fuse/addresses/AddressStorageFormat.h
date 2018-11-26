@@ -18,6 +18,7 @@ public:
     virtual auto writePlaceHolder() const -> Binary = 0;
     virtual auto readAddress(const Binary& binary, size_t offset) const
         -> std::optional<std::pair<size_t, Address>> = 0;
+    virtual auto copy() const -> std::unique_ptr<AddressStorageFormat> = 0;
 };
 
 } // namespace fuse
