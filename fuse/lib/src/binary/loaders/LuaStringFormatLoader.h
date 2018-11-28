@@ -20,6 +20,8 @@ public:
     auto loadTable(const std::filesystem::path& filename) -> std::optional<text::Table>;
 
 private:
+    bool loadFixedLength(const sol::table& table, StringFormat& format);
+
     void reportUnknownEncoding(const std::string& name);
 
     sol::this_state* m_lua{nullptr};

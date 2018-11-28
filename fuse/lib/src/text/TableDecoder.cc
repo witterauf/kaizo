@@ -138,6 +138,14 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
                 throw std::runtime_error{"exceeded fixed length"};
             }
         }
+    }    
+    if (m_fixedLength)
+    {
+        auto const length = m_offset - offset;
+        if (length < *m_fixedLength)
+        {
+            m_offset = offset + length;
+        }
     }
     return std::make_pair(m_offset, text);
 }

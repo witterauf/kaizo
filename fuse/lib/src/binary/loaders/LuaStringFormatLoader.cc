@@ -14,22 +14,34 @@ auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state
     -> std::optional<std::unique_ptr<StringFormat>>
 {
     m_lua = &state;
+    std::unique_ptr<StringFormat> stringFormat;
     if (auto maybeEncoding = format.get<sol::optional<text::TextEncoding*>>("encoding"))
     {
-        auto stringFormat = std::make_unique<StringFormat>((*maybeEncoding)->copy());
+        stringFormat = std::make_unique<StringFormat>((*maybeEncoding)->copy());
         readDataFormat(format, state, *stringFormat);
-        return std::move(stringFormat);
     }
     else if (auto maybeEncodingName = requireField<std::string>(format, "encoding"))
     {
         if (*maybeEncodingName == "table")
         {
-            return loadTableFormat(format);
+            if (auto maybeTableFormat = loadTableFormat(format))
+            {
+                stringFormat = std::move(*maybeTableFormat);
+            }
         }
         else
         {
             reportUnknownEncoding(*maybeEncodingName);
+            return {};
         }
+    }
+    else
+    {
+        return {};
+    }
+    if (loadFixedLength(format, *stringFormat))
+    {
+        return std::move(stringFormat);
     }
     return {};
 }
@@ -73,6 +85,19 @@ auto LuaStringFormatLoader::loadTable(const std::filesystem::path& filename)
     {
         return reader.load(filename);
     }
+}
+
+bool LuaStringFormatLoader::loadFixedLength(const sol::table& table, StringFormat& format)
+{
+    if (hasField(table, "fixed_length"))
+    {
+        if (auto maybeLength = requireField<size_t>(table, "fixed_length"))
+        {
+            format.setFixedLength(*maybeLength);
+            return true;
+        }
+    }
+    return false;
 }
 
 //##[ diagnostics ]################################################################################

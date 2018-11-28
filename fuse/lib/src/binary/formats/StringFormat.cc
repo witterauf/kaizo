@@ -16,12 +16,28 @@ void StringFormat::setEncoding(std::unique_ptr<text::TextEncoding>&& encoding)
     m_encoding = std::move(encoding);
 }
 
+void StringFormat::setFixedLength(size_t length)
+{
+    m_fixedLength = length;
+}
+
 auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 {
     Expects(m_encoding);
     try
     {
-        auto [newOffset, string] = m_encoding->decode(reader.binary(), reader.offset());
+        size_t newOffset;
+        std::string string;
+        if (m_fixedLength)
+        {
+            std::tie(newOffset, string) =
+                m_encoding->decode(reader.binary().read(reader.offset(), *m_fixedLength), 0);
+            newOffset = reader.offset() + *m_fixedLength;
+        }
+        else
+        {
+            std::tie(newOffset, string) = m_encoding->decode(reader.binary(), reader.offset());
+        }
         auto data = std::make_unique<StringData>();
         data->setValue(string);
         reader.annotateRange(reader.offset(), newOffset - reader.offset());
@@ -39,7 +55,7 @@ void StringFormat::doEncode(DataWriter& writer, const Data& data)
     Expects(m_encoding);
     if (data.type() != DataType::String)
     {
-        throw std::runtime_error{"tytpe mismatch"};
+        throw std::runtime_error{"type mismatch"};
     }
     auto const& stringData = static_cast<const StringData&>(data);
 
@@ -50,6 +66,7 @@ void StringFormat::doEncode(DataWriter& writer, const Data& data)
 auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
 {
     auto data = std::make_unique<StringFormat>(m_encoding->copy());
+    data->m_fixedLength = m_fixedLength;
     copyDataFormat(*data);
     return std::move(data);
 }

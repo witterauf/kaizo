@@ -2,6 +2,7 @@
 
 #include "DataFormat.h"
 #include <fuse/text/TextEncoding.h>
+#include <optional>
 
 namespace fuse::binary {
 
@@ -12,6 +13,7 @@ public:
     explicit StringFormat(std::unique_ptr<text::TextEncoding>&& encoding);
 
     void setEncoding(std::unique_ptr<text::TextEncoding>&& encoding);
+    void setFixedLength(size_t length);
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
@@ -19,6 +21,7 @@ protected:
     void doEncode(DataWriter& writer, const Data& data) override;
 
 private:
+    std::optional<size_t> m_fixedLength;
     std::unique_ptr<text::TextEncoding> m_encoding;
 };
 
