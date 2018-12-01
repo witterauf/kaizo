@@ -44,6 +44,18 @@ bool LuaRecordFormatLoader::loadElement(const sol::table& table, RecordFormat& f
     {
         if (auto maybeElementFormat = requireField<DataFormat*>(table, "element_format"))
         {
+            if (hasField(table, "fixed_offset"))
+            {
+                if (auto maybeFixedOffset = readField<size_t>(table, "fixed_offset"))
+                {
+                    (*maybeElementFormat)->setFixedOffset(*maybeFixedOffset);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
             format.append(*maybeName, (*maybeElementFormat)->copy());
             return true;
         }

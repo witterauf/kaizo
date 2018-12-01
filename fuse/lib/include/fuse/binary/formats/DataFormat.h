@@ -16,6 +16,7 @@ public:
     void storeAs(const std::string& label);
     void doNotStore();
 
+    void setFixedOffset(size_t offset);
     void setAlignment(size_t alignment);
     void setSkipAfter(size_t size);
     void setSkipBefore(size_t size);
@@ -32,6 +33,7 @@ protected:
     void copyDataFormat(DataFormat& format) const;
 
 private:
+    std::optional<size_t> m_offset;
     size_t m_alignment{1};
     size_t m_skipBefore{0};
     size_t m_skipAfter{0};

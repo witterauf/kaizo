@@ -16,6 +16,11 @@ void DataFormat::doNotStore()
     m_storeAs = {};
 }
 
+void DataFormat::setFixedOffset(size_t offset)
+{
+    m_offset = offset;
+}
+
 void DataFormat::setAlignment(size_t alignment)
 {
     Expects(alignment > 0);
@@ -34,7 +39,7 @@ void DataFormat::setSkipBefore(size_t size)
 
 auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
 {
-    auto const unalignedOffset = reader.offset() + m_skipBefore;
+    auto const unalignedOffset = m_skipBefore + (m_offset ? *m_offset : reader.offset());
     if (unalignedOffset % m_alignment != 0)
     {
         reader.setOffset(unalignedOffset + (m_alignment - (unalignedOffset % m_alignment)));
@@ -57,6 +62,7 @@ void DataFormat::encode(DataWriter& writer, const Data& data)
 
 void DataFormat::copyDataFormat(DataFormat& format) const
 {
+    format.m_offset = m_offset;
     format.m_skipAfter = m_skipAfter;
     format.m_skipBefore = m_skipBefore;
     format.m_alignment = m_alignment;

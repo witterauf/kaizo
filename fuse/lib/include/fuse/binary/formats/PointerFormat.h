@@ -13,7 +13,7 @@ class PointerFormat : public DataFormat
 public:
     void useAddressMap(bool on);
     void setNullPointer(const Address& null);
-    void setAddressFormat(std::unique_ptr<AddressFormat>&& format);
+    void setAddressFormat(AddressFormat* format);
     void setPointedFormat(std::unique_ptr<DataFormat>&& format);
 
     auto addressFormat() const -> const AddressFormat&;
@@ -30,7 +30,7 @@ protected:
     void copyPointerFormat(PointerFormat& format) const;
 
 private:
-    std::unique_ptr<AddressFormat> m_addressFormat;
+    AddressFormat* m_addressFormat{nullptr};
     std::unique_ptr<DataFormat> m_pointedFormat;
     bool m_useAddressMap{false};
     std::optional<Address> m_nullPointer;

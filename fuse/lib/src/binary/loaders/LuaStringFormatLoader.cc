@@ -96,8 +96,9 @@ bool LuaStringFormatLoader::loadFixedLength(const sol::table& table, StringForma
             format.setFixedLength(*maybeLength);
             return true;
         }
+        return false;
     }
-    return false;
+    return true;
 }
 
 //##[ diagnostics ]################################################################################

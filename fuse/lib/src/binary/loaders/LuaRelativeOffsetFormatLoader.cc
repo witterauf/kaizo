@@ -40,7 +40,7 @@ bool LuaRelativeOffsetFormatLoader::loadAddressFormat(const sol::table& table,
 {
     if (auto maybeAddressFormat = requireField<AddressFormat*>(table, "address_format"))
     {
-        format.setAddressFormat((*maybeAddressFormat)->copy());
+        format.setAddressFormat(*maybeAddressFormat);
         return true;
     }
     return false;

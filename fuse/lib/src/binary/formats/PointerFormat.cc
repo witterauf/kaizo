@@ -19,10 +19,10 @@ void PointerFormat::setNullPointer(const Address& null)
     m_nullPointer = null;
 }
 
-void PointerFormat::setAddressFormat(std::unique_ptr<AddressFormat>&& format)
+void PointerFormat::setAddressFormat(AddressFormat* format)
 {
     Expects(format);
-    m_addressFormat = std::move(format);
+    m_addressFormat = format;
 }
 
 void PointerFormat::setPointedFormat(std::unique_ptr<DataFormat>&& format)
@@ -111,9 +111,10 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
 
 void PointerFormat::copyPointerFormat(PointerFormat& format) const
 {
-    format.m_addressFormat = m_addressFormat->copy();
+    format.m_addressFormat = m_addressFormat;
     format.m_pointedFormat = m_pointedFormat->copy();
     format.m_useAddressMap = m_useAddressMap;
+    format.m_nullPointer = m_nullPointer;
     copyDataFormat(format);
 }
 
