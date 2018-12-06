@@ -82,9 +82,16 @@ set(FUSE_BINARY_FORMATS_SOURCES
     binary/formats/BinaryFormat.cc
 )
 
+set(FUSE_BINARY_SERIALIZATION_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/Serialization.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/CsvSerialization.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/LuaSerialization.h
+    binary/serialization/CsvSerialization.cc
+    binary/serialization/LuaSerialization.cc
+)
+
 set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataReader.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/LuaWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataPath.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/LuaBinaryLibrary.h
@@ -92,8 +99,9 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/UnresolvedReference.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/AnnotatedBinary.h
     binary/DataReader.cc
-    binary/LuaWriter.cc
     binary/DataPath.cc
+    binary/DataPathParser.h
+    binary/DataPathParser.cc
     binary/LuaBinaryLibrary.cc
     binary/DataWriter.cc
     binary/UnresolvedReference.cc
@@ -127,6 +135,7 @@ set(FUSE_TEXT_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEntry.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TextEncoding.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoding.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/StringSet.h
     text/ShiftJis.cc
     text/ShiftJisToUnicode.h
     text/Table.cc
@@ -142,6 +151,7 @@ set(FUSE_TEXT_SOURCES
     text/TableControlParser.cc
     text/LuaTableLibrary.cc
     text/TableEncoding.cc
+    text/StringSet.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES
@@ -186,6 +196,8 @@ set(FUSE_GRAPHICS_SOURCES
 
 set(FUSE_UTILITIES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/utilities/StringAlgorithms.h
+    ${FUSE_INCLUDE_DIRECTORY}/utilities/CsvReader.h
+    utilities/CsvReader.cc
 )
 
 set(FUSE_SYSTEMS_SOURCES
@@ -211,6 +223,7 @@ set(FUSE_SOURCES
     ${FUSE_BINARY_FORMATS_SOURCES}
     ${FUSE_BINARY_DATA_SOURCES}
     ${FUSE_BINARY_LOADERS_SOURCES}
+    ${FUSE_BINARY_SERIALIZATION_SOURCES}
     ${FUSE_TEXT_SOURCES}
     ${FUSE_GRAPHICS_SOURCES}
     ${FUSE_SYSTEMS_SOURCES}
@@ -225,6 +238,7 @@ source_group("Binary" FILES ${FUSE_BINARY_SOURCES})
 source_group("Binary\\Loaders" FILES ${FUSE_BINARY_LOADERS_SOURCES})
 source_group("Binary\\Data" FILES ${FUSE_BINARY_DATA_SOURCES})
 source_group("Binary\\Formats" FILES ${FUSE_BINARY_FORMATS_SOURCES})
+source_group("Binary\\Serialization" FILES ${FUSE_BINARY_SERIALIZATION_SOURCES})
 #source_group("ELF" FILES ${FUSE_ELF_SOURCES})
 source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Lua" FILES ${FUSE_LUA_SOURCES})

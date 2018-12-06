@@ -7,6 +7,12 @@ StringData::StringData()
 {
 }
 
+StringData::StringData(const std::string& value)
+    : Data{DataType::String}
+    , m_value{value}
+{
+}
+
 void StringData::setValue(const std::string& value)
 {
     m_value = value;

@@ -3,9 +3,29 @@
 
 namespace fuse::binary {
 
+ArrayData::ArrayData(size_t size)
+    : Data{DataType::Array}
+    , m_elements(size)
+{
+}
+
 ArrayData::ArrayData()
     : Data{DataType::Array}
 {
+}
+
+void ArrayData::set(size_t index, std::unique_ptr<Data>&& element)
+{
+    if (index >= m_elements.size())
+    {
+        m_elements.resize(index + 1);
+    }
+    m_elements[index] = std::move(element);
+}
+
+bool ArrayData::hasElement(size_t index) const
+{
+    return index < m_elements.size() && m_elements[index] != nullptr;
 }
 
 void ArrayData::append(std::unique_ptr<Data>&& element)
@@ -19,6 +39,12 @@ auto ArrayData::elementCount() const -> size_t
 }
 
 auto ArrayData::element(size_t index) const -> const Data&
+{
+    Expects(index < elementCount());
+    return *m_elements[index];
+}
+
+auto ArrayData::element(size_t index) -> Data&
 {
     Expects(index < elementCount());
     return *m_elements[index];

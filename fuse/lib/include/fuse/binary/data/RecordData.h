@@ -17,6 +17,7 @@ public:
     auto elementCount() const -> size_t;
     bool has(const std::string& name) const;
     auto element(const std::string& name) const -> const Data&;
+    auto element(const std::string& name) -> Data&;
     auto elementNames() const -> std::vector<std::string>;
 
     bool isEqual(const Data& rhs) const override;

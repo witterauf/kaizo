@@ -9,6 +9,8 @@ class StringData : public Data
 {
 public:
     StringData();
+    explicit StringData(const std::string& value);
+
     void setValue(const std::string& value);
     auto value() const -> const std::string&;
 

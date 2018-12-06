@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include <string>
 
 namespace fuse::binary {
 
@@ -15,6 +17,9 @@ enum class DataType
     Image,
     Custom
 };
+
+auto toDataType(const std::string& string) -> std::optional<DataType>;
+auto toString(DataType type) -> std::string;
 
 class Data
 {

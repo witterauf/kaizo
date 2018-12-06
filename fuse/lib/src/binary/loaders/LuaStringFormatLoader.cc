@@ -15,9 +15,9 @@ auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state
 {
     m_lua = &state;
     std::unique_ptr<StringFormat> stringFormat;
-    if (auto maybeEncoding = format.get<sol::optional<text::TextEncoding*>>("encoding"))
+    if (auto maybeEncoding = format.get<sol::optional<std::shared_ptr<text::TextEncoding>>>("encoding"))
     {
-        stringFormat = std::make_unique<StringFormat>((*maybeEncoding)->copy());
+        stringFormat = std::make_unique<StringFormat>(*maybeEncoding);
         readDataFormat(format, state, *stringFormat);
     }
     else if (auto maybeEncodingName = requireField<std::string>(format, "encoding"))
@@ -49,7 +49,7 @@ auto LuaStringFormatLoader::load(const sol::table& format, sol::this_state state
 auto LuaStringFormatLoader::loadTableFormat(const sol::table& format)
     -> std::optional<std::unique_ptr<StringFormat>>
 {
-    std::unique_ptr<text::TableEncoding> encoding;
+    std::shared_ptr<text::TableEncoding> encoding;
     bool tableSuccess{false};
     if (auto maybeFileName = requireField<std::string>(format, "table"))
     {
@@ -62,7 +62,7 @@ auto LuaStringFormatLoader::loadTableFormat(const sol::table& format)
 
     if (tableSuccess)
     {
-        auto stringFormat = std::make_unique<StringFormat>(std::move(encoding));
+        auto stringFormat = std::make_unique<StringFormat>(encoding);
         readDataFormat(format, *m_lua, *stringFormat);
         return std::move(stringFormat);
     }

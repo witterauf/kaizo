@@ -29,6 +29,12 @@ auto RecordData::element(const std::string& name) const -> const Data&
     return *m_elements.at(name);
 }
 
+auto RecordData::element(const std::string& name) -> Data&
+{
+    Expects(has(name));
+    return *m_elements.at(name);
+}
+
 auto RecordData::elementNames() const -> std::vector<std::string>
 {
     std::vector<std::string> names;

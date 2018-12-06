@@ -1,3 +1,4 @@
+#include "DataPathParser.h"
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/DataPath.h>
 
@@ -132,7 +133,7 @@ auto DataPath::toString() const -> std::string
     std::string string;
     for (auto i = 0U; i < m_elements.size(); ++i)
     {
-        if (i > 0 && m_elements[i - 1].isName())
+        if (i > 0 && m_elements[i].isName())
         {
             string += ".";
         }
@@ -151,6 +152,28 @@ auto DataPath::parent() const -> DataPath
     auto path = *this;
     path.goUp();
     return path;
+}
+
+auto DataPath::length() const -> size_t
+{
+    return m_elements.size();
+}
+
+auto DataPath::element(size_t index) const -> const DataPathElement&
+{
+    Expects(index < length());
+    return m_elements[index];
+}
+
+void DataPath::clear()
+{
+    m_elements.clear();
+}
+
+auto DataPath::fromString(const std::string string) -> std::optional<DataPath>
+{
+    DataPathParser parser;
+    return parser.parse(string);
 }
 
 } // namespace fuse::binary

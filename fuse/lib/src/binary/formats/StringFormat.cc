@@ -6,14 +6,14 @@
 
 namespace fuse::binary {
 
-StringFormat::StringFormat(std::unique_ptr<text::TextEncoding>&& encoding)
-    : m_encoding{std::move(encoding)}
+StringFormat::StringFormat(const std::shared_ptr<text::TextEncoding>& encoding)
+    : m_encoding{encoding}
 {
 }
 
-void StringFormat::setEncoding(std::unique_ptr<text::TextEncoding>&& encoding)
+void StringFormat::setEncoding(const std::shared_ptr<text::TextEncoding>& encoding)
 {
-    m_encoding = std::move(encoding);
+    m_encoding = encoding;
 }
 
 void StringFormat::setFixedLength(size_t length)

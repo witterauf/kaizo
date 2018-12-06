@@ -51,6 +51,9 @@ public:
     void goUp();
     auto parent() const -> DataPath;
     auto operator/=(const DataPathElement& element) -> DataPath&;
+    auto length() const -> size_t;
+    auto element(size_t index) const -> const DataPathElement&;
+    void clear();
 
     auto toString() const -> std::string;
 

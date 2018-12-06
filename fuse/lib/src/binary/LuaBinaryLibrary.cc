@@ -7,7 +7,6 @@
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
-#include <fuse/binary/LuaWriter.h>
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/formats/ArrayFormat.h>
 #include <fuse/binary/formats/DataFormat.h>
@@ -15,6 +14,9 @@
 #include <fuse/binary/formats/PointerFormat.h>
 #include <fuse/binary/formats/RecordFormat.h>
 #include <fuse/binary/formats/StringFormat.h>
+#include <fuse/binary/serialization/CsvSerialization.h>
+#include <fuse/binary/serialization/LuaSerialization.h>
+#include <fuse/binary/serialization/Serialization.h>
 #include <sol.hpp>
 
 namespace fuse::binary {
@@ -114,6 +116,60 @@ void DataReader_setAddressMap(DataReader& reader, const AddressMap* addressMap)
     reader.setAddressMap(addressMap->copy());
 }
 
+static void serializeData(const Data& data, const std::string& filename, sol::this_state state)
+{
+    std::filesystem::path path{filename};
+    if (path.extension() == ".csv")
+    {
+        CsvSerialization serialization;
+        serialization.serialize(data, path);
+    }
+    else if (path.extension() == ".lua")
+    {
+        LuaSerialization serialization{state};
+        serialization.serialize(data, path);
+    }
+    else
+    {
+        throw std::runtime_error{"serialize: unsupported type"};
+    }
+}
+
+static auto deserializeData(const std::string& filename, sol::this_state state)
+    -> std::unique_ptr<Data>
+
+{
+    std::filesystem::path path{filename};
+    if (path.extension() == ".csv")
+    {
+        CsvSerialization serialization;
+        if (auto data = serialization.deserialize(path))
+        {
+            return std::move(data);
+        }
+        else
+        {
+            throw std::runtime_error{"deserialize: failed"};
+        }
+    }
+    else if (path.extension() == ".lua")
+    {
+        LuaSerialization serialization{state};
+        if (auto data = serialization.deserialize(path))
+        {
+            return std::move(data);
+        }
+        else
+        {
+            throw std::runtime_error{"deserialize: failed"};
+        }
+    }
+    else
+    {
+        throw std::runtime_error{"deserialize: unsupported type"};
+    }
+}
+
 auto openBinaryLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -122,7 +178,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_enum("SIGNEDNESS", "SIGNED", Signedness::Signed, "UNSIGNED", Signedness::Unsigned);
     module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);
 
-    module.new_usertype<Data>("Data");
+    module.new_usertype<Data>("Data", "deserialize", sol::factories(&deserializeData), "serialize",
+                              &serializeData);
     module.new_usertype<DataReader>(
         "DataReader", "new", sol::factories(&makeDataReader), "set_offset", &DataReader::setOffset,
         "decoded_ranges", &getDataReaderRanges, "set_address_map", &DataReader_setAddressMap);
@@ -141,9 +198,6 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<RelativeOffsetFormat>("RelativeOffsetFormat", sol::call_constructor,
                                               &loadRelativeOffsetFormat, sol::base_classes,
                                               sol::bases<DataFormat, PointerFormat>());
-
-    module.new_usertype<LuaWriter>("LuaWriter", "new", sol::constructors<LuaWriter()>(), "write",
-                                   sol::resolve<std::string(const Data&)>(&LuaWriter::write));
 
     return module;
 }

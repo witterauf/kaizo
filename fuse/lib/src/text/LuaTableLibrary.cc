@@ -3,6 +3,7 @@
 #include <fuse/text/LuaTableLibrary.h>
 #include <fuse/text/LuaTableReader.h>
 #include <fuse/text/LuaTableWriter.h>
+#include <fuse/text/StringSet.h>
 #include <fuse/text/Table.h>
 #include <fuse/text/TableDecoder.h>
 #include <fuse/text/TableEncoder.h>
@@ -11,7 +12,7 @@
 
 namespace fuse::text {
 
-auto loadTableFromLua(const std::string& filename, sol::this_state state) -> Table
+static auto loadTableFromLua(const std::string& filename, sol::this_state state) -> Table
 {
     LuaTableReader reader;
     diagnostics::ConsoleDiagnosticsConsumer consumer;
@@ -28,10 +29,22 @@ auto loadTableFromLua(const std::string& filename, sol::this_state state) -> Tab
     }
 }
 
-auto saveTableToLua(const Table& table, const std::string& filename)
+static auto saveTableToLua(const Table& table, const std::string& filename)
 {
     LuaTableWriter writer;
     writer.save(filename, table);
+}
+
+static auto StringSet_getStrings(const StringSet& stringSet, sol::this_state state) -> sol::table
+{
+    sol::state_view lua{state};
+    auto stringsTable = lua.create_table();
+    auto const strings = stringSet.strings();
+    for (auto i = 0U; i < strings.size(); ++i)
+    {
+        stringsTable.raw_set(i + 1, strings[i]);
+    }
+    return stringsTable;
 }
 
 auto openTextLibrary(sol::this_state state) -> sol::table
@@ -56,6 +69,8 @@ auto openTextLibrary(sol::this_state state) -> sol::table
     module.new_usertype<TableEncoder>(
         "TableEncoder", "new", sol::constructors<TableEncoder(), TableEncoder(const Table&)>(),
         "encode", &TableEncoder::encode);
+    module.new_usertype<StringSet>("StringSet", "new", sol::constructors<StringSet()>(), "insert",
+                                   &StringSet::insert, "get_strings", &StringSet_getStrings);
 
     return module;
 }
