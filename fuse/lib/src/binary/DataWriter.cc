@@ -3,9 +3,39 @@
 
 namespace fuse::binary {
 
+DataWriter::DataWriter()
+    : m_sections(1)
+    , m_sectionIndex{1}
+{
+}
+
+void DataWriter::startData(const DataPath& root)
+{
+    Expects(m_sectionIndex == 1);
+    m_path = m_root = root;
+    section().annotated.startObject(m_path);
+}
+
+void DataWriter::finishData()
+{
+    Expects(m_sectionIndex == 1);
+    Expects(m_path == m_root);
+    section().annotated.endObject();
+}
+
+auto DataWriter::assemble() const -> AnnotatedBinary
+{
+    AnnotatedBinary overall;
+    for (auto i = 0U; i < m_sections.size(); ++i)
+    {
+        overall.append(m_sections[i].annotated);
+    }
+    return std::move(overall);
+}
+
 auto DataWriter::binary() -> Binary&
 {
-    return section().binaries.back().binary;
+    return section().annotated.binary();
 }
 
 void DataWriter::enter(const DataPathElement& element)
@@ -18,31 +48,24 @@ void DataWriter::enterLevel()
     if (m_sectionIndex >= m_sections.size())
     {
         m_sections.push_back({});
-        m_sections.back().binaries.push_back({});
     }
     m_sectionIndex++;
 
-    section().referencePath = m_path.parent();
-    section().referenceOffset = sectionOffset(-1);
-    section().dataOffsets[m_path] = sectionOffset();
-}
-
-auto DataWriter::sectionOffset(int relative) const -> size_t
-{
-    return section(relative).binaries.back().offset +
-           section(relative).binaries.back().binary.size();
+    // section().referencePath = m_path.parent();
+    // section().referenceOffset = sectionOffset(-1);
+    // section().dataOffsets[m_path].start = sectionOffset();
 }
 
 void DataWriter::skip(size_t size)
 {
-    section().binaries.push_back({});
-    section().binaries.back().offset = sectionOffset() + size;
+    section().annotated.skip(size);
 }
 
 void DataWriter::leaveLevel()
 {
     Expects(m_sectionIndex > 0);
-    m_sectionIndex--;
+    // section().dataSegments.back().end = sectionOffset();
+    // m_sectionIndex--;
 }
 
 void DataWriter::leave()
@@ -62,8 +85,9 @@ auto DataWriter::section(int relative) const -> const Section&
     return m_sections[m_sectionIndex - relative - 1];
 }
 
-void DataWriter::addUnresolvedReference(const std::shared_ptr<ReferenceFormat>& format)
+void DataWriter::addUnresolvedReference(const std::shared_ptr<ReferenceFormat>&)
 {
+    /*
     auto const& path = section().referencePath;
     auto const offset = section().referenceOffset;
 
@@ -71,6 +95,7 @@ void DataWriter::addUnresolvedReference(const std::shared_ptr<ReferenceFormat>& 
     reference.setDestination(m_path);
     reference.setFormat(format);
     section().unresolvedReferences.push_back(std::move(reference));
+    */
 }
 
 } // namespace fuse::binary

@@ -110,6 +110,20 @@ bool DataPathElement::operator<(const DataPathElement& element) const
     }
 }
 
+bool DataPathElement::operator==(const DataPathElement& element) const
+{
+    if (kind() != element.kind())
+    {
+        return false;
+    }
+    switch (kind())
+    {
+    case Kind::Name: return name() == element.name();
+    case Kind::Index: return name() == element.name();
+    default: return true;
+    }
+}
+
 auto DataPath::operator/=(const DataPathElement& element) -> DataPath&
 {
     /*
@@ -145,6 +159,11 @@ auto DataPath::toString() const -> std::string
 bool DataPath::operator<(const DataPath& rhs) const
 {
     return m_elements < rhs.m_elements;
+}
+
+bool DataPath::operator==(const DataPath& rhs) const
+{
+    return m_elements == rhs.m_elements;
 }
 
 auto DataPath::parent() const -> DataPath

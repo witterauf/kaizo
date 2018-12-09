@@ -2,6 +2,7 @@
 
 #include "AnnotatedBinary.h"
 #include "DataPath.h"
+#include "SegmentedBinary.h"
 #include <fuse/Binary.h>
 #include <fuse/addresses/Address.h>
 #include <map>
@@ -12,8 +13,13 @@ namespace fuse::binary {
 class DataWriter
 {
 public:
+    DataWriter();
+
+    void startData(const DataPath& root);
+    void finishData();
     auto assemble() const -> AnnotatedBinary;
 
+    // DataFormat interface
     auto binary() -> Binary&;
     void enter(const DataPathElement& element);
     void enterLevel();
@@ -24,29 +30,21 @@ public:
     void addUnresolvedReference(const std::shared_ptr<ReferenceFormat>& format);
 
 private:
-    struct OffsetBinary
-    {
-        size_t offset;
-        Binary binary;
-    };
-
     struct Section
     {
+        AnnotatedBinary annotated;
         DataPath referencePath;
-        size_t referenceOffset;
-
-        std::vector<OffsetBinary> binaries;
-        std::map<DataPath, size_t> dataOffsets;
+        size_t referenceOffset{0};
         std::vector<UnresolvedReference> unresolvedReferences;
     };
 
     auto section(int relative = 0) -> Section&;
     auto section(int relative = 0) const -> const Section&;
-    auto sectionOffset(int relative = 0) const -> size_t;
 
     std::vector<Section> m_sections;
     size_t m_sectionIndex{0};
     DataPath m_path;
+    DataPath m_root;
     size_t m_lastPlacedOffset{0};
 };
 

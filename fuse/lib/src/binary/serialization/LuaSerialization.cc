@@ -25,7 +25,7 @@ void LuaSerialization::serialize(const binary::Data& data, const std::filesystem
     if (output.good())
     {
         auto const string = write(data);
-        output << string;
+        output << "return " << string;
     }
     else
     {
@@ -48,7 +48,7 @@ auto LuaSerialization::read(const sol::object& object) -> std::unique_ptr<Data>
     {
     case sol::type::table: return readComplex(object);
     case sol::type::string: return readString(object);
-    case sol::type::number: return readString(object);
+    case sol::type::number: return readInteger(object);
     default: throw std::runtime_error{"unsupported data type"};
     }
 }

@@ -82,16 +82,7 @@ auto TableEncoder::encode(const std::string& text) -> Binary
         {
             if (*maybeNextControl > m_index)
             {
-                if (auto maybeBinary = encodeCharacters(m_index, *maybeNextControl))
-                {
-                    m_binary.append(maybeBinary->second);
-                    m_index += maybeBinary->first;
-                }
-                else
-                {
-                    throw std::runtime_error{"could not encode characters starting with '" +
-                                             m_text->substr(m_index, 1) + "'"};
-                }
+                tryEncodeCharacters(m_index, *maybeNextControl);
             }
             if (!encodeControl())
             {
@@ -100,19 +91,34 @@ auto TableEncoder::encode(const std::string& text) -> Binary
         }
         else
         {
-            if (auto maybeBinary = encodeCharacters(m_index, text.size()))
-            {
-                m_binary.append(maybeBinary->second);
-                m_index += maybeBinary->first;
-            }
-            else
-            {
-                throw std::runtime_error{"could not encode characters starting with '" +
-                                         m_text->substr(m_index, 1) + "'"};
-            }
+            tryEncodeCharacters(m_index, m_text->length());
         }
     }
     return std::move(m_binary);
+}
+
+void TableEncoder::tryEncodeCharacters(size_t begin, size_t end)
+{
+    if (auto maybeBinary = encodeCharacters(begin, end))
+    {
+        m_binary.append(maybeBinary->second);
+        m_index += maybeBinary->first;
+    }
+    else
+    {
+        std::string textSnippet;
+        if (begin > 0)
+        {
+            textSnippet += "... ";
+        }
+        textSnippet += m_text->substr(begin, end - begin);
+        if (end < m_text->length())
+        {
+            textSnippet += " ...";
+        }
+
+        throw std::runtime_error{"could not encode '" + textSnippet + "'"};
+    }
 }
 
 auto TableEncoder::encodeCharacters(size_t begin, size_t end)

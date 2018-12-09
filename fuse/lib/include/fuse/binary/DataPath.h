@@ -37,6 +37,7 @@ public:
     auto toString() const -> std::string;
 
     bool operator<(const DataPathElement& element) const;
+    bool operator==(const DataPathElement& element) const;
 
 private:
     Kind m_kind;
@@ -58,6 +59,7 @@ public:
     auto toString() const -> std::string;
 
     bool operator<(const DataPath& rhs) const;
+    bool operator==(const DataPath& rhs) const;
 
 private:
     std::vector<DataPathElement> m_elements;

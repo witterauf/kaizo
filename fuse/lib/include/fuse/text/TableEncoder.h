@@ -32,6 +32,7 @@ public:
                        const std::vector<TableEntry::ParameterFormat::argument_t>& arguments);
 
 private:
+    void tryEncodeCharacters(size_t begin, size_t end);
     auto findNextControl() const -> std::optional<size_t>;
     auto textLength() const -> size_t;
 

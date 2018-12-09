@@ -6,6 +6,7 @@
 #include <fuse/addresses/Address.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/binary/DataReader.h>
+#include <fuse/binary/DataWriter.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/formats/ArrayFormat.h>
@@ -96,6 +97,11 @@ auto makeDataReader(const std::string& filename) -> std::unique_ptr<DataReader>
     return std::make_unique<DataReader>(filename);
 }
 
+auto makeDataWriter() -> std::unique_ptr<DataWriter>
+{
+    return std::make_unique<DataWriter>();
+}
+
 auto getDataReaderRanges(const DataReader& reader, sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -170,6 +176,30 @@ static auto deserializeData(const std::string& filename, sol::this_state state)
     }
 }
 
+static void DataFormat_encode(DataFormat& format, DataWriter& writer, const sol::object& data,
+                              const std::string& path, sol::this_state state)
+{
+    if (auto maybePath = DataPath::fromString(path))
+    {
+        writer.startData(*maybePath);
+        if (data.is<const Data&>())
+        {
+            format.encode(writer, data.as<const Data&>());
+        }
+        else
+        {
+            LuaSerialization serialization{state};
+            auto deserialized = serialization.read(data);
+            format.encode(writer, *deserialized);
+        }
+        writer.finishData();
+    }
+    else
+    {
+        throw std::runtime_error{"'" + path + "' is not a valid data path"};
+    }
+}
+
 auto openBinaryLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -183,8 +213,10 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<DataReader>(
         "DataReader", "new", sol::factories(&makeDataReader), "set_offset", &DataReader::setOffset,
         "decoded_ranges", &getDataReaderRanges, "set_address_map", &DataReader_setAddressMap);
+    module.new_usertype<DataWriter>("DataWriter", "new", sol::factories(&makeDataWriter));
 
-    module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode);
+    module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode, "encode",
+                                    &DataFormat_encode);
     module.new_usertype<StringFormat>("StringFormat", sol::call_constructor, &loadStringFormat,
                                       sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<ArrayFormat>("ArrayFormat", sol::call_constructor, &loadArrayFormat,
