@@ -1,8 +1,8 @@
 #include <diagnostics/Contracts.h>
-#include <fuse/binary/data/Data.h>
-#include <fuse/binary/DataReader.h>
 #include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/IdempotentAddressMap.h>
+#include <fuse/binary/DataReader.h>
+#include <fuse/binary/data/Data.h>
 
 namespace fuse::binary {
 
@@ -49,9 +49,12 @@ void DataReader::enter(const DataPathElement& element)
     m_currentNode = m_currentNode->children.back().get();
 }
 
-void DataReader::annotateRange(size_t address, size_t size)
+void DataReader::trackRange(const std::string& tag, size_t address, size_t size)
 {
-    m_ranges.annotate(m_path, Range{address, size});
+    if (m_dataRangeConsumer)
+    {
+        m_dataRangeConsumer->track(m_path, DataRangeConsumer::Range{address, size}, tag);
+    }
 }
 
 void DataReader::leave(const Data* data)
@@ -59,11 +62,6 @@ void DataReader::leave(const Data* data)
     m_currentNode->data = data;
     m_currentNode = m_currentNode->parent;
     m_path.goUp();
-}
-
-auto DataReader::ranges() const -> const DataAnnotation<Range>&
-{
-    return m_ranges;
 }
 
 void DataReader::setAddressMap(std::unique_ptr<AddressMap>&& addressMap)

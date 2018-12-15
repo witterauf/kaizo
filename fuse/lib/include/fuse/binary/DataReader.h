@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataAnnotation.h"
+#include "DataRangeTracker.h"
 #include <cstddef>
 #include <fuse/Binary.h>
 #include <fuse/addresses/AddressMap.h>
@@ -25,23 +26,14 @@ public:
     auto addressMap() const -> const AddressMap&;
 
     void enter(const DataPathElement& element);
-    void annotateRange(size_t, size_t);
+    void trackRange(const std::string& tag, size_t offset, size_t size);
     void leave(const Data* data);
-
-    struct Range
-    {
-        size_t address;
-        size_t size;
-    };
-
-    auto ranges() const -> const DataAnnotation<Range>&;
 
 private:
     size_t m_offset{0};
     std::unique_ptr<AddressMap> m_addressMap;
     Binary m_source;
     DataPath m_path;
-    DataAnnotation<Range> m_ranges;
 
     struct DataStructure
     {
@@ -53,6 +45,7 @@ private:
 
     DataStructure m_root;
     DataStructure* m_currentNode{&m_root};
+    DataRangeConsumer* m_dataRangeConsumer{nullptr};
 };
 
 } // namespace fuse::binary

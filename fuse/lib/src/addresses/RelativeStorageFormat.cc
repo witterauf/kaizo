@@ -27,7 +27,11 @@ bool RelativeStorageFormat::isCompatible(const Address address) const
 
 auto RelativeStorageFormat::asLua() const -> std::string
 {
-    return "";
+    std::string lua;
+    lua += "{\n";
+    lua += "  ";
+    lua += "}\n";
+    return lua;
 }
 
 auto RelativeStorageFormat::writeAddress(const Address address) const -> Binary

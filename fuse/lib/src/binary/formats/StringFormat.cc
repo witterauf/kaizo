@@ -40,7 +40,7 @@ auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
         }
         auto data = std::make_unique<StringData>();
         data->setValue(string);
-        reader.annotateRange(reader.offset(), newOffset - reader.offset());
+        track(reader, reader.offset(), newOffset - reader.offset());
         reader.setOffset(newOffset);
         return std::move(data);
     }

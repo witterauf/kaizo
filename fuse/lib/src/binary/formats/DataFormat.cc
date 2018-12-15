@@ -69,4 +69,12 @@ void DataFormat::copyDataFormat(DataFormat& format) const
     format.m_storeAs = m_storeAs;
 }
 
+void DataFormat::track(DataReader& reader, size_t offset, size_t size)
+{
+    if (m_trackTag)
+    {
+        reader.trackRange(*m_trackTag, offset, size);
+    }
+}
+
 } // namespace fuse::binary

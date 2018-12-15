@@ -2,8 +2,8 @@
 #include <fuse/Binary.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
-#include <fuse/binary/UnresolvedReference.h>
 #include <fuse/binary/formats/RelativePointerFormat.h>
+#include <fuse/binary/objects/UnresolvedReference.h>
 
 namespace fuse::binary {
 

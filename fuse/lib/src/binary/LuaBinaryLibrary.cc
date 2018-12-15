@@ -102,6 +102,7 @@ auto makeDataWriter() -> std::unique_ptr<DataWriter>
     return std::make_unique<DataWriter>();
 }
 
+/*
 auto getDataReaderRanges(const DataReader& reader, sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -116,6 +117,7 @@ auto getDataReaderRanges(const DataReader& reader, sol::this_state state) -> sol
     }
     return rangesTable;
 }
+*/
 
 void DataReader_setAddressMap(DataReader& reader, const AddressMap* addressMap)
 {
@@ -216,7 +218,7 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
                               &serializeData);
     module.new_usertype<DataReader>(
         "DataReader", "new", sol::factories(&makeDataReader), "set_offset", &DataReader::setOffset,
-        "decoded_ranges", &getDataReaderRanges, "set_address_map", &DataReader_setAddressMap);
+        /*"decoded_ranges", &getDataReaderRanges,*/ "set_address_map", &DataReader_setAddressMap);
     module.new_usertype<DataWriter>("DataWriter", "new", sol::factories(&makeDataWriter));
 
     module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode, "encode",

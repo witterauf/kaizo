@@ -20,6 +20,7 @@ public:
     void setAlignment(size_t alignment);
     void setSkipAfter(size_t size);
     void setSkipBefore(size_t size);
+    void setTrackTag(const std::string& tag);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
     void encode(DataWriter& writer, const Data& data);
     virtual bool isPointer() const { return false; }
@@ -31,6 +32,7 @@ protected:
     virtual auto doDecode(DataReader& reader) -> std::unique_ptr<Data> = 0;
     virtual void doEncode(DataWriter& writer, const Data& data) = 0;
     void copyDataFormat(DataFormat& format) const;
+    void track(DataReader& reader, size_t offset, size_t size);
 
 private:
     std::optional<size_t> m_offset;
@@ -38,6 +40,7 @@ private:
     size_t m_skipBefore{0};
     size_t m_skipAfter{0};
     std::optional<std::string> m_storeAs;
+    std::optional<std::string> m_trackTag;
 };
 
 template <class T> auto DataFormat::copyAs() -> std::unique_ptr<T>
