@@ -1,5 +1,5 @@
-#include <fuse/binary/data/Data.h>
 #include <diagnostics/Contracts.h>
+#include <fuse/binary/data/Data.h>
 #include <map>
 
 namespace fuse::binary {
@@ -17,7 +17,7 @@ auto Data::type() const -> DataType
 static const std::map<std::string, DataType> DataTypeMap = {
     {"null", DataType::Null},     {"array", DataType::Array},   {"integer", DataType::Integer},
     {"image", DataType::Image},   {"record", DataType::Record}, {"string", DataType::String},
-    {"binary", DataType::Record}, {"custom", DataType::Custom},
+    {"binary", DataType::Record}, {"custom", DataType::Custom}, {"reference", DataType::Reference},
 };
 
 auto toDataType(const std::string& string) -> std::optional<DataType>
@@ -45,6 +45,7 @@ auto toString(DataType type) -> std::string
     case DataType::Binary: return "binary";
     case DataType::Image: return "image";
     case DataType::Custom: return "custom";
+    case DataType::Reference: return "reference";
     default: InvalidCase(type);
     }
 }

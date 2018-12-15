@@ -5,6 +5,7 @@
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/data/NullData.h>
+#include <fuse/binary/data/ReferenceData.h>
 #include <fuse/binary/formats/PointerFormat.h>
 
 namespace fuse::binary {
@@ -50,8 +51,7 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
             uint64_t newOffset;
             if (m_useAddressMap)
             {
-                auto const addresses =
-                    reader.addressMap().toSourceAddresses(*maybeAddress);
+                auto const addresses = reader.addressMap().toSourceAddresses(*maybeAddress);
                 if (addresses.size() == 1)
                 {
                     newOffset = addresses.front().toInteger();
@@ -88,31 +88,38 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 void PointerFormat::doEncode(DataWriter& writer, const Data& data)
 {
     Expects(m_addressFormat);
-    Expects(m_pointedFormat);
+    DataPath destination;
 
-    if (m_pointedFormat->isPointer())
+    if (data.type() == DataType::Reference)
     {
-        /*
-        writer.enter(DataPath::Pointer...)
-        writer.placeHere();
-        */
-        throw std::runtime_error{"writing pointer to pointer not yet supported"};
+        auto const referenceData = static_cast<const ReferenceData&>(data);
+        destination = referenceData.path();
     }
-    else
+    else if (m_pointedFormat)
     {
-        writeAddressPlaceHolder(writer);
         writer.enterLevel();
         writer.enter(DataPathElement::makePointer());
         m_pointedFormat->encode(writer, data);
+        destination = writer.path();
         writer.leave();
         writer.leaveLevel();
     }
+    else
+    {
+        throw std::runtime_error{"reference data or pointed format required"};
+    }
+
+    writer.addUnresolvedReference(makeStorageFormat(), destination);
+    writeAddressPlaceHolder(writer);
 }
 
 void PointerFormat::copyPointerFormat(PointerFormat& format) const
 {
     format.m_addressFormat = m_addressFormat;
-    format.m_pointedFormat = m_pointedFormat->copy();
+    if (m_pointedFormat)
+    {
+        format.m_pointedFormat = m_pointedFormat->copy();
+    }
     format.m_useAddressMap = m_useAddressMap;
     format.m_nullPointer = m_nullPointer;
     copyDataFormat(format);

@@ -14,6 +14,7 @@ enum class DataType
     Integer,
     String,
     Binary,
+    Reference,
     Image,
     Custom
 };

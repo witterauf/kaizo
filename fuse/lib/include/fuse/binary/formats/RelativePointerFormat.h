@@ -45,12 +45,14 @@ public:
 
 protected:
     auto readAddress(DataReader& reader) -> std::optional<Address> override;
-    void writeAddressPlaceHolder(DataWriter&) override{};
+    void writeAddressPlaceHolder(DataWriter&) override;
+    auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat> override;
 
 private:
     AddressFormat::offset_t m_nullPointerOffset;
     std::unique_ptr<BaseAddressProvider> m_baseProvider;
     std::unique_ptr<RelativeStorageFormat> m_offsetFormat;
+    std::shared_ptr<AddressStorageFormat> m_referenceFormat;
 };
 
 } // namespace fuse::binary

@@ -18,13 +18,19 @@ auto LuaArrayFormatLoader::load(const sol::table& format, sol::this_state state)
         elementFormatSuccess = true;
     }
 
-    bool sizeSuccess{false};
-    if (auto maybeSize = requireField<sol::object>(format, "size"))
+    bool sizeSuccess{true};
+    if (hasField(format, "size"))
     {
-        if (auto maybeProvider = loadSize(*maybeSize))
+        if (auto maybeSize = readField<sol::object>(format, "size"))
         {
-            arrayFormat->setSizeProvider(std::move(*maybeProvider));
-            sizeSuccess = true;
+            if (auto maybeProvider = loadSize(*maybeSize))
+            {
+                arrayFormat->setSizeProvider(std::move(*maybeProvider));
+            }
+        }
+        else
+        {
+            sizeSuccess = false;
         }
     }
 

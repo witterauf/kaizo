@@ -51,6 +51,7 @@ set(FUSE_BINARY_DATA_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/data/PointerData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/data/StringData.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/data/BinaryData.h
+    ${FUSE_INCLUDE_DIRECTORY}/binary/data/ReferenceData.h
     binary/data/Data.cc
     binary/data/StringData.cc
     binary/data/IntegerData.cc
@@ -59,6 +60,7 @@ set(FUSE_BINARY_DATA_SOURCES
     binary/data/ArrayData.cc
     binary/data/BinaryData.cc
     binary/data/NullData.cc
+    binary/data/ReferenceData.cc
 )
 
 set(FUSE_BINARY_FORMATS_SOURCES

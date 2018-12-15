@@ -1,12 +1,15 @@
 #pragma once
 
 #include <fuse/addresses/Address.h>
+#include <fuse/addresses/AddressStorageFormat.h>
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/formats/DataFormat.h>
 #include <fuse/binary/formats/IntegerFormat.h>
 #include <optional>
 
 namespace fuse::binary {
+
+class ReferenceFormat;
 
 class PointerFormat : public DataFormat
 {
@@ -26,6 +29,7 @@ protected:
 
     virtual auto readAddress(DataReader& reader) -> std::optional<Address> = 0;
     virtual void writeAddressPlaceHolder(DataWriter& writer) = 0;
+    virtual auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat> = 0;
 
     void copyPointerFormat(PointerFormat& format) const;
 

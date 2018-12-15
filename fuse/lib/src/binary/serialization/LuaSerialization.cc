@@ -1,11 +1,13 @@
 #include <diagnostics/Contracts.h>
 #include <fstream>
+#include <fuse/binary/DataPath.h>
 #include <fuse/binary/data/ArrayData.h>
 #include <fuse/binary/data/BinaryData.h>
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/data/NullData.h>
 #include <fuse/binary/data/RecordData.h>
+#include <fuse/binary/data/ReferenceData.h>
 #include <fuse/binary/data/StringData.h>
 #include <fuse/binary/serialization/LuaSerialization.h>
 #include <fuse/lua/Utilities.h>
@@ -72,6 +74,10 @@ auto LuaSerialization::readComplex(const sol::object& object) -> std::unique_ptr
         {
             return readRecord(table);
         }
+        else if (type == DataType::Reference)
+        {
+            return readReference(table);
+        }
         throw FuseException{"type '" + toString(type) +
                             "' not supported in this context ('table')"};
     }
@@ -83,6 +89,27 @@ auto LuaSerialization::readComplex(const sol::object& object) -> std::unique_ptr
     {
         return readRecord(table);
     }
+}
+
+template <class T, class U> auto retrieveOrThrow(std::optional<T>&& data, const U& exception) -> T
+{
+    if (data)
+    {
+        return std::move(*data);
+    }
+    else
+    {
+        throw exception;
+    }
+}
+
+auto LuaSerialization::readReference(const sol::table& table) -> std::unique_ptr<binary::Data>
+{
+    auto const pathString = requireField<std::string>(table, "path");
+    auto const path =
+        retrieveOrThrow(DataPath::fromString(pathString), FuseException{"invalid path"});
+
+    return std::make_unique<ReferenceData>(path);
 }
 
 auto LuaSerialization::readArray(const sol::table& table) -> std::unique_ptr<binary::Data>

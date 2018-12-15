@@ -40,6 +40,7 @@ public:
     auto readArray(const sol::table& table) -> std::unique_ptr<binary::Data>;
     auto readRecord(const sol::table& table) -> std::unique_ptr<binary::Data>;
     auto readInteger(const sol::object& object) -> std::unique_ptr<binary::Data>;
+    auto readReference(const sol::table& table) -> std::unique_ptr<binary::Data>;
 
 private:
     sol::this_state m_state;

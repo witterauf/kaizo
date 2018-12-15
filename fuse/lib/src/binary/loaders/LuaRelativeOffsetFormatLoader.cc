@@ -74,10 +74,20 @@ bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
 bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
                                                       RelativeOffsetFormat& format)
 {
-    if (auto maybePointeeFormat = requireField<DataFormat*>(table, "pointee_format"))
+    if (hasField(table, "pointee_format"))
     {
-        format.setPointedFormat((*maybePointeeFormat)->copy());
-        return true;
+        if (auto maybeDataFormat = readField<DataFormat*>(table, "pointee_format"))
+        {
+            format.setPointedFormat((*maybeDataFormat)->copy());
+            return true;
+        }
+        else if (auto maybeString = readField<std::string>(table, "pointee_format"))
+        {
+            if (*maybeString == "reference")
+            {
+                return true;
+            }
+        }
     }
     return false;
 }

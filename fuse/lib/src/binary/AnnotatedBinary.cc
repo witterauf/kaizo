@@ -1,5 +1,7 @@
 #include <fuse/binary/AnnotatedBinary.h>
 
+using namespace fuse::binary;
+
 namespace fuse {
 
 void AnnotatedBinary::startObject(const binary::DataPath& path)
@@ -22,7 +24,7 @@ void AnnotatedBinary::skip(size_t skipSize)
 {
     if (skipSize > 0)
     {
-        m_currentObject.size = m_binary.size() - m_currentObject.offset;
+        m_currentObject.size = relativeOffset();
         Section newSection;
         auto const& lastSection = m_currentObject.sections.back();
         newSection.offset = m_currentObject.size;
@@ -47,6 +49,10 @@ void AnnotatedBinary::append(const AnnotatedBinary& other)
         elementPair.second.offset += oldSize;
         m_objects.insert(std::move(elementPair));
     }
+    for (auto const& reference : other.m_references)
+    {
+        m_references.push_back(reference);
+    }
 }
 
 auto AnnotatedBinary::objectCount() const -> size_t
@@ -57,6 +63,30 @@ auto AnnotatedBinary::objectCount() const -> size_t
 auto AnnotatedBinary::unresolvedReferenceCount() const -> size_t
 {
     return m_references.size();
+}
+
+void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+                                             const binary::DataPath& destination)
+{
+    UnresolvedReference reference{m_currentPath, relativeOffset()};
+    reference.setDestination(destination);
+    reference.setFormat(format);
+    m_references.push_back(std::move(reference));
+}
+
+auto AnnotatedBinary::relativeOffset() const -> size_t
+{
+    return m_binary.size() - m_currentObject.offset;
+}
+
+void AnnotatedBinary::enter(const binary::DataPathElement& child)
+{
+    m_currentPath /= child;
+}
+
+void AnnotatedBinary::leave()
+{
+    m_currentPath.goUp();
 }
 
 } // namespace fuse

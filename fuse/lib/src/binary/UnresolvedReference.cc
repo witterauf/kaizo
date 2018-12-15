@@ -18,7 +18,7 @@ void UnresolvedReference::setDestination(const DataPath& path)
     m_destinationPath = path;
 }
 
-void UnresolvedReference::setFormat(const std::shared_ptr<ReferenceFormat>& format)
+void UnresolvedReference::setFormat(const std::shared_ptr<AddressStorageFormat>& format)
 {
     m_format = format;
 }

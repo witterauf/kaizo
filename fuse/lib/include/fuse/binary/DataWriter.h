@@ -2,7 +2,6 @@
 
 #include "AnnotatedBinary.h"
 #include "DataPath.h"
-#include "SegmentedBinary.h"
 #include <fuse/Binary.h>
 #include <fuse/addresses/Address.h>
 #include <map>
@@ -22,12 +21,16 @@ public:
     // DataFormat interface
     auto binary() -> Binary&;
     void enter(const DataPathElement& element);
+    void reenter(const DataPathElement& element);
+    auto path() const -> const DataPath&;
+    auto entered() const -> DataPathElement;
     void enterLevel();
     void skip(size_t size);
     void leaveLevel();
     void leave();
 
-    void addUnresolvedReference(const std::shared_ptr<ReferenceFormat>& format);
+    void addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+                                const DataPath& destination);
 
 private:
     struct Section
@@ -35,11 +38,11 @@ private:
         AnnotatedBinary annotated;
         DataPath referencePath;
         size_t referenceOffset{0};
-        std::vector<UnresolvedReference> unresolvedReferences;
     };
 
     auto section(int relative = 0) -> Section&;
     auto section(int relative = 0) const -> const Section&;
+    auto sectionOffset(int relative = 0) const -> size_t;
 
     std::vector<Section> m_sections;
     size_t m_sectionIndex{0};

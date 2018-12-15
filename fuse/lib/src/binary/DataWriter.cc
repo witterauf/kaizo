@@ -41,6 +41,7 @@ auto DataWriter::binary() -> Binary&
 void DataWriter::enter(const DataPathElement& element)
 {
     m_path /= element;
+    section().annotated.enter(element);
 }
 
 void DataWriter::enterLevel()
@@ -70,6 +71,7 @@ void DataWriter::leaveLevel()
 
 void DataWriter::leave()
 {
+    section().annotated.leave();
     m_path.goUp();
 }
 
@@ -85,17 +87,15 @@ auto DataWriter::section(int relative) const -> const Section&
     return m_sections[m_sectionIndex - relative - 1];
 }
 
-void DataWriter::addUnresolvedReference(const std::shared_ptr<ReferenceFormat>&)
+void DataWriter::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+                                        const DataPath& destination)
 {
-    /*
-    auto const& path = section().referencePath;
-    auto const offset = section().referenceOffset;
+    section().annotated.addUnresolvedReference(format, destination);
+}
 
-    UnresolvedReference reference{path, sectionOffset(-1) - offset};
-    reference.setDestination(m_path);
-    reference.setFormat(format);
-    section().unresolvedReferences.push_back(std::move(reference));
-    */
+auto DataWriter::path() const -> const DataPath&
+{
+    return m_path;
 }
 
 } // namespace fuse::binary
