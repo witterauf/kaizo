@@ -1,6 +1,7 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
+#include <fuse/lua/LuaWriter.h>
 
 namespace fuse {
 
@@ -25,13 +26,13 @@ bool RelativeStorageFormat::isCompatible(const Address address) const
     return m_baseAddress.isCompatible(address);
 }
 
-auto RelativeStorageFormat::asLua() const -> std::string
+void RelativeStorageFormat::serialize(LuaWriter& writer) const
 {
-    std::string lua;
-    lua += "{\n";
-    lua += "  ";
-    lua += "}\n";
-    return lua;
+    writer.startTable();
+    writer.startField("layout");
+    fuse::serialize(writer, m_layout);
+    writer.finishField();
+    writer.finishTable();
 }
 
 auto RelativeStorageFormat::writeAddress(const Address address) const -> Binary

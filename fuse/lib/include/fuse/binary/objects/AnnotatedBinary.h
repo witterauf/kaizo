@@ -1,13 +1,15 @@
 #pragma once
 
-#include "UnresolvedReference.h"
 #include "Object.h"
+#include "UnresolvedReference.h"
 #include <cstddef>
 #include <filesystem>
 #include <map>
 #include <vector>
 
 namespace fuse {
+
+class LuaWriter;
 
 class AnnotatedBinary
 {
@@ -22,7 +24,8 @@ public:
                                 const binary::DataPath& destination);
     void endObject();
 
-    void save(const std::filesystem::path& metaFile, const std::filesystem::path& binaryFile);
+    void serialize(LuaWriter& writer) const;
+    void save(const std::filesystem::path& metaFile, const std::filesystem::path& binaryFile) const;
     void append(const AnnotatedBinary& other);
 
     auto objectCount() const -> size_t;
@@ -33,6 +36,7 @@ private:
     binary::DataPath m_currentPath;
     std::map<binary::DataPath, Object> m_objects;
     Binary m_binary;
+    mutable std::optional<std::filesystem::path> m_binaryPath;
 
     Object m_currentObject;
     size_t m_nextRealOffset;

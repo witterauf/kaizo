@@ -1,5 +1,6 @@
-#include <fuse/binary/objects/UnresolvedReference.h>
 #include <diagnostics/Contracts.h>
+#include <fuse/binary/objects/UnresolvedReference.h>
+#include <fuse/lua/LuaWriter.h>
 
 using namespace fuse::binary;
 
@@ -45,6 +46,23 @@ auto UnresolvedReference::addressLayout() const -> const AddressStorageFormat&
 {
     Expects(m_format);
     return *m_format;
+}
+
+void UnresolvedReference::serialize(LuaWriter& writer) const
+{
+    writer.startTable()
+        .startField("origin")
+        .writeString(m_sourcePath.toString())
+        .finishField()
+        .startField("offset")
+        .writeInteger(m_relativeOffset)
+        .finishField()
+        .startField("referenced")
+        .writeString(m_destinationPath.toString())
+        .finishField()
+        .startField("format");
+    m_format->serialize(writer);
+    writer.finishField().finishTable();
 }
 
 } // namespace fuse

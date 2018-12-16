@@ -1,6 +1,7 @@
 #include <fstream>
 #include <fuse/FuseException.h>
 #include <fuse/binary/objects/AnnotatedBinary.h>
+#include <fuse/lua/LuaWriter.h>
 
 using namespace fuse::binary;
 
@@ -10,6 +11,7 @@ void AnnotatedBinary::startObject(const binary::DataPath& path)
 {
     m_currentPath = path;
     m_currentObject = Object{m_currentPath, m_binary.size()};
+    m_nextRealOffset = 0;
 }
 
 auto AnnotatedBinary::binary() -> Binary&
@@ -27,16 +29,18 @@ void AnnotatedBinary::skip(size_t skipSize)
     if (skipSize > 0)
     {
         auto const sectionSize = m_binary.size() - m_currentObject.size();
-        auto const realOffset = m_currentObject.realSize() + skipSize;
         m_currentObject.addSection(m_nextRealOffset, sectionSize);
+        m_nextRealOffset = m_currentObject.realSize() + skipSize;
     }
 }
 
 void AnnotatedBinary::endObject()
 {
     auto const sectionSize = m_binary.size() - m_currentObject.size();
-    auto const realOffset = m_currentObject.realSize();
-    m_currentObject.addSection(m_nextRealOffset, sectionSize);
+    if (sectionSize > 0)
+    {
+        m_currentObject.addSection(m_nextRealOffset, sectionSize);
+    }
     m_objects.insert(std::make_pair(m_currentPath, std::move(m_currentObject)));
 }
 
@@ -80,55 +84,41 @@ void AnnotatedBinary::leave()
     m_currentPath.goUp();
 }
 
-static void writeObject(std::ofstream& out, const Object& object)
-{
-    out << "    {\n";
-    out << "      offset = " << object.offset() << ",\n";
-    out << "      sections = {\n";
-    for (auto i = 0U; i < object.sectionCount(); ++i)
-    {
-        auto const& section = object.section(i);
-        out << "        {\n";
-        out << "          offset = " << section.offset << ",\n";
-        out << "          real_offset = " << section.realOffset << ",\n";
-        out << "          size = " << section.size << ",\n";
-        out << "        },\n";
-    }
-    out << "      unresolved_references = {\n";
-    for (auto i = 0U; i < object.unresolvedReferenceCount(); ++i)
-    {
-        auto const& reference = object.unresolvedReference(i);
-        out << "        origin_path = \"" << reference.originPath().toString() << "\",\n";
-        out << "        referenced_path = \"" << reference.referencedPath().toString() << "\",\n";
-        out << "        relative_offset = " << reference.relativeOffset() << ",\n";
-        out << "        address_layout = " << reference.addressLayout().asLua() << "\n";
-    }
-    out << "      },\n";
-    out << "    },\n";
-}
-
 void AnnotatedBinary::save(const std::filesystem::path& metaFile,
-                           const std::filesystem::path& binaryFile)
+                           const std::filesystem::path& binaryFile) const
 {
     m_binary.save(binaryFile);
+    m_binaryPath = binaryFile;
 
     std::ofstream metaOutput{metaFile};
     if (metaOutput.good())
     {
-        metaOutput << "return {\n";
-        metaOutput << "  binary = [[" << binaryFile.string() << "]],\n";
-        metaOutput << "  objects = {\n";
-        for (auto const& objectPair : m_objects)
-        {
-            writeObject(metaOutput, objectPair.second);
-        }
-        metaOutput << "  }\n";
-        metaOutput << "}\n";
+        LuaWriter writer;
+        writer.start();
+        serialize(writer);
+        writer.finish();
+        metaOutput << "return " << writer.lua();
     }
     else
     {
         throw FuseException{"could not open meta output file '" + metaFile.string() + "'"};
     }
+}
+
+void AnnotatedBinary::serialize(LuaWriter& writer) const
+{
+    if (m_binaryPath)
+    {
+        writer.startField("binary").writePath(*m_binaryPath).finishField();
+    }
+    writer.startField("objects").startTable();
+    for (auto const& objectPair : m_objects)
+    {
+        writer.startField();
+        objectPair.second.serialize(writer);
+        writer.finishField();
+    }
+    writer.finishTable().finishField();
 }
 
 } // namespace fuse

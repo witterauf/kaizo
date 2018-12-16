@@ -48,6 +48,7 @@ auto RelativeOffsetFormat::copy() const -> std::unique_ptr<DataFormat>
             static_cast<RelativeStorageFormat*>(copied.release()));
     }
     format->m_nullPointerOffset = m_nullPointerOffset;
+    format->m_referenceFormat = m_referenceFormat;
     copyPointerFormat(*format);
     return std::move(format);
 }
@@ -61,6 +62,7 @@ void RelativeOffsetFormat::setOffsetFormat(std::unique_ptr<RelativeStorageFormat
 
 auto RelativeOffsetFormat::makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>
 {
+    Expects(m_referenceFormat);
     return m_referenceFormat;
 }
 

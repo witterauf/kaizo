@@ -9,6 +9,8 @@
 
 namespace fuse {
 
+class LuaWriter;
+
 class UnresolvedReference
 {
 public:
@@ -23,6 +25,8 @@ public:
 
     void setDestination(const binary::DataPath& path);
     void setFormat(const std::shared_ptr<AddressStorageFormat>& format);
+
+    void serialize(LuaWriter& writer) const;
 
 private:
     binary::DataPath m_sourcePath;

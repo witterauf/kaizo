@@ -202,6 +202,15 @@ static void DataFormat_encode(DataFormat& format, DataWriter& writer, const sol:
     }
 }
 
+static void DataWriter_saveObjects(const DataWriter& writer, const std::string& path)
+{
+    std::filesystem::path metaPath{path};
+    std::filesystem::path binaryPath{metaPath};
+    binaryPath.replace_extension(".bin");
+    auto const binary = writer.assemble();
+    binary.save(metaPath, binaryPath);
+}
+
 auto openBinaryLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -219,7 +228,8 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     module.new_usertype<DataReader>(
         "DataReader", "new", sol::factories(&makeDataReader), "set_offset", &DataReader::setOffset,
         /*"decoded_ranges", &getDataReaderRanges,*/ "set_address_map", &DataReader_setAddressMap);
-    module.new_usertype<DataWriter>("DataWriter", "new", sol::factories(&makeDataWriter));
+    module.new_usertype<DataWriter>("DataWriter", "new", sol::factories(&makeDataWriter),
+                                    "save_objects", &DataWriter_saveObjects);
 
     module.new_usertype<DataFormat>("DataFormat", "decode", &DataFormat::decode, "encode",
                                     &DataFormat_encode);

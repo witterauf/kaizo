@@ -1,5 +1,6 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/objects/Object.h>
+#include <fuse/lua/LuaWriter.h>
 
 namespace fuse {
 
@@ -77,6 +78,47 @@ auto Object::unresolvedReference(size_t index) const -> const UnresolvedReferenc
 {
     Expects(index < m_references.size());
     return m_references[index];
+}
+
+void Object::serialize(LuaWriter& writer) const
+{
+    writer.startTable();
+    serializeAttributes(writer);
+    serializeSections(writer);
+    serializeReferences(writer);
+    writer.finishTable();
+}
+
+void Object::serializeAttributes(LuaWriter& writer) const
+{
+    writer.startField("offset").writeInteger(m_offset).finishField();
+}
+
+void Object::serializeSections(LuaWriter& writer) const
+{
+    writer.startField("sections").startTable();
+    for (auto i = 0U; i < sectionCount(); ++i)
+    {
+        auto const& section = m_sections[i];
+        writer.startField().startTable();
+        writer.startField("offset").writeInteger(section.offset).finishField();
+        writer.startField("real_offset").writeInteger(section.realOffset).finishField();
+        writer.startField("size").writeInteger(section.size).finishField();
+        writer.finishTable().finishField();
+    }
+    writer.finishTable().finishField();
+}
+
+void Object::serializeReferences(LuaWriter& writer) const
+{
+    writer.startField("unresolved_references").startTable();
+    for (auto i = 0U; i < unresolvedReferenceCount(); ++i)
+    {
+        writer.startField();
+        unresolvedReference(i).serialize(writer);
+        writer.finishField();
+    }
+    writer.finishTable().finishField();
 }
 
 } // namespace fuse

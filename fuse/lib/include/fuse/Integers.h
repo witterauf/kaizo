@@ -21,4 +21,7 @@ struct IntegerLayout
     Endianness endianness;
 };
 
-} // namespace fuse::binary
+class LuaWriter;
+void serialize(LuaWriter& writer, const IntegerLayout& layout);
+
+} // namespace fuse

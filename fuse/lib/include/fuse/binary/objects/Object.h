@@ -6,6 +6,8 @@
 
 namespace fuse {
 
+class LuaWriter;
+
 class Object
 {
 public:
@@ -31,7 +33,13 @@ public:
     auto unresolvedReferenceCount() const -> size_t;
     auto unresolvedReference(size_t index) const -> const UnresolvedReference&;
 
+    void serialize(LuaWriter& writer) const;
+
 private:
+    void serializeAttributes(LuaWriter& writer) const;
+    void serializeSections(LuaWriter& writer) const;
+    void serializeReferences(LuaWriter& writer) const;
+
     binary::DataPath m_path;
     size_t m_offset{0};
     std::vector<Section> m_sections;

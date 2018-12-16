@@ -19,6 +19,7 @@ set(FUSE_BASE_SOURCES
     LuaFuseLibrary.cc
     LuaIntegerLayoutLoader.h
     LuaIntegerLayoutLoader.cc
+    Integers.cc
 )
 
 set(FUSE_ADDRESSES_SOURCES
@@ -217,7 +218,9 @@ set(FUSE_LUA_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/lua/LuaLoader.h
     ${FUSE_INCLUDE_DIRECTORY}/lua/Utilities.h
     ${FUSE_INCLUDE_DIRECTORY}/lua/FuseLuaException.h
+    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaWriter.h
     lua/LuaLoader.cc
+    lua/LuaWriter.cc
 )
 
 set(FUSE_ELF_SOURCES
