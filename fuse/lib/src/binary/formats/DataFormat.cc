@@ -67,6 +67,7 @@ void DataFormat::copyDataFormat(DataFormat& format) const
     format.m_skipBefore = m_skipBefore;
     format.m_alignment = m_alignment;
     format.m_storeAs = m_storeAs;
+    format.m_trackTag = m_trackTag;
 }
 
 void DataFormat::track(DataReader& reader, size_t offset, size_t size)
@@ -75,6 +76,22 @@ void DataFormat::track(DataReader& reader, size_t offset, size_t size)
     {
         reader.trackRange(*m_trackTag, offset, size);
     }
+}
+
+bool DataFormat::hasTag() const
+{
+    return m_trackTag.has_value();
+}
+
+void DataFormat::setTag(const std::string& tag)
+{
+    m_trackTag = tag;
+}
+
+auto DataFormat::tag() const -> const std::string&
+{
+    Expects(hasTag());
+    return *m_trackTag;
 }
 
 } // namespace fuse::binary

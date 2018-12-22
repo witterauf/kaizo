@@ -115,6 +115,7 @@ set(FUSE_BINARY_SOURCES
     binary/DataPathParser.cc
     binary/LuaBinaryLibrary.cc
     binary/DataWriter.cc
+    binary/DataRangeTracker.cc
 )
 
 set(FUSE_BINARY_LOADERS_SOURCES

@@ -26,6 +26,7 @@ public:
     auto addressMap() const -> const AddressMap&;
 
     void enter(const DataPathElement& element);
+    void setTracker(DataRangeTracker* tracker);
     void trackRange(const std::string& tag, size_t offset, size_t size);
     void leave(const Data* data);
 
@@ -45,7 +46,7 @@ private:
 
     DataStructure m_root;
     DataStructure* m_currentNode{&m_root};
-    DataRangeConsumer* m_dataRangeConsumer{nullptr};
+    DataRangeTracker* m_dataRangeConsumer{nullptr};
 };
 
 } // namespace fuse::binary

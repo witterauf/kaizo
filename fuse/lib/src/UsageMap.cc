@@ -7,11 +7,11 @@ void UsageMap::allocate(size_t start, size_t end)
 {
     if (start < m_start)
     {
-        start = m_start;
+        m_start = start;
     }
     if (end > m_end)
     {
-        end = m_end;
+        m_end = end;
     }
 
     auto iter = m_usage.find(start);

@@ -51,6 +51,17 @@ bool LuaDataFormatLoader::readDataFormat(const sol::table& table, sol::this_stat
             return false;
         }
     }
+    if (hasField(table, "tag"))
+    {
+        if (auto maybeTag = readField<std::string>(table, "tag"))
+        {
+            format.setTag(*maybeTag);
+        }
+        else
+        {
+            return false;
+        }
+    }
     return true;
 }
 

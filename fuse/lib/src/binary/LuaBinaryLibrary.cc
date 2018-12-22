@@ -3,8 +3,10 @@
 #include "loaders/LuaRecordFormatLoader.h"
 #include "loaders/LuaRelativeOffsetFormatLoader.h"
 #include "loaders/LuaStringFormatLoader.h"
+#include <fstream>
 #include <fuse/addresses/Address.h>
 #include <fuse/addresses/AddressFormat.h>
+#include <fuse/binary/DataRangeTracker.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
@@ -18,6 +20,7 @@
 #include <fuse/binary/serialization/CsvSerialization.h>
 #include <fuse/binary/serialization/LuaSerialization.h>
 #include <fuse/binary/serialization/Serialization.h>
+#include <fuse/lua/LuaWriter.h>
 #include <sol.hpp>
 
 namespace fuse::binary {
@@ -211,6 +214,27 @@ static void DataWriter_saveObjects(const DataWriter& writer, const std::string& 
     binary.save(metaPath, binaryPath);
 }
 
+static auto TagOnlyRangeTracker_new() -> std::shared_ptr<TagOnlyRangeTracker>
+{
+    return std::make_shared<TagOnlyRangeTracker>();
+}
+
+static auto TagOnlyRangeTracker_save(const TagOnlyRangeTracker& tracker,
+                                     const std::string& filename)
+{
+    std::ofstream output{filename};
+    if (output.good())
+    {
+        LuaWriter writer;
+        tracker.serialize(writer);
+        output << "return " << writer.lua();
+    }
+    else
+    {
+        throw std::runtime_error{"Could not open file for writing: " + filename};
+    }
+}
+
 auto openBinaryLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -223,10 +247,15 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
                     "NULL", DataType::Null, "RECORD", DataType::Record, "REFERENCE",
                     DataType::Reference, "STRING", DataType::String);
 
+    module.new_usertype<DataRangeTracker>("DataRangeTracker");
+    module.new_usertype<TagOnlyRangeTracker>(
+        "TagOnlyRangeTracker", "new", sol::factories(&TagOnlyRangeTracker_new), "save_ranges",
+        &TagOnlyRangeTracker_save, sol::base_classes, sol::bases<DataRangeTracker>());
     module.new_usertype<Data>("Data", "deserialize", sol::factories(&deserializeData), "serialize",
                               &serializeData);
     module.new_usertype<DataReader>(
         "DataReader", "new", sol::factories(&makeDataReader), "set_offset", &DataReader::setOffset,
+        "set_tracker", &DataReader::setTracker,
         /*"decoded_ranges", &getDataReaderRanges,*/ "set_address_map", &DataReader_setAddressMap);
     module.new_usertype<DataWriter>("DataWriter", "new", sol::factories(&makeDataWriter),
                                     "save_objects", &DataWriter_saveObjects);

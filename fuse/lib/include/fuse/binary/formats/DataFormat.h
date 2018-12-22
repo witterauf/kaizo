@@ -20,7 +20,9 @@ public:
     void setAlignment(size_t alignment);
     void setSkipAfter(size_t size);
     void setSkipBefore(size_t size);
-    void setTrackTag(const std::string& tag);
+    bool hasTag() const;
+    auto tag() const -> const std::string&;
+    void setTag(const std::string& tag);
     auto decode(DataReader& reader) -> std::unique_ptr<Data>;
     void encode(DataWriter& writer, const Data& data);
     virtual bool isPointer() const { return false; }

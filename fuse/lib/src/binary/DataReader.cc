@@ -53,7 +53,7 @@ void DataReader::trackRange(const std::string& tag, size_t address, size_t size)
 {
     if (m_dataRangeConsumer)
     {
-        m_dataRangeConsumer->track(m_path, DataRangeConsumer::Range{address, size}, tag);
+        m_dataRangeConsumer->track(m_path, DataRangeTracker::Range{address, size}, tag);
     }
 }
 
@@ -73,6 +73,11 @@ void DataReader::setAddressMap(std::unique_ptr<AddressMap>&& addressMap)
 auto DataReader::addressMap() const -> const AddressMap&
 {
     return *m_addressMap;
+}
+
+void DataReader::setTracker(DataRangeTracker* tracker)
+{
+    m_dataRangeConsumer = tracker;
 }
 
 } // namespace fuse::binary
