@@ -24,7 +24,7 @@ public:
     void changeOffset(size_t offset);
     void addSection(size_t realOffset, size_t sectionSize);
     void addUnresolvedReference(const UnresolvedReference& reference);
-
+    auto path() const -> const binary::DataPath&;
     auto realSize() const -> size_t;
     auto size() const -> size_t;
     auto offset() const -> size_t;

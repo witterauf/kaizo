@@ -24,6 +24,11 @@ void Object::addUnresolvedReference(const UnresolvedReference& reference)
     m_references.push_back(reference);
 }
 
+auto Object::path() const -> const binary::DataPath&
+{
+    return m_path;
+}
+
 auto Object::realSize() const -> size_t
 {
     if (m_sections.empty())
@@ -91,6 +96,7 @@ void Object::serialize(LuaWriter& writer) const
 
 void Object::serializeAttributes(LuaWriter& writer) const
 {
+    writer.startField("name").writeString(m_path.toString()).finishField();
     writer.startField("offset").writeInteger(m_offset).finishField();
 }
 

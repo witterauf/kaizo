@@ -63,7 +63,7 @@ auto AnnotatedBinary::objectCount() const -> size_t
 void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
                                              const binary::DataPath& destination)
 {
-    UnresolvedReference reference{m_currentPath, relativeOffset()};
+    UnresolvedReference reference{m_currentObject.path(), m_currentObject.size()};
     reference.setDestination(destination);
     reference.setFormat(format);
     m_currentObject.addUnresolvedReference(std::move(reference));
