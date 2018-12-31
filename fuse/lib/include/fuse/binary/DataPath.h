@@ -15,7 +15,9 @@ public:
         Name,
         IndexWildcard,
         Index,
+        NameWildcard,
         Parent,
+        DoubleWildcard,
         Pointer
     };
 
@@ -36,6 +38,7 @@ public:
     auto index() const -> size_t;
     auto toString() const -> std::string;
 
+    bool matches(const DataPathElement& element) const;
     bool operator<(const DataPathElement& element) const;
     bool operator==(const DataPathElement& element) const;
 
@@ -55,6 +58,7 @@ public:
     auto length() const -> size_t;
     auto element(size_t index) const -> const DataPathElement&;
     void clear();
+    bool isEmpty() const;
 
     auto toString() const -> std::string;
 

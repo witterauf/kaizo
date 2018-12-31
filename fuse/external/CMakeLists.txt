@@ -1,5 +1,6 @@
 add_subdirectory(catch)
 add_subdirectory(diagnostics)
+add_subdirectory(lincoln)
 add_subdirectory(lodepng)
 add_subdirectory(lua)
 add_subdirectory(sol2)
