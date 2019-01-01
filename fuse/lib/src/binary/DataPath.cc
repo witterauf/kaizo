@@ -195,4 +195,9 @@ auto DataPath::fromString(const std::string string) -> std::optional<DataPath>
     return parser.parse(string);
 }
 
+bool DataPath::isEmpty() const
+{
+    return m_elements.empty();
+}
+
 } // namespace fuse::binary

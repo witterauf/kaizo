@@ -6,4 +6,4 @@ namespace fuse::binary {
 
 auto openBinaryLibrary(sol::this_state state) -> sol::table;
 
-}
+} // namespace fuse::binary

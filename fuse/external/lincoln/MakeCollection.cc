@@ -233,7 +233,7 @@ void MakeCollection::generateAccessorFunction()
         m_output << "namespace " << *m_arguments.nameSpace << " {\n\n";
     }
 
-    m_output << "auto openFromCollection(const char* name) -> std::pair<const uint8_t*, size_t>\n";
+    m_output << "auto " << m_arguments.accessor << "(const char* name) -> std::pair<const uint8_t*, size_t>\n";
     m_output << "{\n";
     m_output << "   auto const iter = CollectionMap.find(std::string{name});\n";
     m_output << "   if (iter != CollectionMap.end())\n";
