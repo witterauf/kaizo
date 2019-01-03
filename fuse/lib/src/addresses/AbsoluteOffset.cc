@@ -31,7 +31,7 @@ auto AbsoluteOffset::copy() const -> std::unique_ptr<AddressFormat>
 
 auto AbsoluteOffset::toString(const Address& address) const -> std::string
 {
-    return utilities::toString(address.toInteger(), 16, 8);
+    return "0x" + utilities::toString(address.toInteger(), 16, 8);
 }
 
 auto fileOffsetFormat() -> const AbsoluteOffset*
