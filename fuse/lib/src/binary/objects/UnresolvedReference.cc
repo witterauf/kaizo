@@ -51,9 +51,6 @@ auto UnresolvedReference::addressLayout() const -> const AddressStorageFormat&
 void UnresolvedReference::serialize(LuaWriter& writer) const
 {
     writer.startTable()
-        .startField("origin")
-        .writeString(m_sourcePath.toString())
-        .finishField()
         .startField("offset")
         .writeInteger(m_relativeOffset)
         .finishField()

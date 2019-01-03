@@ -98,6 +98,8 @@ void Object::serializeAttributes(LuaWriter& writer) const
 {
     writer.startField("name").writeString(m_path.toString()).finishField();
     writer.startField("offset").writeInteger(m_offset).finishField();
+    writer.startField("size").writeInteger(size()).finishField();
+    writer.startField("actual_size").writeInteger(realSize()).finishField();
 }
 
 void Object::serializeSections(LuaWriter& writer) const
@@ -108,7 +110,7 @@ void Object::serializeSections(LuaWriter& writer) const
         auto const& section = m_sections[i];
         writer.startField().startTable();
         writer.startField("offset").writeInteger(section.offset).finishField();
-        writer.startField("real_offset").writeInteger(section.realOffset).finishField();
+        writer.startField("actual_offset").writeInteger(section.realOffset).finishField();
         writer.startField("size").writeInteger(section.size).finishField();
         writer.finishTable().finishField();
     }
