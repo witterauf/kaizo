@@ -8,6 +8,26 @@
 
 namespace fuse {
 
+class BaseAddressProvider
+{
+public:
+    virtual auto provideAddress() const -> Address = 0;
+    virtual auto copy() const -> std::unique_ptr<BaseAddressProvider> = 0;
+    virtual void serialize(LuaWriter& writer) const = 0;
+};
+
+class FixedBaseAddressProvider : public BaseAddressProvider
+{
+public:
+    explicit FixedBaseAddressProvider(Address address);
+    auto provideAddress() const -> Address override;
+    auto copy() const -> std::unique_ptr<BaseAddressProvider> override;
+    void serialize(LuaWriter& writer) const override;
+
+private:
+    Address m_address;
+};
+
 class RelativeStorageFormat : public AddressStorageFormat
 {
 public:

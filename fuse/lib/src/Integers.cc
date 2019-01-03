@@ -27,15 +27,12 @@ static auto toEnumName(Endianness endianness) -> std::string
 void serialize(LuaWriter& writer, const IntegerLayout& layout)
 {
     writer.startTable();
-    writer.startField("size");
-    writer.writeInteger(layout.sizeInBytes);
-    writer.finishField();
-    writer.startField("signedness");
-    writer.writeEnum(toEnumName(layout.signedness));
-    writer.finishField();
-    writer.startField("endianness");
-    writer.writeEnum(toEnumName(layout.endianness));
-    writer.finishField();
+    writer.startField("size").writeInteger(layout.sizeInBytes).finishField();
+    writer.startField("signedness").writeEnum(toEnumName(layout.signedness)).finishField();
+    if (layout.endianness != Endianness::Little)
+    {
+        writer.startField("endianness").writeEnum(toEnumName(layout.endianness)).finishField();
+    }
     writer.finishTable();
 }
 

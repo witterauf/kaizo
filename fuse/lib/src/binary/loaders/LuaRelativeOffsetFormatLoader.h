@@ -14,10 +14,14 @@ public:
 private:
     bool loadOffsetFormat(const sol::table& table, RelativeOffsetFormat& format);
     bool loadAddressFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadBaseAddress(const sol::table& table, RelativeOffsetFormat& format);
     bool loadPointeeFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadNullPointer(const sol::table& table, RelativeOffsetFormat& format);
     bool loadUseAddressMap(const sol::table& table, RelativeOffsetFormat& format);
+
+    bool loadBaseAddress(const sol::table& table, RelativeStorageFormat& format);
+    bool loadNullPointer(const sol::table& table, RelativeStorageFormat& format);
+    bool loadLayout(const sol::table& table, RelativeStorageFormat& format);
+
+    const AddressFormat* m_addressFormat{nullptr};
 };
 
 } // namespace fuse::binary

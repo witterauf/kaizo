@@ -5,6 +5,26 @@
 
 namespace fuse {
 
+FixedBaseAddressProvider::FixedBaseAddressProvider(Address address)
+    : m_address{address}
+{
+}
+
+auto FixedBaseAddressProvider::provideAddress() const -> Address
+{
+    return m_address;
+}
+
+auto FixedBaseAddressProvider::copy() const -> std::unique_ptr<BaseAddressProvider>
+{
+    return std::make_unique<FixedBaseAddressProvider>(m_address);
+}
+
+void FixedBaseAddressProvider::serialize(LuaWriter& writer) const
+{
+    writer.writeInteger(m_address.toInteger());
+}
+
 void RelativeStorageFormat::setBaseAddress(const Address base)
 {
     Expects(base.isValid());
@@ -28,7 +48,18 @@ bool RelativeStorageFormat::isCompatible(const Address address) const
 
 void RelativeStorageFormat::serialize(LuaWriter& writer) const
 {
-    writer.startTable();
+    writer.startConstructorTable("RelativeOffset");
+    if (m_baseAddress.toInteger() != 0)
+    {
+        writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();
+    }
+    if (m_nullPointer)
+    {
+        writer.startField("null_pointer").startTable();
+        writer.startField("offset").writeInteger(m_nullPointer->offset).finishField();
+        writer.startField("address").writeInteger(m_nullPointer->address.toInteger()).finishField();
+        writer.finishTable().finishField();
+    }
     writer.startField("layout");
     fuse::serialize(writer, m_layout);
     writer.finishField();

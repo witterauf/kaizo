@@ -31,7 +31,12 @@ public:
     auto writeInteger(int64_t integer) -> LuaWriter&;
     void finish();
 
+    /// Returns the generated Lua source.
     auto lua() const -> std::string;
+    /// Saves the generated Lua source to \p filename.
+    void savePlain(const std::filesystem::path& filename) const;
+    /// Compiles the generated Lua source to byte code and saves it to \p filename.
+    void saveCompiled(const std::filesystem::path& filename) const;
 
 private:
     void indent();

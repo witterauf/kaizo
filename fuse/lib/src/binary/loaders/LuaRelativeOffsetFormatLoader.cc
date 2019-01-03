@@ -8,10 +8,10 @@ namespace fuse::binary {
 auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_state state)
     -> std::optional<std::unique_ptr<RelativeOffsetFormat>>
 {
+    m_addressFormat = nullptr;
     auto pointerFormat = std::make_unique<RelativeOffsetFormat>();
-    if (loadOffsetFormat(format, *pointerFormat) && loadAddressFormat(format, *pointerFormat) &&
-        loadBaseAddress(format, *pointerFormat) && loadPointeeFormat(format, *pointerFormat) &&
-        loadNullPointer(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
+    if (loadAddressFormat(format, *pointerFormat) && loadOffsetFormat(format, *pointerFormat) &&
+        loadPointeeFormat(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
     {
         if (readDataFormat(format, state, *pointerFormat))
         {
@@ -26,10 +26,25 @@ bool LuaRelativeOffsetFormatLoader::loadOffsetFormat(const sol::table& table,
 {
     if (auto maybeOffsetFormat = requireField<sol::table>(table, "offset_format"))
     {
-        auto layout = loadIntegerLayout(*maybeOffsetFormat);
         auto storageFormat = std::make_unique<RelativeStorageFormat>();
-        storageFormat->setOffsetFormat(layout);
-        format.setOffsetFormat(std::move(storageFormat));       
+        if (loadNullPointer(*maybeOffsetFormat, *storageFormat) &&
+            loadBaseAddress(*maybeOffsetFormat, *storageFormat) &&
+            loadLayout(*maybeOffsetFormat, *storageFormat))
+        {
+            format.setOffsetFormat(std::move(storageFormat));
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LuaRelativeOffsetFormatLoader::loadLayout(const sol::table& table,
+                                               RelativeStorageFormat& format)
+{
+    if (auto maybeLayout = requireField<sol::table>(table, "layout"))
+    {
+        auto layout = loadIntegerLayout(*maybeLayout);
+        format.setOffsetFormat(layout);
         return true;
     }
     return false;
@@ -40,6 +55,7 @@ bool LuaRelativeOffsetFormatLoader::loadAddressFormat(const sol::table& table,
 {
     if (auto maybeAddressFormat = requireField<AddressFormat*>(table, "address_format"))
     {
+        m_addressFormat = *maybeAddressFormat;
         format.setAddressFormat(*maybeAddressFormat);
         return true;
     }
@@ -47,24 +63,22 @@ bool LuaRelativeOffsetFormatLoader::loadAddressFormat(const sol::table& table,
 }
 
 bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
-                                                    RelativeOffsetFormat& format)
+                                                    RelativeStorageFormat& format)
 {
     if (hasField(table, "base"))
     {
         auto field = table.get<sol::object>("base");
-        if (field.is<int64_t>())
+        if (field.is<int64_t>() && m_addressFormat)
         {
-            if (auto maybeAddress = format.addressFormat().fromInteger(field.as<int64_t>()))
+            if (auto maybeAddress = m_addressFormat->fromInteger(field.as<int64_t>()))
             {
-                format.setBaseAddressProvider(
-                    std::make_unique<FixedBaseAddressProvider>(*maybeAddress));
+                format.setBaseAddress(*maybeAddress);
                 return true;
             }
         }
         else if (auto maybeBaseAddress = requireField<Address>(table, "base"))
         {
-            format.setBaseAddressProvider(
-                std::make_unique<FixedBaseAddressProvider>(*maybeBaseAddress));
+            format.setBaseAddress(*maybeBaseAddress);
             return true;
         }
     }
@@ -93,24 +107,25 @@ bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
 }
 
 bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table,
-                                                    RelativeOffsetFormat& format)
+                                                    RelativeStorageFormat& format)
 {
     if (hasField(table, "null_pointer"))
     {
         if (auto maybeNullPointer = requireField<sol::table>(table, "null_pointer"))
         {
+            std::optional<Address> address;
             if (auto maybeAddress = requireField<sol::object>(*maybeNullPointer, "address"))
             {
                 if (maybeAddress->is<Address>())
                 {
-                    format.setNullPointer(maybeAddress->as<Address>());
+                    address = maybeAddress->as<Address>();
                 }
-                else if (maybeAddress->is<AddressFormat::address_t>())
+                else if (maybeAddress->is<AddressFormat::address_t>() && m_addressFormat)
                 {
-                    if (auto const address = format.addressFormat().fromInteger(
+                    if (auto const fromInteger = m_addressFormat->fromInteger(
                             maybeAddress->as<AddressFormat::address_t>()))
                     {
-                        format.setNullPointer(*address);
+                        address = *fromInteger;
                     }
                     else
                     {
@@ -126,7 +141,14 @@ bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table,
             if (auto maybeOffset =
                     requireField<AddressFormat::offset_t>(*maybeNullPointer, "offset"))
             {
-                format.setNullPointerOffset(*maybeOffset);
+                if (address)
+                {
+                    format.setNullPointer(*address, *maybeOffset);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
