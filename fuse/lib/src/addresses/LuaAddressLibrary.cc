@@ -90,7 +90,7 @@ auto AddressMap_toSource(const AddressMap& map, const Address address, sol::this
     return result;
 }
 
-auto AddressMap_fromRegions(const sol::table& mapping) -> std::unique_ptr<AddressMap>
+auto AddressMap_fromRegions(const sol::table& mapping) -> std::shared_ptr<AddressMap>
 {
     auto const* sourceFormat = requireField<AddressFormat*>(mapping, "source_format");
     auto const* targetFormat = requireField<AddressFormat*>(mapping, "target_format");
