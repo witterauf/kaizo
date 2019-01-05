@@ -6,6 +6,9 @@
 
 namespace fuse {
 
+class Binary;
+class Image;
+
 class LuaWriter
 {
 public:
@@ -29,6 +32,8 @@ public:
     auto writePath(const std::filesystem::path& path) -> LuaWriter&;
     auto writeInteger(uint64_t integer) -> LuaWriter&;
     auto writeInteger(int64_t integer) -> LuaWriter&;
+    auto writeBinary(const std::string& id, const Binary& binary);
+    auto writeImage(const std::string& id, const Image& image);
     void finish();
 
     /// Returns the generated Lua source.

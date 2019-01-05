@@ -4,13 +4,14 @@
 
 namespace fuse {
 
-Object::Object(const binary::DataPath& path, size_t offset)
+PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset)
     : m_path{path}
+    , m_parent{parent}
     , m_offset{offset}
 {
 }
 
-void Object::addSection(size_t realOffset, size_t sectionSize)
+void PackedObject::addSection(size_t realOffset, size_t sectionSize)
 {
     Section section;
     section.offset = size();
@@ -19,17 +20,17 @@ void Object::addSection(size_t realOffset, size_t sectionSize)
     m_sections.push_back(section);
 }
 
-void Object::addUnresolvedReference(const UnresolvedReference& reference)
+void PackedObject::addUnresolvedReference(const UnresolvedReference& reference)
 {
     m_references.push_back(reference);
 }
 
-auto Object::path() const -> const binary::DataPath&
+auto PackedObject::path() const -> const binary::DataPath&
 {
     return m_path;
 }
 
-auto Object::realSize() const -> size_t
+auto PackedObject::realSize() const -> size_t
 {
     if (m_sections.empty())
     {
@@ -41,7 +42,7 @@ auto Object::realSize() const -> size_t
     }
 }
 
-auto Object::size() const -> size_t
+auto PackedObject::size() const -> size_t
 {
     if (m_sections.empty())
     {
@@ -53,39 +54,39 @@ auto Object::size() const -> size_t
     }
 }
 
-void Object::changeOffset(size_t offset)
+void PackedObject::changeOffset(size_t offset)
 {
     m_offset = offset;
 }
 
-auto Object::offset() const -> size_t
+auto PackedObject::offset() const -> size_t
 {
     return m_offset;
 }
 
-auto Object::sectionCount() const -> size_t
+auto PackedObject::sectionCount() const -> size_t
 {
     return m_sections.size();
 }
 
-auto Object::section(size_t index) const -> const Section&
+auto PackedObject::section(size_t index) const -> const Section&
 {
     Expects(index < sectionCount());
     return m_sections[index];
 }
 
-auto Object::unresolvedReferenceCount() const -> size_t
+auto PackedObject::unresolvedReferenceCount() const -> size_t
 {
     return m_references.size();
 }
 
-auto Object::unresolvedReference(size_t index) const -> const UnresolvedReference&
+auto PackedObject::unresolvedReference(size_t index) const -> const UnresolvedReference&
 {
     Expects(index < m_references.size());
     return m_references[index];
 }
 
-void Object::serialize(LuaWriter& writer) const
+void PackedObject::serialize(LuaWriter& writer) const
 {
     writer.startTable();
     serializeAttributes(writer);
@@ -94,15 +95,15 @@ void Object::serialize(LuaWriter& writer) const
     writer.finishTable();
 }
 
-void Object::serializeAttributes(LuaWriter& writer) const
+void PackedObject::serializeAttributes(LuaWriter& writer) const
 {
-    writer.startField("name").writeString(m_path.toString()).finishField();
+    writer.startField("path").writeString(m_path.toString()).finishField();
     writer.startField("offset").writeInteger(m_offset).finishField();
     writer.startField("size").writeInteger(size()).finishField();
     writer.startField("actual_size").writeInteger(realSize()).finishField();
 }
 
-void Object::serializeSections(LuaWriter& writer) const
+void PackedObject::serializeSections(LuaWriter& writer) const
 {
     writer.startField("sections").startTable();
     for (auto i = 0U; i < sectionCount(); ++i)
@@ -117,7 +118,7 @@ void Object::serializeSections(LuaWriter& writer) const
     writer.finishTable().finishField();
 }
 
-void Object::serializeReferences(LuaWriter& writer) const
+void PackedObject::serializeReferences(LuaWriter& writer) const
 {
     writer.startField("unresolved_references").startTable();
     for (auto i = 0U; i < unresolvedReferenceCount(); ++i)

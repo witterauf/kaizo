@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <map>
+#include <memory>
 #include <vector>
 
 namespace fuse {
@@ -26,7 +27,7 @@ public:
 
     void serialize(LuaWriter& writer) const;
     void save(const std::filesystem::path& metaFile, const std::filesystem::path& binaryFile) const;
-    void append(const AnnotatedBinary& other);
+    void append(AnnotatedBinary&& other);
 
     auto objectCount() const -> size_t;
 
@@ -34,11 +35,11 @@ private:
     auto relativeOffset() const -> size_t;
 
     binary::DataPath m_currentPath;
-    std::map<binary::DataPath, Object> m_objects;
-    Binary m_binary;
+    std::map<binary::DataPath, std::unique_ptr<PackedObject>> m_objects;
     mutable std::optional<std::filesystem::path> m_binaryPath;
 
-    Object m_currentObject;
+    Binary m_binary;
+    std::unique_ptr<PackedObject> m_currentObject;
     size_t m_nextRealOffset;
 };
 

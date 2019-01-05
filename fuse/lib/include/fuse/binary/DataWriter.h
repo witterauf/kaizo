@@ -16,7 +16,7 @@ public:
 
     void startData(const DataPath& root);
     void finishData();
-    auto assemble() const -> AnnotatedBinary;
+    auto assemble() -> AnnotatedBinary;
 
     // DataFormat interface
     auto binary() -> Binary&;
@@ -39,6 +39,8 @@ private:
         DataPath referencePath;
         size_t referenceOffset{0};
     };
+
+    void mergeSections();
 
     auto section(int relative = 0) -> Section&;
     auto section(int relative = 0) const -> const Section&;

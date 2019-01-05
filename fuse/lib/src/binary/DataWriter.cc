@@ -21,16 +21,21 @@ void DataWriter::finishData()
     Expects(m_sectionIndex == 1);
     Expects(m_path == m_root);
     section().annotated.endObject();
+    mergeSections();
 }
 
-auto DataWriter::assemble() const -> AnnotatedBinary
+void DataWriter::mergeSections()
 {
-    AnnotatedBinary overall;
-    for (auto i = 0U; i < m_sections.size(); ++i)
+    for (auto i = 1U; i < m_sections.size(); ++i)
     {
-        overall.append(m_sections[i].annotated);
+        m_sections.front().annotated.append(std::move(std::move(m_sections)[i].annotated));
     }
-    return std::move(overall);
+    m_sections.resize(1);
+}
+
+auto DataWriter::assemble() -> AnnotatedBinary
+{
+    return std::move(std::move(m_sections).front()).annotated;
 }
 
 auto DataWriter::binary() -> Binary&

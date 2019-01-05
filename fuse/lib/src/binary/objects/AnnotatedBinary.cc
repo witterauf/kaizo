@@ -10,7 +10,7 @@ namespace fuse {
 void AnnotatedBinary::startObject(const binary::DataPath& path)
 {
     m_currentPath = path;
-    m_currentObject = Object{m_currentPath, m_binary.size()};
+    m_currentObject = std::make_unique<PackedObject>(m_currentPath, this, m_binary.size());
     m_nextRealOffset = 0;
 }
 
@@ -28,29 +28,29 @@ void AnnotatedBinary::skip(size_t skipSize)
 {
     if (skipSize > 0)
     {
-        auto const sectionSize = m_binary.size() - m_currentObject.size();
-        m_currentObject.addSection(m_nextRealOffset, sectionSize);
-        m_nextRealOffset = m_currentObject.realSize() + skipSize;
+        auto const sectionSize = m_binary.size() - m_currentObject->size();
+        m_currentObject->addSection(m_nextRealOffset, sectionSize);
+        m_nextRealOffset = m_currentObject->realSize() + skipSize;
     }
 }
 
 void AnnotatedBinary::endObject()
 {
-    auto const sectionSize = m_binary.size() - m_currentObject.size();
+    auto const sectionSize = m_binary.size() - m_currentObject->size();
     if (sectionSize > 0)
     {
-        m_currentObject.addSection(m_nextRealOffset, sectionSize);
+        m_currentObject->addSection(m_nextRealOffset, sectionSize);
     }
     m_objects.insert(std::make_pair(m_currentPath, std::move(m_currentObject)));
 }
 
-void AnnotatedBinary::append(const AnnotatedBinary& other)
+void AnnotatedBinary::append(AnnotatedBinary&& other)
 {
     auto const oldSize = m_binary.size();
     m_binary.append(other.m_binary);
-    for (auto elementPair : other.m_objects)
+    for (auto&& elementPair : other.m_objects)
     {
-        elementPair.second.changeOffset(elementPair.second.offset() + oldSize);
+        elementPair.second->changeOffset(elementPair.second->offset() + oldSize);
         m_objects.insert(std::move(elementPair));
     }
 }
@@ -63,15 +63,15 @@ auto AnnotatedBinary::objectCount() const -> size_t
 void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
                                              const binary::DataPath& destination)
 {
-    UnresolvedReference reference{m_currentObject.path(), m_currentObject.size()};
+    UnresolvedReference reference{m_currentObject->path(), m_currentObject->size()};
     reference.setDestination(destination);
     reference.setFormat(format);
-    m_currentObject.addUnresolvedReference(std::move(reference));
+    m_currentObject->addUnresolvedReference(std::move(reference));
 }
 
 auto AnnotatedBinary::relativeOffset() const -> size_t
 {
-    return m_binary.size() - m_currentObject.size();
+    return m_binary.size() - m_currentObject->size();
 }
 
 void AnnotatedBinary::enter(const binary::DataPathElement& child)
@@ -115,7 +115,7 @@ void AnnotatedBinary::serialize(LuaWriter& writer) const
     for (auto const& objectPair : m_objects)
     {
         writer.startField();
-        objectPair.second.serialize(writer);
+        objectPair.second->serialize(writer);
         writer.finishField();
     }
     writer.finishTable().finishField();

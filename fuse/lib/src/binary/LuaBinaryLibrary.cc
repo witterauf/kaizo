@@ -205,7 +205,7 @@ static void DataFormat_encode(DataFormat& format, DataWriter& writer, const sol:
     }
 }
 
-static void DataWriter_saveObjects(const DataWriter& writer, const std::string& path)
+static void DataWriter_saveObjects(DataWriter& writer, const std::string& path)
 {
     std::filesystem::path metaPath{path};
     std::filesystem::path binaryPath{metaPath};
