@@ -1,11 +1,104 @@
+#include <diagnostics/Contracts.h>
 #include <fstream>
 #include <fuse/FuseException.h>
 #include <fuse/binary/objects/AnnotatedBinary.h>
+#include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
 
 using namespace fuse::binary;
 
 namespace fuse {
+
+class AnnotatedBinaryDeserializer : public DeserializationConsumer
+{
+public:
+    AnnotatedBinaryDeserializer(LuaReader* reader)
+        : m_reader{reader}
+    {
+    }
+
+    void enterArray(size_t size) override;
+    void enterRecord() override;
+    bool enterField(const std::string& name) override;
+    bool enterElement(size_t index) override;
+    void consumeString(const char* value) override;
+    void leaveElement() override;
+    void leaveRecord() override;
+    void leaveArray() override;
+
+    auto annotatedBinary() -> AnnotatedBinary
+    {
+        return std::move(m_binary);
+    }
+
+private:
+    enum class CurrentField
+    {
+        Root,
+        Binary,
+        Objects
+    };
+
+    LuaReader* m_reader{nullptr};
+    CurrentField m_currentField{CurrentField::Root};
+    AnnotatedBinary m_binary;
+};
+
+void AnnotatedBinaryDeserializer::enterArray(size_t)
+{
+    Expects(m_currentField == CurrentField::Objects);
+}
+
+void AnnotatedBinaryDeserializer::enterRecord()
+{
+    Expects(m_currentField == CurrentField::Root);
+}
+
+bool AnnotatedBinaryDeserializer::enterField(const std::string& name)
+{
+    if (name == "binary")
+    {
+        m_currentField = CurrentField::Binary;
+    }
+    else if (name == "objects")
+    {
+        m_currentField = CurrentField::Objects;
+    }
+    return true;
+}
+
+bool AnnotatedBinaryDeserializer::enterElement(size_t)
+{
+    Expects(m_currentField == CurrentField::Objects);
+    auto object = PackedObject::deserialize(*m_reader, &m_binary);
+    m_binary.m_objects[object->path()] = std::move(object);
+    return false;
+}
+
+void AnnotatedBinaryDeserializer::consumeString(const char* value)
+{
+    Expects(m_currentField == CurrentField::Binary);
+    m_binary.m_binary = Binary::load(value);
+}
+
+void AnnotatedBinaryDeserializer::leaveElement()
+{
+}
+
+void AnnotatedBinaryDeserializer::leaveRecord()
+{
+}
+
+void AnnotatedBinaryDeserializer::leaveArray()
+{
+}
+
+auto AnnotatedBinary::deserialize(LuaReader& reader) -> AnnotatedBinary
+{
+    AnnotatedBinaryDeserializer deserializer{&reader};
+    reader.deserialize(&deserializer);
+    return deserializer.annotatedBinary();
+}
 
 void AnnotatedBinary::startObject(const binary::DataPath& path)
 {

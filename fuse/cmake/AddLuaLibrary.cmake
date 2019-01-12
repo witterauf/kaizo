@@ -1,0 +1,2 @@
+function(add_lua_library LUALIBRARY_NAME)
+endfunction(add_lua_library)

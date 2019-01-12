@@ -220,8 +220,10 @@ set(FUSE_LUA_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/lua/Utilities.h
     ${FUSE_INCLUDE_DIRECTORY}/lua/FuseLuaException.h
     ${FUSE_INCLUDE_DIRECTORY}/lua/LuaWriter.h
+    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaReader.h
     lua/LuaLoader.cc
     lua/LuaWriter.cc
+    lua/LuaReader.cc
 )
 
 set(FUSE_ELF_SOURCES

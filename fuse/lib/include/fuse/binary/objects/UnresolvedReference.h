@@ -10,10 +10,13 @@
 namespace fuse {
 
 class LuaWriter;
+class LuaReader;
 
 class UnresolvedReference
 {
 public:
+    static auto deserialize(LuaReader& reader) -> UnresolvedReference;
+
     UnresolvedReference() = default;
     explicit UnresolvedReference(const binary::DataPath& path, size_t offset);
 

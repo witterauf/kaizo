@@ -6,6 +6,11 @@ using namespace fuse::binary;
 
 namespace fuse {
 
+auto UnresolvedReference::deserialize(LuaReader&) -> UnresolvedReference
+{
+    return {};
+}
+
 UnresolvedReference::UnresolvedReference(const DataPath& path, size_t offset)
     : m_sourcePath{path}
     , m_relativeOffset{offset}
