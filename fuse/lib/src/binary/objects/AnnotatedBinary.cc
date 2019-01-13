@@ -4,86 +4,30 @@
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
+#include <fuse/utilities/DomReaderHelpers.h>
 
 using namespace fuse::binary;
 
 namespace fuse {
 
-class AnnotatedBinaryDeserializer : public DeserializationConsumer
+auto AnnotatedBinary::deserialize(LuaDomReader& reader) -> std::unique_ptr<AnnotatedBinary>
 {
-public:
-    AnnotatedBinaryDeserializer(LuaReader* reader)
-        : m_reader{reader}
+    Expects(reader.isRecord());
+    auto* binary = new AnnotatedBinary;
+
+    auto const binaryFileName = requireString(reader, "binary");
+
+    enterArray(reader, "objects");
+    auto const size = reader.size();
+    for (auto i = 0U; i < size; ++i)
     {
+        reader.enter(i);
+        auto object = PackedObject::deserialize(reader, binary);
+        binary->m_objects.push_back(std::move(object));
+        reader.leave();
     }
-
-    void enterArray(size_t size) override;
-    void enterRecord() override;
-    bool enterField(const std::string& name) override;
-    bool enterElement(size_t index) override;
-    void consumeString(const char* value) override;
-
-    auto annotatedBinary() -> std::unique_ptr<AnnotatedBinary>
-    {
-        return std::unique_ptr<AnnotatedBinary>(m_binary);
-    }
-
-private:
-    enum class CurrentField
-    {
-        Root,
-        Binary,
-        Objects
-    };
-
-    LuaReader* m_reader{nullptr};
-    CurrentField m_currentField{CurrentField::Root};
-    AnnotatedBinary* m_binary;
-};
-
-void AnnotatedBinaryDeserializer::enterArray(size_t)
-{
-    Expects(m_currentField == CurrentField::Objects);
-}
-
-void AnnotatedBinaryDeserializer::enterRecord()
-{
-    Expects(m_currentField == CurrentField::Root);
-    m_binary = new AnnotatedBinary{};
-}
-
-bool AnnotatedBinaryDeserializer::enterField(const std::string& name)
-{
-    if (name == "binary")
-    {
-        m_currentField = CurrentField::Binary;
-    }
-    else if (name == "objects")
-    {
-        m_currentField = CurrentField::Objects;
-    }
-    return true;
-}
-
-bool AnnotatedBinaryDeserializer::enterElement(size_t)
-{
-    Expects(m_currentField == CurrentField::Objects);
-    auto object = PackedObject::deserialize(*m_reader, m_binary);
-    m_binary->m_objects.push_back(std::move(object));
-    return false;
-}
-
-void AnnotatedBinaryDeserializer::consumeString(const char* value)
-{
-    Expects(m_currentField == CurrentField::Binary);
-    m_binary->m_binary = Binary::load(value);
-}
-
-auto AnnotatedBinary::deserialize(LuaReader& reader) -> std::unique_ptr<AnnotatedBinary>
-{
-    AnnotatedBinaryDeserializer deserializer{&reader};
-    reader.deserialize(&deserializer);
-    return deserializer.annotatedBinary();
+    reader.leave();
+    return std::unique_ptr<AnnotatedBinary>(binary);
 }
 
 void AnnotatedBinary::startObject(const binary::DataPath& path)
@@ -116,8 +60,7 @@ void AnnotatedBinary::skip(size_t skipSize)
 
 void AnnotatedBinary::endObject()
 {
-    auto const sectionSize =
-        m_binary.size() - m_currentObject->offset() - m_currentObject->size();
+    auto const sectionSize = m_binary.size() - m_currentObject->offset() - m_currentObject->size();
     if (sectionSize > 0)
     {
         m_currentObject->addSection(m_nextRealOffset, sectionSize);

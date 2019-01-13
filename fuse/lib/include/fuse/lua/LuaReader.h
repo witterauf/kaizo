@@ -1,76 +1,32 @@
 #pragma once
 
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
+#include <fuse/utilities/DomReader.h>
 #include <sol.hpp>
 #include <stack>
-#include <string>
 
 namespace fuse {
 
-class DeserializationConsumer
+class LuaDomReader : public DomReader
 {
 public:
-    virtual ~DeserializationConsumer() = default;
+    explicit LuaDomReader(const sol::object& root);
 
-    virtual void enterArray(size_t)
-    {
-    }
-    virtual void enterRecord()
-    {
-    }
-    virtual bool enterField(const std::string&)
-    {
-        return false;
-    }
-    virtual bool enterElement(size_t)
-    {
-        return false;
-    }
-    virtual void consumeInteger(uint64_t)
-    {
-    }
-    virtual void consumeInteger(int64_t)
-    {
-    }
-    virtual void consumeString(const char*)
-    {
-    }
-    virtual void consumeReal(double)
-    {
-    }
-    virtual void leaveElement()
-    {
-    }
-    virtual void leaveRecord()
-    {
-    }
-    virtual void leaveArray()
-    {
-    }
-};
+    bool has(const std::string& name) const override;
+    auto size() const -> size_t override;
+    auto type() const -> NodeType override;
+    auto asInteger() const -> long long override;
+    auto asString() const -> std::string override;
 
-class LuaReader
-{
-public:
-    void open(const std::filesystem::path& fileName);
-    void open(const sol::object& data);
-
-    void deserialize(DeserializationConsumer* consumer);
-    void finish();
+    void enter(const std::string& name) override;
+    void enter(size_t index) override;
+    void leave() override;
 
 private:
-    void deserializeTable(const sol::table& data);
-    void deserializeArray(const sol::table& array);
-    void deserializeRecord(const sol::table& record);
-    void deserializeObject(const sol::object& object);
-    void deserializeNumber(const sol::object& number);
+    auto current() const -> const sol::object&;
+    auto tableType() const -> NodeType;
+    auto numberType() const -> NodeType;
 
-    auto consumer() -> DeserializationConsumer&;
-
-    std::stack<sol::object> m_data;
-    std::stack<DeserializationConsumer*> m_consumers;
+    std::stack<sol::object> m_stack;
 };
 
 } // namespace fuse

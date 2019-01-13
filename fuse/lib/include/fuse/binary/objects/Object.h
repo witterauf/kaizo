@@ -29,18 +29,18 @@ public:
     virtual void serialize(LuaWriter& writer) const = 0;
 };
 
-class LuaReader;
+class LuaDomReader;
 
 class PackedObject : public Object
 {
     friend class PackedObjectDeserializer;
 
 public:
-    static auto deserialize(LuaReader& reader, AnnotatedBinary* parent)
+    static auto deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
         -> std::unique_ptr<PackedObject>;
 
     PackedObject() = default;
-    explicit PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset);
+    explicit PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset = 0);
 
     void changeOffset(size_t offset);
     void addSection(size_t realOffset, size_t sectionSize);

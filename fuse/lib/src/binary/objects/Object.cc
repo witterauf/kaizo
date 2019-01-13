@@ -4,221 +4,64 @@
 #include <fuse/binary/objects/Object.h>
 #include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
+#include <fuse/utilities/DomReaderHelpers.h>
+
+using namespace fuse::binary;
 
 namespace fuse {
 
-class ObjectSectionDeserializer : public DeserializationConsumer
+static auto deserializeSection(LuaDomReader& reader) -> Object::Section
 {
-public:
-    ObjectSectionDeserializer(LuaReader* reader)
-        : m_reader{reader}
-    {
-    }
-
-    void enterRecord() override;
-    bool enterField(const std::string& name) override;
-    void consumeInteger(int64_t value) override;
-
-    auto section() const -> Object::Section
-    {
-        return m_section;
-    }
-
-private:
-    bool m_isRecord{false};
-    LuaReader* m_reader;
-    Object::Section m_section;
-    std::function<void(size_t)> m_setter;
-};
-
-void ObjectSectionDeserializer::enterRecord()
-{
-    m_isRecord = true;
-    m_section = {};
+    Expects(reader.isRecord());
+    Object::Section section;
+    section.offset = requireUnsignedInteger(reader, "offset");
+    section.size = requireUnsignedInteger(reader, "size");
+    section.realOffset = requireUnsignedInteger(reader, "actual_offset");
+    return section;
 }
 
-bool ObjectSectionDeserializer::enterField(const std::string& name)
-{
-    Expects(m_isRecord);
-    auto* section = &m_section;
-    if (name == "offset")
-    {
-        m_setter = [section](size_t value) { section->offset = value; };
-    }
-    else if (name == "size")
-    {
-        m_setter = [section](size_t value) { section->size = value; };
-    }
-    else if (name == "actual_offset")
-    {
-        m_setter = [section](size_t value) { section->realOffset = value; };
-    }
-    else
-    {
-        throw FuseException{"deserialization error: unknown field '" + name + "'"};
-    }
-    return true;
-}
-
-void ObjectSectionDeserializer::consumeInteger(int64_t value)
-{
-    Expects(m_isRecord);
-    Expects(m_setter);
-    if (value < 0)
-    {
-        throw FuseException{"deserialization error: invalid value for section field"};
-    }
-    m_setter(static_cast<size_t>(value));
-}
-
-class PackedObjectDeserializer : public DeserializationConsumer
-{
-public:
-    PackedObjectDeserializer(LuaReader* reader, AnnotatedBinary* parent)
-        : m_reader{reader}
-        , m_parent{parent}
-    {
-    }
-
-    void enterArray(size_t size) override;
-    void enterRecord() override;
-    bool enterField(const std::string& name) override;
-    bool enterElement(size_t index) override;
-    void consumeInteger(int64_t value) override;
-    void consumeString(const char* value) override;
-    void leaveElement() override;
-    void leaveRecord() override;
-    void leaveArray() override;
-
-    auto object() -> std::unique_ptr<PackedObject>;
-
-private:
-    enum class CurrentField
-    {
-        Root,
-        Path,
-        Offset,
-        Size,
-        ActualSize,
-        Sections,
-        UnresolvedReferences
-    };
-
-    AnnotatedBinary* m_parent{nullptr};
-    LuaReader* m_reader{nullptr};
-    CurrentField m_currentField{CurrentField::Root};
-    PackedObject* m_object{nullptr};
-};
-
-void PackedObjectDeserializer::enterArray(size_t)
-{
-    if (m_currentField != CurrentField::Sections &&
-        m_currentField != CurrentField::UnresolvedReferences)
-    {
-        throw FuseException{"deserialization error: unexpected array"};
-    }
-}
-
-void PackedObjectDeserializer::enterRecord()
-{
-    Expects(m_currentField == CurrentField::Root);
-    m_object = new PackedObject{};
-    m_object->m_parent = m_parent;
-}
-
-bool PackedObjectDeserializer::enterField(const std::string& name)
-{
-    if (name == "path")
-    {
-        m_currentField = CurrentField::Path;
-    }
-    else if (name == "offset")
-    {
-        m_currentField = CurrentField::Offset;
-    }
-    else if (name == "size")
-    {
-        m_currentField = CurrentField::Size;
-    }
-    else if (name == "actual_size")
-    {
-        m_currentField = CurrentField::ActualSize;
-    }
-    else if (name == "unresolved_references")
-    {
-        m_currentField = CurrentField::UnresolvedReferences;
-    }
-    else if (name == "sections")
-    {
-        m_currentField = CurrentField::Sections;
-    }
-    else
-    {
-        throw FuseException{"deserialization error: unknown field + " + name};
-    }
-    return true;
-}
-
-bool PackedObjectDeserializer::enterElement(size_t)
-{
-    if (m_currentField == CurrentField::Sections)
-    {
-        ObjectSectionDeserializer sectionDeserializer{m_reader};
-        m_reader->deserialize(&sectionDeserializer);
-        auto const section = sectionDeserializer.section();
-        m_object->addSection(section.realOffset, section.size);
-    }
-    else
-    {
-        auto reference = UnresolvedReference::deserialize(*m_reader);
-        m_object->addUnresolvedReference(reference);
-    }
-    return false;
-}
-
-void PackedObjectDeserializer::consumeInteger(int64_t value)
-{
-    switch (m_currentField)
-    {
-    case CurrentField::Offset: m_object->changeOffset(static_cast<size_t>(value)); return;
-    default: return;
-    }
-}
-
-void PackedObjectDeserializer::consumeString(const char* value)
-{
-    if (m_currentField == CurrentField::Path)
-    {
-        if (auto maybePath = binary::DataPath::fromString(value))
-        {
-            m_object->m_path = std::move(*maybePath);
-        }
-    }
-}
-
-void PackedObjectDeserializer::leaveElement()
-{
-}
-
-void PackedObjectDeserializer::leaveRecord()
-{
-}
-
-void PackedObjectDeserializer::leaveArray()
-{
-}
-
-auto PackedObjectDeserializer::object() -> std::unique_ptr<PackedObject>
-{
-    return std::unique_ptr<PackedObject>(m_object);
-}
-
-auto PackedObject::deserialize(LuaReader& reader, AnnotatedBinary* parent)
+auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
     -> std::unique_ptr<PackedObject>
 {
-    PackedObjectDeserializer deserializer{&reader, parent};
-    reader.deserialize(&deserializer);
-    return deserializer.object();
+    Expects(reader.isRecord());
+
+    PackedObject* object;
+    if (auto maybePath = DataPath::fromString(requireString(reader, "path")))
+    {
+        auto const offset = requireUnsignedInteger(reader, "offset");
+        object = new PackedObject{*maybePath, parent, offset};
+    }
+    else
+    {
+        throw FuseException{"invalid path"};
+    }
+
+    if (reader.has("sections"))
+    {
+        enterArray(reader, "sections");
+        auto const size = reader.size();
+        for (auto i = 0U; i < size; ++i)
+        {
+            reader.enter(i);
+            auto section = deserializeSection(reader);
+            object->m_sections.push_back(section);
+            reader.leave();
+        }
+        reader.leave();
+    }
+    else
+    {
+        Object::Section section;
+        section.offset = section.realOffset = 0;
+        section.size = requireUnsignedInteger(reader, "size");
+        object->m_sections.push_back(section);
+    }
+
+    if (reader.has("unresolved_references"))
+    {
+    }
+
+    return std::unique_ptr<PackedObject>(object);
 }
 
 PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset)

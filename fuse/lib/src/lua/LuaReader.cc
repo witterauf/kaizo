@@ -4,108 +4,89 @@
 
 namespace fuse {
 
-void LuaReader::open(const std::filesystem::path& fileName)
+LuaDomReader::LuaDomReader(const sol::object& root)
 {
-    std::ifstream input{fileName, std::ifstream::binary};
-    if (input.bad())
+    m_stack.push(root);
+}
+
+bool LuaDomReader::has(const std::string& name) const
+{
+    Expects(type() == NodeType::Record);
+    auto table = current().as<sol::table>();
+    auto field = table[name];
+    return field.valid();
+}
+
+auto LuaDomReader::size() const -> size_t
+{
+    Expects(type() == NodeType::Array);
+    auto table = current().as<sol::table>();
+    return table.size();
+}
+
+auto LuaDomReader::type() const -> NodeType
+{
+    switch (current().get_type())
     {
-        throw FuseException{"could not open file '" + fileName.string() + "' for reading"};
+    case sol::type::number: return numberType();
+    case sol::type::string: return NodeType::String;
+    case sol::type::table: return tableType();
+    default: throw FuseException{"unsupported node type"};
     }
 }
 
-void LuaReader::open(const sol::object& data)
+auto LuaDomReader::tableType() const -> NodeType
 {
-    Expects(m_data.empty());
-    m_data.push(data);
-}
-
-void LuaReader::deserialize(DeserializationConsumer* consumer)
-{
-    m_consumers.push(consumer);
-    deserializeObject(m_data.top());
-    m_consumers.pop();
-}
-
-void LuaReader::deserializeTable(const sol::table& data)
-{
-    if (data.size() > 0)
+    auto table = current().as<sol::table>();
+    if (table.size() > 0)
     {
-        deserializeArray(data);
-    }
-    else
-    {
-        deserializeRecord(data);
-    }
-}
-
-void LuaReader::deserializeArray(const sol::table& array)
-{
-    auto const length = array.size();
-    consumer().enterArray(length);
-    for (auto i = 0U; i < length; ++i)
-    {
-        auto object = array.get<sol::object>(i + 1);
-        m_data.push(object);
-        if (consumer().enterElement(i))
-        {
-            deserializeObject(object);
-        }
-        m_data.pop();
-    }
-    consumer().leaveArray();
-}
-
-void LuaReader::deserializeRecord(const sol::table& record)
-{
-    consumer().enterRecord();
-    for (auto const& pair : record)
-    {
-        if (pair.first.is<std::string>())
-        {
-            m_data.push(pair.second);
-            if (consumer().enterField(pair.first.as<std::string>()))
-            {
-                deserializeObject(pair.second);
-            }
-            m_data.pop();
-        }
-    }
-    consumer().leaveRecord();
-}
-
-void LuaReader::deserializeObject(const sol::object& object)
-{
-    switch (object.get_type())
-    {
-    case sol::type::number: deserializeNumber(object); break;
-    case sol::type::string: consumer().consumeString(object.as<const char*>()); break;
-    case sol::type::table: deserializeTable(object.as<sol::table>()); break;
-    case sol::type::nil: throw FuseException("nil not supported in deserialization");
-    default: throw FuseException{"unsupported type for deserialization"};
-    }
-}
-
-void LuaReader::deserializeNumber(const sol::object& number)
-{
-    if (number.is<int64_t>())
-    {
-        consumer().consumeInteger(number.as<int64_t>());
+        return NodeType::Array;
     }
     else
     {
-        consumer().consumeReal(number.as<double>());
+        return NodeType::Record;
     }
 }
 
-void LuaReader::finish()
+auto LuaDomReader::numberType() const -> NodeType
 {
-    Expects(!m_consumers.empty());
-    m_consumers.pop();
+    return current().is<long long>() ? NodeType::Integer : NodeType::Real;
 }
 
-auto LuaReader::consumer() -> DeserializationConsumer&
+auto LuaDomReader::asInteger() const -> long long
 {
-    return *m_consumers.top();
+    Expects(type() == NodeType::Integer);
+    return current().as<long long>();
+}
+
+auto LuaDomReader::asString() const -> std::string
+{
+    Expects(type() == NodeType::String);
+    return current().as<std::string>();
+}
+
+void LuaDomReader::enter(const std::string& name)
+{
+    Expects(has(name));
+    auto table = current().as<sol::table>();
+    m_stack.push(table.get<sol::object>(name));
+}
+
+void LuaDomReader::enter(size_t index)
+{
+    Expects(index < size());
+    auto table = current().as<sol::table>();
+    m_stack.push(table.get<sol::object>(index + 1));
+}
+
+void LuaDomReader::leave()
+{
+    m_stack.pop();
+}
+
+auto LuaDomReader::current() const -> const sol::object&
+{
+    return m_stack.top();
 }
 
 } // namespace fuse

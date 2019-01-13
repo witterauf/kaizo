@@ -48,7 +48,8 @@ bool RelativeStorageFormat::isCompatible(const Address address) const
 
 void RelativeStorageFormat::serialize(LuaWriter& writer) const
 {
-    writer.startConstructorTable("RelativeOffset");
+    writer.startTable();
+    writer.startField("class").writeString("RelativeOffset").finishField();
     if (m_baseAddress.toInteger() != 0)
     {
         writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();

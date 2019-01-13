@@ -10,14 +10,14 @@
 namespace fuse {
 
 class LuaWriter;
-class LuaReader;
+class LuaDomReader;
 
 class AnnotatedBinary
 {
     friend class AnnotatedBinaryDeserializer;
 
 public:
-    static auto deserialize(LuaReader& reader) -> std::unique_ptr<AnnotatedBinary>;
+    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<AnnotatedBinary>;
 
     // in-flight object construction
     void startObject(const binary::DataPath& path);

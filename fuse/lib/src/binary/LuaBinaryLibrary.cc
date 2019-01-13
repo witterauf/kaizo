@@ -240,8 +240,6 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
     sol::state_view lua{state};
     auto module = lua.create_table();
 
-    module.new_enum("SIGNEDNESS", "SIGNED", Signedness::Signed, "UNSIGNED", Signedness::Unsigned);
-    module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);
     module.new_enum("DATA_TYPE", "ARRAY", DataType::Array, "BINARY", DataType::Binary, "CUSTOM",
                     DataType::Custom, "IMAGE", DataType::Image, "INTEGER", DataType::Integer,
                     "NULL", DataType::Null, "RECORD", DataType::Record, "REFERENCE",

@@ -3,6 +3,14 @@
 
 namespace fuse {
 
+template <class Target> void merge(Target& a, const sol::table& b)
+{
+    for (auto const& pair : b)
+    {
+        a[pair.first] = pair.second;
+    }
+}
+
 template <class Key> bool hasField(const sol::table& table, const Key& key)
 {
     auto field = table.get<sol::object>(key);
