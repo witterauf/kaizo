@@ -4,7 +4,6 @@
 #include "UnresolvedReference.h"
 #include <cstddef>
 #include <filesystem>
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -18,7 +17,7 @@ class AnnotatedBinary
     friend class AnnotatedBinaryDeserializer;
 
 public:
-    static auto deserialize(LuaReader& reader) -> AnnotatedBinary;
+    static auto deserialize(LuaReader& reader) -> std::unique_ptr<AnnotatedBinary>;
 
     // in-flight object construction
     void startObject(const binary::DataPath& path);
@@ -36,12 +35,13 @@ public:
     void append(AnnotatedBinary&& other);
 
     auto objectCount() const -> size_t;
+    auto object(size_t index) const -> const Object*;
 
 private:
     auto relativeOffset() const -> size_t;
 
     binary::DataPath m_currentPath;
-    std::map<binary::DataPath, std::unique_ptr<PackedObject>> m_objects;
+    std::vector<std::unique_ptr<PackedObject>> m_objects;
     mutable std::optional<std::filesystem::path> m_binaryPath;
 
     Binary m_binary;

@@ -322,6 +322,11 @@ void PackedObject::serializeAttributes(LuaWriter& writer) const
 
 void PackedObject::serializeSections(LuaWriter& writer) const
 {
+    if (sectionCount() == 1 && section(0).realOffset == 0)
+    {
+        return;
+    }
+
     writer.startField("sections").startTable();
     for (auto i = 0U; i < sectionCount(); ++i)
     {
@@ -337,6 +342,11 @@ void PackedObject::serializeSections(LuaWriter& writer) const
 
 void PackedObject::serializeReferences(LuaWriter& writer) const
 {
+    if (unresolvedReferenceCount() == 0)
+    {
+        return;
+    }
+
     writer.startField("unresolved_references").startTable();
     for (auto i = 0U; i < unresolvedReferenceCount(); ++i)
     {

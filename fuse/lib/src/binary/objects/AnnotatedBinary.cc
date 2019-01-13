@@ -22,13 +22,10 @@ public:
     bool enterField(const std::string& name) override;
     bool enterElement(size_t index) override;
     void consumeString(const char* value) override;
-    void leaveElement() override;
-    void leaveRecord() override;
-    void leaveArray() override;
 
-    auto annotatedBinary() -> AnnotatedBinary
+    auto annotatedBinary() -> std::unique_ptr<AnnotatedBinary>
     {
-        return std::move(m_binary);
+        return std::unique_ptr<AnnotatedBinary>(m_binary);
     }
 
 private:
@@ -41,7 +38,7 @@ private:
 
     LuaReader* m_reader{nullptr};
     CurrentField m_currentField{CurrentField::Root};
-    AnnotatedBinary m_binary;
+    AnnotatedBinary* m_binary;
 };
 
 void AnnotatedBinaryDeserializer::enterArray(size_t)
@@ -52,6 +49,7 @@ void AnnotatedBinaryDeserializer::enterArray(size_t)
 void AnnotatedBinaryDeserializer::enterRecord()
 {
     Expects(m_currentField == CurrentField::Root);
+    m_binary = new AnnotatedBinary{};
 }
 
 bool AnnotatedBinaryDeserializer::enterField(const std::string& name)
@@ -70,30 +68,18 @@ bool AnnotatedBinaryDeserializer::enterField(const std::string& name)
 bool AnnotatedBinaryDeserializer::enterElement(size_t)
 {
     Expects(m_currentField == CurrentField::Objects);
-    auto object = PackedObject::deserialize(*m_reader, &m_binary);
-    m_binary.m_objects[object->path()] = std::move(object);
+    auto object = PackedObject::deserialize(*m_reader, m_binary);
+    m_binary->m_objects.push_back(std::move(object));
     return false;
 }
 
 void AnnotatedBinaryDeserializer::consumeString(const char* value)
 {
     Expects(m_currentField == CurrentField::Binary);
-    m_binary.m_binary = Binary::load(value);
+    m_binary->m_binary = Binary::load(value);
 }
 
-void AnnotatedBinaryDeserializer::leaveElement()
-{
-}
-
-void AnnotatedBinaryDeserializer::leaveRecord()
-{
-}
-
-void AnnotatedBinaryDeserializer::leaveArray()
-{
-}
-
-auto AnnotatedBinary::deserialize(LuaReader& reader) -> AnnotatedBinary
+auto AnnotatedBinary::deserialize(LuaReader& reader) -> std::unique_ptr<AnnotatedBinary>
 {
     AnnotatedBinaryDeserializer deserializer{&reader};
     reader.deserialize(&deserializer);
@@ -121,7 +107,8 @@ void AnnotatedBinary::skip(size_t skipSize)
 {
     if (skipSize > 0)
     {
-        auto const sectionSize = m_binary.size() - m_currentObject->size();
+        auto const sectionSize =
+            m_binary.size() - m_currentObject->offset() - m_currentObject->size();
         m_currentObject->addSection(m_nextRealOffset, sectionSize);
         m_nextRealOffset = m_currentObject->realSize() + skipSize;
     }
@@ -129,22 +116,23 @@ void AnnotatedBinary::skip(size_t skipSize)
 
 void AnnotatedBinary::endObject()
 {
-    auto const sectionSize = m_binary.size() - m_currentObject->size();
+    auto const sectionSize =
+        m_binary.size() - m_currentObject->offset() - m_currentObject->size();
     if (sectionSize > 0)
     {
         m_currentObject->addSection(m_nextRealOffset, sectionSize);
     }
-    m_objects.insert(std::make_pair(m_currentPath, std::move(m_currentObject)));
+    m_objects.push_back(std::move(m_currentObject));
 }
 
 void AnnotatedBinary::append(AnnotatedBinary&& other)
 {
     auto const oldSize = m_binary.size();
     m_binary.append(other.m_binary);
-    for (auto&& elementPair : other.m_objects)
+    for (auto&& object : other.m_objects)
     {
-        elementPair.second->changeOffset(elementPair.second->offset() + oldSize);
-        m_objects.insert(std::move(elementPair));
+        object->changeOffset(object->offset() + oldSize);
+        m_objects.push_back(std::move(object));
     }
 }
 
@@ -205,13 +193,19 @@ void AnnotatedBinary::serialize(LuaWriter& writer) const
         writer.startField("binary").writePath(*m_binaryPath).finishField();
     }
     writer.startField("objects").startTable();
-    for (auto const& objectPair : m_objects)
+    for (auto const& object : m_objects)
     {
         writer.startField();
-        objectPair.second->serialize(writer);
+        object->serialize(writer);
         writer.finishField();
     }
     writer.finishTable().finishField();
+}
+
+auto AnnotatedBinary::object(size_t index) const -> const Object*
+{
+    Expects(index < objectCount());
+    return m_objects[index].get();
 }
 
 } // namespace fuse
