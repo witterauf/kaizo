@@ -1,7 +1,9 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
+#include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
+#include <fuse/utilities/DomReaderHelpers.h>
 
 namespace fuse {
 
@@ -23,6 +25,19 @@ auto FixedBaseAddressProvider::copy() const -> std::unique_ptr<BaseAddressProvid
 void FixedBaseAddressProvider::serialize(LuaWriter& writer) const
 {
     writer.writeInteger(m_address.toInteger());
+}
+
+auto RelativeStorageFormat::deserialize(LuaDomReader& reader)
+    -> std::unique_ptr<RelativeStorageFormat>
+{
+    Expects(reader.isRecord());
+    auto format = std::make_unique<RelativeStorageFormat>();
+    auto const baseOffset = requireUnsignedInteger(reader, "base");
+    enterRecord(reader, "layout");
+    auto const layout = IntegerLayout::deserialize(reader);
+    format->setOffsetFormat(layout);
+    reader.leave();
+    return std::move(format);
 }
 
 void RelativeStorageFormat::setBaseAddress(const Address base)

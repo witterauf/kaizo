@@ -14,14 +14,19 @@ enum class Endianness
     Big
 };
 
+class LuaDomReader;
+
 struct IntegerLayout
 {
+    static auto deserialize(LuaDomReader& reader) -> IntegerLayout;
+
     size_t sizeInBytes;
     Signedness signedness;
     Endianness endianness;
 };
 
 class LuaWriter;
+
 void serialize(LuaWriter& writer, const IntegerLayout& layout);
 
 } // namespace fuse

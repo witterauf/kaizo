@@ -1,14 +1,41 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/objects/UnresolvedReference.h>
+#include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
+#include <fuse/utilities/DomReaderHelpers.h>
 
 using namespace fuse::binary;
 
 namespace fuse {
 
-auto UnresolvedReference::deserialize(LuaReader&) -> UnresolvedReference
+auto UnresolvedReference::deserialize(LuaDomReader& reader) -> UnresolvedReference
 {
-    return {};
+    Expects(reader.isRecord());
+    auto const offset = requireUnsignedInteger(reader, "offset");
+    auto const pathString = requireString(reader, "referenced");
+    DataPath path;
+    if (auto maybePath = DataPath::fromString(pathString))
+    {
+        path = *maybePath;
+    }
+    else
+    {
+        throw FuseException{"'" + pathString + "' is not a valid path"};
+    }
+
+    enterRecord(reader, "format");
+    auto format = AddressStorageFormat::deserialize(reader);
+    reader.leave();
+
+    UnresolvedReference reference{offset};
+    reference.setFormat(std::move(format));
+    reference.setDestination(path);
+    return std::move(reference);
+}
+
+UnresolvedReference::UnresolvedReference(size_t offset)
+    : m_relativeOffset{offset}
+{
 }
 
 UnresolvedReference::UnresolvedReference(const DataPath& path, size_t offset)

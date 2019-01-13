@@ -31,6 +31,8 @@ private:
 class RelativeStorageFormat : public AddressStorageFormat
 {
 public:
+    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<RelativeStorageFormat>;
+
     void setBaseAddress(const Address base);
     void setNullPointer(const Address null, AddressFormat::offset_t offset);
     void setOffsetFormat(const IntegerLayout& layout);

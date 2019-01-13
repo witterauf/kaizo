@@ -1,6 +1,8 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/Integers.h>
+#include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
+#include <fuse/utilities/DomReaderHelpers.h>
 
 namespace fuse {
 
@@ -34,6 +36,19 @@ void serialize(LuaWriter& writer, const IntegerLayout& layout)
         writer.startField("endianness").writeEnum(toEnumName(layout.endianness)).finishField();
     }
     writer.finishTable();
+}
+
+auto IntegerLayout::deserialize(LuaDomReader& reader) -> IntegerLayout
+{
+    Expects(reader.isRecord());
+    IntegerLayout layout;
+    if (auto maybeEndianness = readUnsignedInteger(reader, "endianness"))
+    {
+        layout.endianness = static_cast<Endianness>(*maybeEndianness);
+    }
+    layout.sizeInBytes = requireUnsignedInteger(reader, "size");
+    layout.signedness = static_cast<Signedness>(requireUnsignedInteger(reader, "signedness"));
+    return layout;
 }
 
 } // namespace fuse

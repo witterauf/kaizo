@@ -10,10 +10,13 @@
 namespace fuse {
 
 class LuaWriter;
+class LuaDomReader;
 
 class AddressStorageFormat
 {
 public:
+    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<AddressStorageFormat>;
+
     virtual bool isCompatible(const Address address) const = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
     virtual auto writeAddress(const Address address) const -> Binary = 0;

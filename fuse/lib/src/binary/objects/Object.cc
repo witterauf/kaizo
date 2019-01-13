@@ -59,6 +59,16 @@ auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
 
     if (reader.has("unresolved_references"))
     {
+        enterArray(reader, "unresolved_references");
+        auto const size = reader.size();
+        for (auto i = 0U; i < size; ++i)
+        {
+            reader.enter(i);
+            auto reference = UnresolvedReference::deserialize(reader);
+            object->m_references.push_back(reference);
+            reader.leave();
+        }
+        reader.leave();
     }
 
     return std::unique_ptr<PackedObject>(object);

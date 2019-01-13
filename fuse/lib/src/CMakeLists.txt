@@ -41,6 +41,7 @@ set(FUSE_ADDRESSES_SOURCES
     addresses/LuaAddressLibrary.cc
     addresses/AbsoluteOffset.cc
     addresses/RelativeStorageFormat.cc
+    addresses/AddressStorageFormat.cc
 )
 
 set(FUSE_BINARY_DATA_SOURCES
