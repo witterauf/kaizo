@@ -24,8 +24,10 @@ public:
     virtual auto size() const -> size_t = 0;
     virtual auto sectionCount() const -> size_t = 0;
     virtual auto section(size_t index) const -> const Section& = 0;
+    virtual auto sectionBinary(size_t index) const -> Binary = 0;
     virtual auto unresolvedReferenceCount() const -> size_t = 0;
     virtual auto unresolvedReference(size_t index) const -> const UnresolvedReference& = 0;
+    virtual void solveReference(size_t index, const Address address) = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
 };
 
@@ -51,8 +53,10 @@ public:
     auto offset() const -> size_t;
     auto sectionCount() const -> size_t override;
     auto section(size_t index) const -> const Section& override;
+    auto sectionBinary(size_t index) const -> Binary override;
     auto unresolvedReferenceCount() const -> size_t override;
     auto unresolvedReference(size_t index) const -> const UnresolvedReference& override;
+    void solveReference(size_t index, const Address address) override;
 
     void serialize(LuaWriter& writer) const override;
 

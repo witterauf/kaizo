@@ -1,5 +1,7 @@
 #include <cctype>
 #include <diagnostics/Contracts.h>
+#include <fstream>
+#include <fuse/FuseException.h>
 #include <fuse/lua/LuaWriter.h>
 
 namespace fuse {
@@ -221,6 +223,20 @@ void LuaWriter::leaveState()
 {
     Expects(!m_stateStack.empty());
     m_stateStack.pop();
+}
+
+void LuaWriter::savePlain(const std::filesystem::path& filename) const
+{
+    std::ofstream output{filename};
+    if (output.good())
+    {
+        output << "return ";
+        output << m_lua;
+    }
+    else
+    {
+        throw FuseException{"could not open file '" + filename.string() + "' for writing"};
+    }
 }
 
 } // namespace fuse

@@ -1,6 +1,7 @@
 #include <diagnostics/Contracts.h>
 #include <functional>
 #include <fuse/FuseException.h>
+#include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/binary/objects/Object.h>
 #include <fuse/lua/LuaReader.h>
 #include <fuse/lua/LuaWriter.h>
@@ -152,8 +153,30 @@ auto PackedObject::unresolvedReferenceCount() const -> size_t
 
 auto PackedObject::unresolvedReference(size_t index) const -> const UnresolvedReference&
 {
-    Expects(index < m_references.size());
+    Expects(index < unresolvedReferenceCount());
     return m_references[index];
+}
+
+void PackedObject::solveReference(size_t index, const Address address)
+{
+    Expects(index < unresolvedReferenceCount());
+    auto const& reference = unresolvedReference(index);
+    auto const addressBinary = reference.addressLayout().writeAddress(address);
+    if (addressBinary.size() > 0)
+    {
+        auto& binary = m_parent->binary();
+        auto referenceOffset = reference.relativeOffset() + offset();
+        for (auto value : addressBinary)
+        {
+            binary[referenceOffset++] = value;
+        }
+    }
+}
+
+auto PackedObject::sectionBinary(size_t index) const -> Binary
+{
+    Expects(index < sectionCount());
+    return m_parent->binary().read(m_offset + section(index).offset, section(index).size);
 }
 
 void PackedObject::serialize(LuaWriter& writer) const

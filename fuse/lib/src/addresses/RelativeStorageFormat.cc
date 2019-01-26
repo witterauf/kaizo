@@ -1,4 +1,5 @@
 #include <diagnostics/Contracts.h>
+#include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
 #include <fuse/lua/LuaReader.h>
@@ -36,6 +37,14 @@ auto RelativeStorageFormat::deserialize(LuaDomReader& reader)
     enterRecord(reader, "layout");
     auto const layout = IntegerLayout::deserialize(reader);
     format->setOffsetFormat(layout);
+    if (auto maybeAddress = fileOffsetFormat()->fromInteger(baseOffset))
+    {
+        format->setBaseAddress(*maybeAddress);
+    }
+    else
+    {
+        throw FuseException{"could not deserialize RelativeStorageFormat"};
+    }
     reader.leave();
     return std::move(format);
 }

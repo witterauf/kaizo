@@ -22,7 +22,7 @@ struct IntegerLayout
 
     size_t sizeInBytes;
     Signedness signedness;
-    Endianness endianness;
+    Endianness endianness{Endianness::Little};
 };
 
 class LuaWriter;

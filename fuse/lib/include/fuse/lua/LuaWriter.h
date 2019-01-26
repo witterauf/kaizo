@@ -38,7 +38,7 @@ public:
 
     /// Returns the generated Lua source.
     auto lua() const -> std::string;
-    /// Saves the generated Lua source to \p filename.
+    /// Saves the generated Lua source to \p filename. Prepends a 'return' statement.
     void savePlain(const std::filesystem::path& filename) const;
     /// Compiles the generated Lua source to byte code and saves it to \p filename.
     void saveCompiled(const std::filesystem::path& filename) const;

@@ -16,6 +16,7 @@ auto AnnotatedBinary::deserialize(LuaDomReader& reader) -> std::unique_ptr<Annot
     auto* binary = new AnnotatedBinary;
 
     auto const binaryFileName = requireString(reader, "binary");
+    binary->m_binary = Binary::load(binaryFileName);
 
     enterArray(reader, "objects");
     auto const size = reader.size();
@@ -146,6 +147,12 @@ void AnnotatedBinary::serialize(LuaWriter& writer) const
 }
 
 auto AnnotatedBinary::object(size_t index) const -> const Object*
+{
+    Expects(index < objectCount());
+    return m_objects[index].get();
+}
+
+auto AnnotatedBinary::object(size_t index) -> Object*
 {
     Expects(index < objectCount());
     return m_objects[index].get();

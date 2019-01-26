@@ -36,6 +36,7 @@ public:
 
     auto objectCount() const -> size_t;
     auto object(size_t index) const -> const Object*;
+    auto object(size_t index) -> Object*;
 
 private:
     auto relativeOffset() const -> size_t;
