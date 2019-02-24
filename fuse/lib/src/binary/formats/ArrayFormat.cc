@@ -62,7 +62,10 @@ auto ArrayFormat::copy() const -> std::unique_ptr<DataFormat>
 {
     auto arrayFormat = std::make_unique<ArrayFormat>();
     arrayFormat->m_elementFormat = m_elementFormat->copy();
-    arrayFormat->m_sizeProvider = m_sizeProvider->copy();
+    if (m_sizeProvider)
+    {
+        arrayFormat->m_sizeProvider = m_sizeProvider->copy();
+    }
     copyDataFormat(*arrayFormat);
     return std::move(arrayFormat);
 }

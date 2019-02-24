@@ -13,7 +13,12 @@ CsvReader::CsvReader(const std::filesystem::path& filename)
         m_size = std::filesystem::file_size(filename);
         m_buffer = std::make_unique<unsigned char[]>(m_size);
         input.read(reinterpret_cast<char*>(m_buffer.get()), m_size);
+
         m_position = 0;
+        if (m_size >= 3 && m_buffer[0] == 0xEF && m_buffer[1] == 0xBB && m_buffer[2] == 0xBF)
+        {
+            m_position += 3;
+        }
     }
     else
     {
@@ -119,6 +124,26 @@ auto CsvReader::fetch() const -> char
 void CsvReader::consume()
 {
     m_position += 1;
+}
+
+void CsvReader::setColumnName(size_t index, const std::string& name)
+{
+    if (m_columnNames.size() <= index)
+    {
+        m_columnNames.resize(index + 1);
+    }
+    m_columnNames[index] = name;
+}
+
+bool CsvReader::hasColumnName(size_t index) const
+{
+    return index < m_columnNames.size() && m_columnNames[index].has_value();
+}
+
+auto CsvReader::columnName(size_t index) const -> const std::string&
+{
+    Expects(hasColumnName(index));
+    return *m_columnNames[index];
 }
 
 } // namespace fuse
