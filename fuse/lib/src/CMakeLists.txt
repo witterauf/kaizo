@@ -207,12 +207,14 @@ set(FUSE_GRAPHICS_SOURCES
 
 set(FUSE_UTILITIES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/utilities/StringAlgorithms.h
+    ${FUSE_INCLUDE_DIRECTORY}/utilities/StringCollection.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/CsvReader.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/DomReader.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/DomReaderHelpers.h
     utilities/CsvReader.cc
     utilities/DomReader.cc
     utilities/DomReaderHelpers.cc
+    utilities/StringCollection.cc
 )
 
 set(FUSE_SYSTEMS_SOURCES
