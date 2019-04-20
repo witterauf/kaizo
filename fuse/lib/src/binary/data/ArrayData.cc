@@ -16,6 +16,7 @@ ArrayData::ArrayData()
 
 void ArrayData::set(size_t index, std::unique_ptr<Data>&& element)
 {
+    Expects(element);
     if (index >= m_elements.size())
     {
         m_elements.resize(index + 1);

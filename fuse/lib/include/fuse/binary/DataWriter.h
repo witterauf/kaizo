@@ -20,6 +20,7 @@ public:
 
     // DataFormat interface
     auto binary() -> Binary&;
+    void startNewObject();
     void enter(const DataPathElement& element);
     void reenter(const DataPathElement& element);
     auto path() const -> const DataPath&;

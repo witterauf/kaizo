@@ -24,6 +24,12 @@ void DataWriter::finishData()
     mergeSections();
 }
 
+void DataWriter::startNewObject()
+{
+    section().annotated.endObject();
+    section().annotated.startObject(m_path);
+}
+
 void DataWriter::mergeSections()
 {
     for (auto i = 1U; i < m_sections.size(); ++i)

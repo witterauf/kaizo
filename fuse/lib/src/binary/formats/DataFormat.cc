@@ -55,6 +55,10 @@ auto DataFormat::decode(DataReader& reader) -> std::unique_ptr<Data>
 
 void DataFormat::encode(DataWriter& writer, const Data& data)
 {
+    if (m_offset)
+    {
+        writer.startNewObject();
+    }
     writer.skip(m_skipBefore);
     doEncode(writer, data);
     writer.skip(m_skipAfter);

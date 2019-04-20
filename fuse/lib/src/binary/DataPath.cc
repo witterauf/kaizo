@@ -14,6 +14,7 @@ auto DataPathElement::makeName(const std::string& name) -> DataPathElement
 
 auto DataPathElement::makeIndex(size_t index) -> DataPathElement
 {
+    Expects(index > 0);
     DataPathElement element;
     element.m_kind = Kind::Index;
     element.m_value = index;

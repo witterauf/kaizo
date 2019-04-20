@@ -1,3 +1,4 @@
+#include "FormatHelpers.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/DataReader.h>
@@ -59,10 +60,7 @@ auto RecordFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 
 void RecordFormat::doEncode(DataWriter& writer, const Data& data)
 {
-    if (data.type() != DataType::Record)
-    {
-        throw std::runtime_error{"type mismatch"};
-    }
+    expectDataType(DataType::Record, data, writer.path());
     auto const& recordData = static_cast<const RecordData&>(data);
 
     for (auto const& element : m_elements)

@@ -1,3 +1,4 @@
+#include "FormatHelpers.h"
 #include <diagnostics/Contracts.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
@@ -53,10 +54,7 @@ auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 void StringFormat::doEncode(DataWriter& writer, const Data& data)
 {
     Expects(m_encoding);
-    if (data.type() != DataType::String)
-    {
-        throw std::runtime_error{"type mismatch"};
-    }
+    expectDataType(DataType::String, data, writer.path());
     auto const& stringData = static_cast<const StringData&>(data);
 
     auto binary = m_encoding->encode(stringData.value());
@@ -65,7 +63,7 @@ void StringFormat::doEncode(DataWriter& writer, const Data& data)
 
 auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto data = std::make_unique<StringFormat>(m_encoding->copy());
+    auto data = std::make_unique<StringFormat>(m_encoding);
     data->m_fixedLength = m_fixedLength;
     copyDataFormat(*data);
     return std::move(data);

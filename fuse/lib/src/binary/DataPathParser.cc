@@ -44,14 +44,24 @@ auto DataPathParser::parseElement() -> std::optional<binary::DataPathElement>
     }
 }
 
+static bool startsName(char c)
+{
+    return std::isalpha(c);
+}
+
+static bool continuesName(char c)
+{
+    return std::isalnum(c) || c == '_';
+}
+
 auto DataPathParser::parseNameElement() -> std::optional<binary::DataPathElement>
 {
-    if (!std::isalpha(fetch()))
+    if (!startsName(fetch()))
     {
         return {};
     }
     std::string name;
-    while (std::isalnum(fetch()))
+    while (continuesName(fetch()))
     {
         name += fetch();
         consume();
@@ -89,7 +99,14 @@ auto DataPathParser::parseIndexElement() -> std::optional<binary::DataPathElemen
         }
     }
     consume();
-    return binary::DataPathElement::makeIndex(index);
+    if (index > 0)
+    {
+        return binary::DataPathElement::makeIndex(index);
+    }
+    else
+    {
+        return {};
+    }
 }
 
 bool DataPathParser::hasNext() const

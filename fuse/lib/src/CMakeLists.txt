@@ -84,6 +84,9 @@ set(FUSE_BINARY_FORMATS_SOURCES
     binary/formats/ArrayFormat.cc
     binary/formats/IntegerFormat.cc
     binary/formats/BinaryFormat.cc
+    # private implementation
+    binary/formats/FormatHelpers.h
+    binary/formats/FormatHelpers.cc
 )
 
 set(FUSE_BINARY_SERIALIZATION_SOURCES

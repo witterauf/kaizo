@@ -66,7 +66,14 @@ void AnnotatedBinary::endObject()
     {
         m_currentObject->addSection(m_nextRealOffset, sectionSize);
     }
-    m_objects.push_back(std::move(m_currentObject));
+    if (m_currentObject->size() > 0)
+    {
+        m_objects.push_back(std::move(m_currentObject));
+    }
+    else
+    {
+        m_currentObject = nullptr;
+    }
 }
 
 void AnnotatedBinary::append(AnnotatedBinary&& other)
@@ -88,7 +95,8 @@ auto AnnotatedBinary::objectCount() const -> size_t
 void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
                                              const binary::DataPath& destination)
 {
-    UnresolvedReference reference{m_currentObject->path(), m_currentObject->size()};
+    UnresolvedReference reference{m_currentObject->path(),
+                                  m_binary.size() - m_currentObject->offset()};
     reference.setDestination(destination);
     reference.setFormat(format);
     m_currentObject->addUnresolvedReference(std::move(reference));

@@ -3,6 +3,7 @@
 #include <fuse/binary/data/ArrayData.h>
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/data/RecordData.h>
+#include <fuse/binary/data/ReferenceData.h>
 #include <fuse/binary/data/StringData.h>
 #include <fuse/binary/serialization/CsvSerialization.h>
 #include <fuse/utilities/CsvReader.h>
@@ -57,7 +58,7 @@ void CsvSerialization::serializeArray(const binary::Data& data)
     for (auto i = 0U; i < arrayData.elementCount(); ++i)
     {
         auto const& element = arrayData.element(i);
-        m_currentPath /= DataPathElement::makeIndex(i);
+        m_currentPath /= DataPathElement::makeIndex(i + 1);
         serializeData(element);
         m_currentPath.goUp();
     }
@@ -98,35 +99,75 @@ void CsvSerialization::outputRow(binary::DataType type, const std::string& value
 auto CsvSerialization::deserialize(const std::filesystem::path& filename)
     -> std::unique_ptr<binary::Data>
 {
-    auto root = std::make_unique<RecordData>();
     CsvReader reader{filename};
     while (auto maybeRow = reader.nextRow())
     {
         if (maybeRow->size() != 3)
         {
-            throw std::runtime_error{
-                "CsvSerialization expects CSV file with 3 columns in each row"};
+            throw std::runtime_error{"CsvSerialization: expecting CSV file with 3 columns in each "
+                                     "row (path, type, value)"};
         }
-        if (auto maybePath = DataPath::fromString((*maybeRow)[0]))
+
+        decodePath((*maybeRow)[0]);
+        decodeType((*maybeRow)[1]);
+        decodeValue(std::move((*maybeRow)[2]));
+
+        if (!m_root)
         {
-            m_currentPath = *maybePath;
+            processRoot();
         }
         else
         {
-            throw std::runtime_error{"CsvSerialization: invalid path"};
+            processExisting(m_root.get(), 0);
         }
-        if (auto maybeType = toDataType((*maybeRow)[1]))
-        {
-            m_currentType = *maybeType;
-        }
-        else
-        {
-            throw std::runtime_error{"CsvSerialization: invalid data type"};
-        }
-        m_currentValue = std::move((*maybeRow)[2]);
-        processExisting(root.get(), 0);
     }
-    return std::move(root);
+    return std::move(m_root);
+}
+
+void CsvSerialization::processRoot()
+{
+    auto const& element = m_currentPath.element(0);
+    switch (element.kind())
+    {
+    case DataPathElement::Kind::Index:
+        m_root = std::make_unique<ArrayData>();
+        processArray(m_root.get(), 0);
+        break;
+    case DataPathElement::Kind::Name:
+        m_root = std::make_unique<RecordData>();
+        processRecord(m_root.get(), 0);
+        break;
+    default: throw std::runtime_error{"CsvSerialization: root must be either an index or a name"};
+    }
+}
+
+void CsvSerialization::decodePath(const std::string& path)
+{
+    if (auto maybePath = DataPath::fromString(path))
+    {
+        m_currentPath = *maybePath;
+    }
+    else
+    {
+        throw std::runtime_error{"CsvSerialization: '" + path + "' is not a valid path"};
+    }
+}
+
+void CsvSerialization::decodeType(const std::string& type)
+{
+    if (auto maybeType = toDataType(type))
+    {
+        m_currentType = *maybeType;
+    }
+    else
+    {
+        throw std::runtime_error{"CsvSerialization: '" + type + "' is not a valid data type"};
+    }
+}
+
+void CsvSerialization::decodeValue(std::string&& value)
+{
+    m_currentValue = std::move(value);
 }
 
 void CsvSerialization::process(binary::Data* data, size_t pathIndex)
@@ -148,14 +189,16 @@ void CsvSerialization::processExisting(binary::Data* data, size_t pathIndex)
     case DataPathElement::Kind::Index:
         if (data->type() != DataType::Array)
         {
-            throw std::runtime_error{"CsvSerialization: types inconsistent"};
+            throw std::runtime_error{"CsvSerialization: types inconsistent (expected " +
+                                     toString(data->type()) + ", but got an index)"};
         }
         processArray(data, pathIndex);
         break;
     case DataPathElement::Kind::Name:
         if (data->type() != DataType::Record)
         {
-            throw std::runtime_error{"CsvSerialization: types inconsistent"};
+            throw std::runtime_error{"CsvSerialization: types inconsistent (expected " +
+                                     toString(data->type()) + ", but got a name)"};
         }
         processRecord(data, pathIndex);
         break;
@@ -166,7 +209,8 @@ void CsvSerialization::processExisting(binary::Data* data, size_t pathIndex)
 void CsvSerialization::processArray(Data* data, size_t pathIndex)
 {
     auto* arrayData = static_cast<ArrayData*>(data);
-    auto const index = m_currentPath.element(pathIndex).index();
+    // DataPaths use 1-based indices in arrays
+    auto const index = m_currentPath.element(pathIndex).index() - 1;
 
     if (arrayData->hasElement(index))
     {
@@ -185,7 +229,23 @@ auto CsvSerialization::makeLeaf() -> std::unique_ptr<Data>
     {
     case DataType::Integer: return makeIntegerLeaf();
     case DataType::String: return makeStringLeaf();
-    default: return {};
+    case DataType::Reference: return makeReferenceLeaf();
+    default:
+        throw std::runtime_error{"CsvSerialization: " + toString(m_currentType) +
+                                 " is not a supported type for leaves"};
+    }
+}
+
+auto CsvSerialization::makeReferenceLeaf() -> std::unique_ptr<binary::Data>
+{
+    if (auto maybePath = DataPath::fromString(m_currentValue))
+    {
+        return std::make_unique<ReferenceData>(*maybePath);
+    }
+    else
+    {
+        throw std::runtime_error{"CsvSerialization: '" + m_currentValue +
+                                 "' is not a supported reference"};
     }
 }
 

@@ -106,7 +106,8 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
     }
     else
     {
-        throw std::runtime_error{"reference data or pointed format required"};
+        throw std::runtime_error{"reference data or pointed format required at '" +
+                                 writer.path().toString() + "'"};
     }
 
     writer.addUnresolvedReference(makeStorageFormat(), destination);

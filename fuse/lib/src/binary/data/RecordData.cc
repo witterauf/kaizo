@@ -10,6 +10,7 @@ RecordData::RecordData()
 
 void RecordData::set(const std::string& name, std::unique_ptr<Data>&& data)
 {
+    Expects(data);
     m_elements.insert(std::make_pair(name, std::move(data)));
 }
 

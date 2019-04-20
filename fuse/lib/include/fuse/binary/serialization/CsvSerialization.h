@@ -11,6 +11,10 @@ public:
         -> std::unique_ptr<binary::Data> override;
 
 private:
+    void decodePath(const std::string& path);
+    void decodeType(const std::string& type);
+    void decodeValue(std::string&& value);
+
     void serializeData(const binary::Data& data);
     void serializeRecord(const binary::Data& data);
     void serializeArray(const binary::Data& data);
@@ -21,15 +25,17 @@ private:
     std::ofstream* m_output;
 
     void process(binary::Data* data, size_t pathIndex);
+    void processRoot();
     void processExisting(binary::Data* data, size_t pathIndex);
     void processArray(binary::Data* data, size_t pathIndex);
     void processRecord(binary::Data* data, size_t pathIndex);
     auto makeLeaf() -> std::unique_ptr<binary::Data>;
     auto makeIntegerLeaf() -> std::unique_ptr<binary::Data>;
     auto makeStringLeaf() -> std::unique_ptr<binary::Data>;
+    auto makeReferenceLeaf() -> std::unique_ptr<binary::Data>;
     auto makeNext(size_t pathIndex) -> std::unique_ptr<binary::Data>;
 
-    binary::Data* m_root{nullptr};
+    std::unique_ptr<binary::Data> m_root;
     binary::DataPath m_currentPath;
     binary::DataType m_currentType;
     std::string m_currentValue;

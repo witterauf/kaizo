@@ -1,3 +1,4 @@
+#include <fstream>
 #include <fuse/Binary.h>
 #include <fuse/Integers.h>
 #include <fuse/LuaBaseLibrary.h>
@@ -16,6 +17,68 @@ auto loadBinary(const std::string& filename) -> Binary
 void saveBinary(const Binary& binary, const std::string& filename)
 {
     binary.save(filename);
+}
+
+auto escapeCsvString(std::string input) -> std::string
+{
+    if (input.find(',', 0) == std::string::npos && input.find('\n', 0) == std::string::npos &&
+        input.find('\r', 0) == std::string::npos)
+    {
+        // no escaping required if string does not contain commas
+        return input;
+    }
+    else
+    {
+        // escape " by ""
+        decltype(input.find('"', 0)) pos{0};
+        while ((pos = input.find('"', pos)) != std::string::npos)
+        {
+            input.insert(input.begin() + pos, '"');
+            pos += 2;
+        }
+        return "\"" + input + "\"";
+    }
+}
+
+void saveCsvFile(const std::string& filename, const sol::table& csv, const sol::table& options)
+{
+    std::filesystem::create_directories(std::filesystem::path{filename}.parent_path());
+    std::ofstream output{filename};
+
+    if (hasField(options, "columns"))
+    {
+        auto const columnsTable = readField<sol::table>(options, "columns");
+        auto const columnCount = columnsTable.size();
+        std::vector<std::string> columns;
+        for (auto i = 0U; i < columnCount; ++i)
+        {
+            auto const name = readField<std::string>(columnsTable, i + 1);
+            columns.push_back(name);
+        }
+        auto const csvSize = csv.size();
+        for (auto r = 0U; r < csvSize; ++r)
+        {
+            auto const row = readField<sol::table>(csv, r + 1);
+            for (auto c = 0U; c < columnCount; ++c)
+            {
+                if (c > 0)
+                {
+                    output << ",";
+                }
+                if (hasField(row, columns[c]))
+                {
+                    output << escapeCsvString(readField<std::string>(row, columns[c]));
+                }
+            }
+            output << "\n";
+        }
+    }
+    else
+    {
+        throw std::runtime_error{"expected 'columns' option"};
+    }
+
+    output.close();
 }
 
 auto loadCsvFile(const std::string& filename, const sol::table& options, sol::this_state s)
@@ -78,6 +141,7 @@ auto openBaseLibrary(sol::this_state state) -> sol::table
     module.new_usertype<StringCollection>("StringCollection", "insert", &StringCollection::insert,
                                           "strings", StringCollection_strings);
     module["loadcsv"] = &loadCsvFile;
+    module["savecsv"] = &saveCsvFile;
     return module;
 }
 
