@@ -33,6 +33,7 @@ auto FontBuilder::build() const -> Font
     font.setMetrics(m_metrics);
     GlyphBuilder builder;
     builder.background(m_pixelFormat.backgroundColor);
+    font.setBackgroundColor(m_pixelFormat.backgroundColor);
 
     for (auto const& glyph : m_glyphs)
     {

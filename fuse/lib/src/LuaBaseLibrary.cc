@@ -24,7 +24,6 @@ auto escapeCsvString(std::string input) -> std::string
     if (input.find(',', 0) == std::string::npos && input.find('\n', 0) == std::string::npos &&
         input.find('\r', 0) == std::string::npos)
     {
-        // no escaping required if string does not contain commas
         return input;
     }
     else
@@ -131,13 +130,26 @@ auto StringCollection_strings(const StringCollection& collection, sol::this_stat
     return table;
 }
 
+void Binary_append(Binary& lhs, const Binary& rhs)
+{
+    lhs += rhs;
+}
+
+void Binary_write(Binary& binary, size_t offset, uint8_t value)
+{
+    binary.writeLittle<1>(offset, value);
+}
+
 auto openBaseLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
     sol::table module = lua.create_table();
     module.new_enum("SIGNEDNESS", "SIGNED", Signedness::Signed, "UNSIGNED", Signedness::Unsigned);
     module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);
-    module.new_usertype<Binary>("Binary", "load", sol::factories(&loadBinary), "save", &saveBinary);
+    module.new_usertype<Binary>("Binary", "load", sol::factories(&loadBinary), "save", &saveBinary,
+                                "new", sol::constructors<Binary(), Binary(size_t)>(), "size",
+                                sol::property(&Binary::size), "append", &Binary_append, "write",
+                                &Binary_write);
     module.new_usertype<StringCollection>("StringCollection", "insert", &StringCollection::insert,
                                           "strings", StringCollection_strings);
     module["loadcsv"] = &loadCsvFile;

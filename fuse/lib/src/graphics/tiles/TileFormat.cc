@@ -109,7 +109,7 @@ auto Psp4bppFormat::write(Binary& buffer, offset_t offset, const Tile& tile) -> 
         for (auto x = 0U; x < m_width; x += 2)
         {
             auto const byteOffset = offset / 8;
-            buffer[byteOffset] = (tile.pixel(x, y) & 0x0F) | ((tile.pixel(x, y) & 0x0F) << 4);
+            buffer[byteOffset] = (tile.pixel(x, y) & 0x0F) | ((tile.pixel(x + 1, y) & 0x0F) << 4);
             offset += 8;
         }
     }

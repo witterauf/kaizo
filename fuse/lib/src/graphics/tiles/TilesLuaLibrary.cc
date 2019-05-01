@@ -74,7 +74,7 @@ auto makeTileFormat(const std::string& formatName, const sol::table& properties)
     }
     else
     {
-        throw std::runtime_error{"unknown tile format: " + formatName };
+        throw std::runtime_error{"unknown tile format: " + formatName};
     }
 }
 
@@ -87,10 +87,11 @@ auto openTilesLibrary(sol::this_state state) -> sol::table
     module.new_usertype<TileImageFormat>("TileLayout", "new", sol::factories(&makeTileImageFormat),
                                          "bounding_box", &tileImageFormat_boundingBox);
     module.new_usertype<TileFormat>("TileFormat", "new", sol::factories(&makeTileFormat), "read",
-                                    &TileFormat::read);
-    module.new_usertype<TileColorRemapper>("TileColorRemapper", "gray_scaler",
-                                           sol::factories(&TileColorRemapper::makeGrayScaler),
-                                           "transform", &TileColorRemapper::transform);
+                                    &TileFormat::read, "write", &TileFormat::write);
+    module.new_usertype<TileColorRemapper>(
+        "TileColorRemapper", "gray_scaler", sol::factories(&TileColorRemapper::makeGrayScaler),
+        "new", sol::constructors<TileColorRemapper()>(), "map", &TileColorRemapper::addMapping,
+        "transform", &TileColorRemapper::transform);
 
     return module;
 }

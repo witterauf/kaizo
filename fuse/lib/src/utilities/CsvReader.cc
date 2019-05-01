@@ -80,15 +80,31 @@ auto CsvReader::parseQuoted() -> std::string
 {
     std::string column;
     consume();
-    while (fetch() != '"')
+    while (true)
     {
+        if (fetch() == '"')
+        {
+            consume();
+            if (hasNext() && fetch() == '"')
+            {
+                column += '"';
+                consume();
+                continue;
+            }
+            else
+            {
+                break;
+            }
+        }
+
         column += fetch();
         consume();
         if (!hasNext())
         {
-            throw std::runtime_error{"unexpected end of CSV file"};
+            throw std::runtime_error{ "unexpected end of CSV file" };
         }
     }
+
     while (fetch() != ',' && fetch() != '\n' && fetch() != '\r' && hasNext())
     {
         consume();

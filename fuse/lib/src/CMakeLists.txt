@@ -174,6 +174,7 @@ set(FUSE_GRAPHICS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/Font.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/FontWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/font/FontLoader.h
+    ${FUSE_INCLUDE_DIRECTORY}/graphics/font/LuaFontLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/Image.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/ImageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/graphics/image/LuaImageLibrary.h
@@ -190,6 +191,7 @@ set(FUSE_GRAPHICS_SOURCES
     graphics/font/Font.cc
     graphics/font/FontWriter.cc
     graphics/font/FontLoader.cc
+    graphics/font/LuaFontLibrary.cc
     graphics/font/private/LuaFontLoader.h
     graphics/font/private/LuaFontLoader.cc
     graphics/font/private/FontBuilder.h
@@ -221,8 +223,14 @@ set(FUSE_UTILITIES_SOURCES
 )
 
 set(FUSE_SYSTEMS_SOURCES
+    ${FUSE_INCLUDE_DIRECTORY}/systems/LuaSystemsLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/systems/gbc/GameboyColorAddress.h
+    ${FUSE_INCLUDE_DIRECTORY}/systems/psp/TextureSwizzle.h
+    ${FUSE_INCLUDE_DIRECTORY}/systems/psp/LuaPspLibrary.h
+    systems/LuaSystemsLibrary.cc
     systems/gbc/GameboyColorAddress.cc
+    systems/psp/TextureSwizzle.cc
+    systems/psp/LuaPspLibrary.cc
 )
 
 set(FUSE_LUA_SOURCES

@@ -1,5 +1,5 @@
-#include <fuse/UsageMap.h>
 #include <algorithm>
+#include <fuse/UsageMap.h>
 
 namespace fuse {
 
@@ -14,14 +14,14 @@ void UsageMap::allocate(size_t start, size_t end)
         m_end = end;
     }
 
-    auto iter = m_usage.find(start);
-    if (iter != m_usage.end() && iter->first == start)
+    auto iter = m_usage.upper_bound(start);
+    // If iter is begin(), then the first interval is already larger than start, so the argument
+    // interval can not be in m_usage. Otherwise, iter is the first interval whose start is larger
+    // than the argument interval's start, which means the previous interval could potentially
+    // contain the argument interval, but only if its end is large than the argument end.
+    if (iter != m_usage.begin() && (--iter)->second >= end)
     {
-        if (iter->second >= end)
-        {
-            return;
-        }
-        iter->second = end;
+        return;
     }
     else
     {

@@ -8,6 +8,7 @@
 #include <fuse/text/TableDecoder.h>
 #include <fuse/text/TableEncoder.h>
 #include <fuse/text/TableEntry.h>
+#include <fuse/text/TextEncoding.h>
 #include <sol.hpp>
 
 namespace fuse::text {
@@ -47,6 +48,17 @@ static auto StringSet_getStrings(const StringSet& stringSet, sol::this_state sta
     return stringsTable;
 }
 
+static auto TextEncoding_decode(TextEncoding& encoding, const Binary& binary, size_t offset,
+                                sol::this_state state) -> sol::table
+{
+    sol::state_view lua{state};
+    auto [newOffset, text] = encoding.decode(binary, offset);
+    auto table = lua.create_table();
+    table["offset"] = newOffset;
+    table["text"] = text;
+    return table;
+}
+
 auto openTextLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
@@ -71,6 +83,9 @@ auto openTextLibrary(sol::this_state state) -> sol::table
         "encode", &TableEncoder::encode);
     module.new_usertype<StringSet>("StringSet", "new", sol::constructors<StringSet()>(), "insert",
                                    &StringSet::insert, "get_strings", &StringSet_getStrings);
+
+    module.new_usertype<TextEncoding>("TextEncoding", "decode", &TextEncoding_decode, "encode",
+                                      &TextEncoding::encode);
 
     return module;
 }
