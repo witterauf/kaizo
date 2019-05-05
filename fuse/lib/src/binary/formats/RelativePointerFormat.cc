@@ -6,7 +6,7 @@
 #include <fuse/binary/objects/UnresolvedReference.h>
 
 namespace fuse::binary {
-
+    /*
 auto RelativeOffsetFormat::readAddress(DataReader& reader) -> std::optional<Address>
 {
     Expects(m_offsetFormat);
@@ -50,5 +50,5 @@ void RelativeOffsetFormat::writeAddressPlaceHolder(DataWriter& writer)
 {
     writer.binary().append(m_offsetFormat->writePlaceHolder());
 }
-
+*/
 } // namespace fuse::binary

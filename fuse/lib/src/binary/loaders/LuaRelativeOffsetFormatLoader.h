@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LuaDataFormatLoader.h"
-#include <fuse/binary/formats/RelativePointerFormat.h>
+#include <fuse/binary/formats/PointerFormat.h>
 
 namespace fuse::binary {
 
@@ -9,17 +9,13 @@ class LuaRelativeOffsetFormatLoader : public LuaDataFormatLoader
 {
 public:
     auto load(const sol::table& format, sol::this_state state)
-        -> std::optional<std::unique_ptr<RelativeOffsetFormat>>;
+        -> std::optional<std::unique_ptr<PointerFormat>>;
 
 private:
-    bool loadOffsetFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadAddressFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadPointeeFormat(const sol::table& table, RelativeOffsetFormat& format);
-    bool loadUseAddressMap(const sol::table& table, RelativeOffsetFormat& format);
-
-    bool loadBaseAddress(const sol::table& table, RelativeStorageFormat& format);
-    bool loadNullPointer(const sol::table& table, RelativeStorageFormat& format);
-    bool loadLayout(const sol::table& table, RelativeStorageFormat& format);
+    bool loadLayout(const sol::table& table, PointerFormat& format);
+    bool loadAddressFormat(const sol::table& table, PointerFormat& format);
+    bool loadPointeeFormat(const sol::table& table, PointerFormat& format);
+    bool loadUseAddressMap(const sol::table& table, PointerFormat& format);
 
     const AddressFormat* m_addressFormat{nullptr};
 };

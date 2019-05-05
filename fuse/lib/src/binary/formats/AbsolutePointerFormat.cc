@@ -4,6 +4,7 @@
 
 namespace fuse::binary {
 
+    /*
 auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<Address>
 {
     if (auto maybeResult = addressFormat().read(reader.binary(), reader.offset()))
@@ -14,5 +15,6 @@ auto AbsolutePointerFormat::readAddress(DataReader& reader) -> std::optional<Add
     }
     return {};
 }
+*/
 
 } // namespace fuse::binary

@@ -36,6 +36,7 @@ auto RelativeStorageFormat::deserialize(LuaDomReader& reader)
     auto const baseOffset = requireUnsignedInteger(reader, "base");
     enterRecord(reader, "layout");
     auto const layout = IntegerLayout::deserialize(reader);
+    reader.leave();
     format->setOffsetFormat(layout);
     if (auto maybeAddress = fileOffsetFormat()->fromInteger(baseOffset))
     {
@@ -45,8 +46,7 @@ auto RelativeStorageFormat::deserialize(LuaDomReader& reader)
     {
         throw FuseException{"could not deserialize RelativeStorageFormat"};
     }
-    reader.leave();
-    return std::move(format);
+    return format;
 }
 
 void RelativeStorageFormat::setBaseAddress(const Address base)
@@ -91,20 +91,20 @@ void RelativeStorageFormat::serialize(LuaWriter& writer) const
     writer.finishTable();
 }
 
-auto RelativeStorageFormat::writeAddress(const Address address) const -> Binary
+auto RelativeStorageFormat::writeAddress(const Address address) const -> std::vector<BinaryPatch>
 {
     Expects(isCompatible(address));
     auto const offset = address.subtract(m_baseAddress);
     Binary binary;
     binary.append(offset, m_layout);
-    return std::move(binary);
+    return {BinaryPatch{binary}};
 }
 
-auto RelativeStorageFormat::writePlaceHolder() const -> Binary
+auto RelativeStorageFormat::writePlaceHolder() const -> std::vector<BinaryPatch>
 {
     Binary binary;
     binary.append(0U, m_layout);
-    return std::move(binary);
+    return {BinaryPatch{binary}};
 }
 
 auto RelativeStorageFormat::readAddress(const Binary& binary, size_t offset) const

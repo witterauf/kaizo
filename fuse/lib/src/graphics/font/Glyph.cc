@@ -37,6 +37,11 @@ auto Glyph::characters() const -> const std::string&
     return m_characters;
 }
 
+auto Glyph::boundingBox() const -> TileRegion
+{
+    return m_tile.boundingBox(m_background);
+}
+
 auto Glyph::backgroundColor() const -> pixel_t
 {
     return m_background;
@@ -94,6 +99,7 @@ auto GlyphBuilder::build() -> Glyph
     glyph.m_tile = m_data;
     glyph.m_characters = m_characters;
     glyph.m_baseline = m_baseline;
+    glyph.m_background = m_backgroundColor;
     return glyph;
 }
 
@@ -123,7 +129,7 @@ void GlyphBuilder::shrink()
     }
     else
     {
-        throw std::runtime_error{"GlyphBuilder: shrunk region is empty"};
+        throw std::runtime_error{"GlyphBuilder: shrunk region is empty for '" + m_characters + "'"};
     }
 }
 

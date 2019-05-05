@@ -67,7 +67,8 @@ void RecordFormat::doEncode(DataWriter& writer, const Data& data)
     {
         if (!recordData.has(element.name))
         {
-            throw std::runtime_error{"type mismatch (no such record element)"};
+            throw std::runtime_error{"record '" + writer.path().toString() + "' has no element '" +
+                                     element.name + "'"};
         }
         writer.enter(DataPathElement::makeName(element.name));
         element.format->encode(writer, recordData.element(element.name));

@@ -38,6 +38,22 @@ auto PointerFormat::addressFormat() const -> const AddressFormat&
     return *m_addressFormat;
 }
 
+auto PointerFormat::copy() const -> std::unique_ptr<DataFormat>
+{
+    auto format = std::make_unique<PointerFormat>();
+    if (m_layout)
+    {
+        format->setLayout(m_layout->copy());
+    }
+    copyPointerFormat(*format);
+    return format;
+}
+
+void PointerFormat::setLayout(std::unique_ptr<AddressStorageFormat>&& layout)
+{
+    m_layout = std::shared_ptr<AddressStorageFormat>(layout.release());
+}
+
 auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 {
     Expects(m_addressFormat);
@@ -135,6 +151,47 @@ auto PointerFormat::nullPointer() const -> const Address&
 {
     Expects(hasNullPointer());
     return *m_nullPointer;
+}
+
+auto PointerFormat::readAddress(DataReader& reader) -> std::optional<Address>
+{
+    Expects(m_layout);
+
+    if (auto maybeResult = m_layout->readAddress(reader.binary(), reader.offset()))
+    {
+        auto const [newOffset, address] = *maybeResult;
+        reader.setOffset(newOffset);
+        return address;
+    }
+    return {};
+}
+
+void PointerFormat::writeAddressPlaceHolder(DataWriter& writer)
+{
+    Expects(m_layout);
+    auto const patches = m_layout->writePlaceHolder();
+    size_t offset{0};
+    // assume patches are ordered according to relativeOffset
+    for (auto const& patch : patches)
+    {
+        if (patch.relativeOffset() < 0)
+        {
+            throw std::runtime_error{"address placeholder: relative offset must be positive"};
+        }
+        if (static_cast<size_t>(patch.relativeOffset()) > offset)
+        {
+            writer.skip(patch.relativeOffset() - offset);
+            offset = patch.relativeOffset();
+        }
+        writer.binary().append(Binary{patch.size()});
+        offset += patch.size();
+    }
+}
+
+auto PointerFormat::makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>
+{
+    Expects(m_layout);
+    return m_layout;
 }
 
 } // namespace fuse::binary

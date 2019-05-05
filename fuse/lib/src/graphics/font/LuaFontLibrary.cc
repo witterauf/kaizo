@@ -15,6 +15,7 @@ auto Font_load(const std::string& path, sol::this_state state) -> Font
     if (result.get_type() == sol::type::table)
     {
         LuaFontLoader loader;
+        loader.setBasePath(std::filesystem::path(path).parent_path());
         auto const& fontDesc = result.get<const sol::table&>();
         if (auto maybeFont = loader.loadFont(fontDesc))
         {
@@ -53,12 +54,28 @@ auto Font_glyph(const Font& font, const std::string& characters) -> const Glyph*
     }
 }
 
+auto Glyph_boundingBox(const Glyph& glyph, sol::this_state s) -> sol::table
+{
+    sol::state_view lua{s};
+    auto table = lua.create_table();
+    auto const boundingBox = glyph.boundingBox();
+    table["left"] = boundingBox.left();
+    table["top"] = boundingBox.top();
+    table["right"] = boundingBox.right();
+    table["bottom"] = boundingBox.bottom();
+    table["width"] = boundingBox.width();
+    table["height"] = boundingBox.height();
+    return table;
+}
+
 auto openFontLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
 
     sol::table module = lua.create_table();
-    module.new_usertype<Glyph>("Glyph", "advance_width", sol::property(&Glyph::advanceWidth));
+    module.new_usertype<Glyph>("Glyph", "advance_width", sol::property(&Glyph::advanceWidth),
+                               "boundingbox", &Glyph_boundingBox, "baseline",
+                               sol::property(&Glyph::baseline));
     module.new_usertype<Font>("Font", "load", sol::factories(&Font_load), "makewriter",
                               Font_makeWriter, "getglyph", &Font_glyph);
     module.new_usertype<FontWriter>("FontWriter", "write", &FontWriter_write);

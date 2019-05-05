@@ -39,8 +39,8 @@ public:
 
     bool isCompatible(const Address address) const override;
     void serialize(LuaWriter& writer) const override;
-    auto writeAddress(const Address address) const -> Binary override;
-    auto writePlaceHolder() const -> Binary override;
+    auto writeAddress(const Address address) const -> std::vector<BinaryPatch> override;
+    auto writePlaceHolder() const -> std::vector<BinaryPatch> override;
     auto readAddress(const Binary& binary, size_t offset) const
         -> std::optional<std::pair<size_t, Address>> override;
     auto copy() const -> std::unique_ptr<AddressStorageFormat> override;

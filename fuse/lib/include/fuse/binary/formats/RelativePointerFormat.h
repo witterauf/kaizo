@@ -6,6 +6,7 @@
 
 namespace fuse::binary {
 
+/*
 class RelativeOffsetFormat : public PointerFormat
 {
 public:
@@ -21,5 +22,6 @@ private:
     std::unique_ptr<RelativeStorageFormat> m_offsetFormat;
     std::shared_ptr<AddressStorageFormat> m_referenceFormat;
 };
+*/
 
 } // namespace fuse::binary

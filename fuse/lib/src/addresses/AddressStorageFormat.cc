@@ -1,8 +1,9 @@
 #include <diagnostics/Contracts.h>
 #include <fuse/addresses/AddressStorageFormat.h>
+#include <fuse/addresses/MipsEmbeddedLayout.h>
+#include <fuse/addresses/RelativeStorageFormat.h>
 #include <fuse/lua/LuaReader.h>
 #include <fuse/utilities/DomReaderHelpers.h>
-#include <fuse/addresses/RelativeStorageFormat.h>
 
 namespace fuse {
 
@@ -14,6 +15,10 @@ auto AddressStorageFormat::deserialize(LuaDomReader& reader)
     if (cls == "RelativeOffset")
     {
         return RelativeStorageFormat::deserialize(reader);
+    }
+    else if (cls == "MipsEmbeddedHiLo")
+    {
+        return MipsEmbeddedLayout::deserialize(reader);
     }
     else
     {

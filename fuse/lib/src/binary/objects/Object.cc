@@ -125,6 +125,30 @@ auto PackedObject::size() const -> size_t
     }
 }
 
+auto PackedObject::toRealOffset(size_t offset) const -> size_t
+{
+    for (auto const& section : m_sections)
+    {
+        if (offset >= section.offset && offset < section.offset + section.size)
+        {
+            return section.realOffset + (offset - section.offset);
+        }
+    }
+    return 0;
+}
+
+auto PackedObject::toPackedOffset(size_t offset) const -> size_t
+{
+    for (auto const& section : m_sections)
+    {
+        if (offset >= section.realOffset && offset < section.realOffset + section.size)
+        {
+            return section.offset + (offset - section.realOffset);
+        }
+    }
+    return 0;
+}
+
 void PackedObject::changeOffset(size_t offset)
 {
     m_offset = offset;
@@ -157,20 +181,23 @@ auto PackedObject::unresolvedReference(size_t index) const -> const UnresolvedRe
     return m_references[index];
 }
 
-void PackedObject::solveReference(size_t index, const Address address)
+auto PackedObject::solveReference(size_t index, const Address address) const
+    -> std::vector<BinaryPatch>
 {
     Expects(index < unresolvedReferenceCount());
     auto const& reference = unresolvedReference(index);
-    auto const addressBinary = reference.addressLayout().writeAddress(address);
-    if (addressBinary.size() > 0)
+    auto patches = reference.addressLayout().writeAddress(address);
+    if (patches.size() > 0)
     {
-        auto& binary = m_parent->binary();
-        auto referenceOffset = reference.relativeOffset() + offset();
-        for (auto value : addressBinary)
+        auto const referenceOffset = reference.relativeOffset();
+        auto const realReferenceOffset = toRealOffset(referenceOffset);
+        for (auto& patch : patches)
         {
-            binary[referenceOffset++] = value;
+
+            patch.setRelativeOffset(toPackedOffset(realReferenceOffset + patch.relativeOffset()));
         }
     }
+    return patches;
 }
 
 auto PackedObject::sectionBinary(size_t index) const -> Binary

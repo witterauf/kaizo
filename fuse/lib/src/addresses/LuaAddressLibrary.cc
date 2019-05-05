@@ -2,8 +2,12 @@
 #include <fuse/addresses/Address.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/AddressMap.h>
+#include <fuse/addresses/AddressStorageFormat.h>
 #include <fuse/addresses/LuaAddressLibrary.h>
+#include <fuse/addresses/MipsEmbeddedLayout.h>
 #include <fuse/addresses/RegionAddressMap.h>
+#include <fuse/addresses/RelativeStorageFormat.h>
+#include <fuse/lua/LuaReader.h>
 #include <fuse/lua/Utilities.h>
 #include <fuse/utilities/StringAlgorithms.h>
 #include <sol.hpp>
@@ -127,6 +131,19 @@ auto AddressMap_fromRegions(const sol::table& mapping) -> std::shared_ptr<Addres
     return std::move(addressMap);
 }
 
+auto RelativeAddressLayout_construct(const sol::object& layout)
+    -> std::unique_ptr<RelativeStorageFormat>
+{
+    LuaDomReader reader{layout};
+    return RelativeStorageFormat::deserialize(reader);
+}
+
+auto MipsEmbeddedLayout_construct(const sol::object& layout) -> std::unique_ptr<MipsEmbeddedLayout>
+{
+    LuaDomReader reader{layout};
+    return MipsEmbeddedLayout::deserialize(reader);
+}
+
 auto openAddressLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua{state};
@@ -145,6 +162,14 @@ auto openAddressLibrary(sol::this_state state) -> sol::table
         "AddressMap", "from_regions", sol::factories(&AddressMap_fromRegions), "to_target_address",
         sol::overload(&AddressMap_toTarget, &AddressMap_integerToTarget), "to_source_addresses",
         sol::overload(&AddressMap_toSource, &AddressMap_integerToSource));
+
+    module.new_usertype<AddressStorageFormat>("AddressLayout");
+    module.new_usertype<RelativeStorageFormat>("RelativeAddressLayout", sol::call_constructor,
+                                               &RelativeAddressLayout_construct, sol::base_classes,
+                                               sol::bases<AddressStorageFormat>());
+    module.new_usertype<MipsEmbeddedLayout>("MipsEmbeddedLayout", sol::call_constructor,
+                                            &MipsEmbeddedLayout_construct, sol::base_classes,
+                                            sol::bases<AddressStorageFormat>());
 
     module["FileOffset"] = fileOffsetFormat();
 

@@ -18,6 +18,8 @@ public:
     void setNullPointer(const Address& null);
     void setAddressFormat(AddressFormat* format);
     void setPointedFormat(std::unique_ptr<DataFormat>&& format);
+    void setLayout(std::unique_ptr<AddressStorageFormat>&& layout);
+    auto copy() const -> std::unique_ptr<DataFormat> override;
 
     auto addressFormat() const -> const AddressFormat&;
     bool hasNullPointer() const;
@@ -27,9 +29,9 @@ protected:
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 
-    virtual auto readAddress(DataReader& reader) -> std::optional<Address> = 0;
-    virtual void writeAddressPlaceHolder(DataWriter& writer) = 0;
-    virtual auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat> = 0;
+    virtual auto readAddress(DataReader& reader) -> std::optional<Address>;
+    virtual void writeAddressPlaceHolder(DataWriter& writer);
+    virtual auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>;
 
     void copyPointerFormat(PointerFormat& format) const;
 
@@ -38,6 +40,7 @@ private:
     std::unique_ptr<DataFormat> m_pointedFormat;
     bool m_useAddressMap{false};
     std::optional<Address> m_nullPointer;
+    std::shared_ptr<AddressStorageFormat> m_layout;
 };
 
 } // namespace fuse::binary

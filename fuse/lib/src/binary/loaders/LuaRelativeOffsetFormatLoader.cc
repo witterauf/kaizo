@@ -6,11 +6,11 @@
 namespace fuse::binary {
 
 auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_state state)
-    -> std::optional<std::unique_ptr<RelativeOffsetFormat>>
+    -> std::optional<std::unique_ptr<PointerFormat>>
 {
     m_addressFormat = nullptr;
-    auto pointerFormat = std::make_unique<RelativeOffsetFormat>();
-    if (loadAddressFormat(format, *pointerFormat) && loadOffsetFormat(format, *pointerFormat) &&
+    auto pointerFormat = std::make_unique<PointerFormat>();
+    if (loadAddressFormat(format, *pointerFormat) && loadLayout(format, *pointerFormat) &&
         loadPointeeFormat(format, *pointerFormat) && loadUseAddressMap(format, *pointerFormat))
     {
         if (readDataFormat(format, state, *pointerFormat))
@@ -21,37 +21,18 @@ auto LuaRelativeOffsetFormatLoader::load(const sol::table& format, sol::this_sta
     return {};
 }
 
-bool LuaRelativeOffsetFormatLoader::loadOffsetFormat(const sol::table& table,
-                                                     RelativeOffsetFormat& format)
+bool LuaRelativeOffsetFormatLoader::loadLayout(const sol::table& table, PointerFormat& format)
 {
-    if (auto maybeOffsetFormat = requireField<sol::table>(table, "offset_format"))
+    if (auto maybeLayout = requireField<const AddressStorageFormat*>(table, "layout"))
     {
-        auto storageFormat = std::make_unique<RelativeStorageFormat>();
-        if (loadNullPointer(*maybeOffsetFormat, *storageFormat) &&
-            loadBaseAddress(*maybeOffsetFormat, *storageFormat) &&
-            loadLayout(*maybeOffsetFormat, *storageFormat))
-        {
-            format.setOffsetFormat(std::move(storageFormat));
-            return true;
-        }
-    }
-    return false;
-}
-
-bool LuaRelativeOffsetFormatLoader::loadLayout(const sol::table& table,
-                                               RelativeStorageFormat& format)
-{
-    if (auto maybeLayout = requireField<sol::table>(table, "layout"))
-    {
-        auto layout = loadIntegerLayout(*maybeLayout);
-        format.setOffsetFormat(layout);
+        format.setLayout(std::move((*maybeLayout)->copy()));
         return true;
     }
     return false;
 }
 
 bool LuaRelativeOffsetFormatLoader::loadAddressFormat(const sol::table& table,
-                                                      RelativeOffsetFormat& format)
+                                                      PointerFormat& format)
 {
     if (auto maybeAddressFormat = requireField<AddressFormat*>(table, "address_format"))
     {
@@ -62,8 +43,8 @@ bool LuaRelativeOffsetFormatLoader::loadAddressFormat(const sol::table& table,
     return false;
 }
 
-bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
-                                                    RelativeStorageFormat& format)
+/*
+bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table, PointerFormat& format)
 {
     if (hasField(table, "base"))
     {
@@ -84,9 +65,10 @@ bool LuaRelativeOffsetFormatLoader::loadBaseAddress(const sol::table& table,
     }
     return false;
 }
+*/
 
 bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
-                                                      RelativeOffsetFormat& format)
+                                                      PointerFormat& format)
 {
     if (hasField(table, "pointee_format"))
     {
@@ -106,8 +88,8 @@ bool LuaRelativeOffsetFormatLoader::loadPointeeFormat(const sol::table& table,
     return false;
 }
 
-bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table,
-                                                    RelativeStorageFormat& format)
+/*
+bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table, PointerFormat& format)
 {
     if (hasField(table, "null_pointer"))
     {
@@ -164,9 +146,10 @@ bool LuaRelativeOffsetFormatLoader::loadNullPointer(const sol::table& table,
     }
     return true;
 }
+*/
 
 bool LuaRelativeOffsetFormatLoader::loadUseAddressMap(const sol::table& table,
-                                                      RelativeOffsetFormat& format)
+                                                      PointerFormat& format)
 {
     if (hasField(table, "use_address_map"))
     {

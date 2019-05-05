@@ -6,6 +6,7 @@ set(FUSE_INCLUDE_DIRECTORY "${FUSE_BASE_INCLUDE_DIRECTORY}/fuse")
 set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/Binary.h
     ${FUSE_INCLUDE_DIRECTORY}/BinaryStream.h
+    ${FUSE_INCLUDE_DIRECTORY}/BinaryPatch.h
     ${FUSE_INCLUDE_DIRECTORY}/Rectangle.h
     ${FUSE_INCLUDE_DIRECTORY}/UsageMap.h
     ${FUSE_INCLUDE_DIRECTORY}/LuaBaseLibrary.h
@@ -14,6 +15,7 @@ set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/FuseException.h
     Binary.cc
     BinaryStream.cc
+    BinaryPatch.cc
     UsageMap.cc
     LuaBaseLibrary.cc
     LuaFuseLibrary.cc
@@ -31,7 +33,8 @@ set(FUSE_ADDRESSES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteOffset.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/AddressStorageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/RelativeStorageFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteStorageFormat.h    
+    ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteStorageFormat.h
+    ${FUSE_INCLUDE_DIRECTORY}/addresses/MipsEmbeddedLayout.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/LuaAddressLibrary.h
     addresses/Address.cc
     addresses/AddressFormat.cc
@@ -42,6 +45,7 @@ set(FUSE_ADDRESSES_SOURCES
     addresses/AbsoluteOffset.cc
     addresses/RelativeStorageFormat.cc
     addresses/AddressStorageFormat.cc
+    addresses/MipsEmbeddedLayout.cc
 )
 
 set(FUSE_BINARY_DATA_SOURCES
@@ -71,15 +75,11 @@ set(FUSE_BINARY_FORMATS_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/IntegerFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/RecordFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/PointerFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/formats/RelativePointerFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/formats/AbsolutePointerFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/StringFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/formats/BinaryFormat.h
     binary/formats/DataFormat.cc
     binary/formats/StringFormat.cc
     binary/formats/PointerFormat.cc
-    binary/formats/RelativePointerFormat.cc
-    binary/formats/AbsolutePointerFormat.cc
     binary/formats/RecordFormat.cc
     binary/formats/ArrayFormat.cc
     binary/formats/IntegerFormat.cc
@@ -216,6 +216,7 @@ set(FUSE_UTILITIES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/utilities/CsvReader.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/DomReader.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/DomReaderHelpers.h
+    ${FUSE_INCLUDE_DIRECTORY}/utilities/NarrowCast.h
     utilities/CsvReader.cc
     utilities/DomReader.cc
     utilities/DomReaderHelpers.cc

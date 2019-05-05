@@ -23,6 +23,7 @@ public:
     auto characters() const -> const std::string&;
     auto backgroundColor() const -> pixel_t;
 
+    auto boundingBox() const -> TileRegion;
     auto pixel(size_t x, size_t y) const -> pixel_t;
     auto operator()(size_t x, size_t y) const -> pixel_t;
 

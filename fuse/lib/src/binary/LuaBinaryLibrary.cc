@@ -82,7 +82,7 @@ auto loadIntegerFormat(const sol::table& format, sol::this_state state)
 }
 
 auto loadRelativeOffsetFormat(const sol::table& format, sol::this_state state)
-    -> std::unique_ptr<RelativeOffsetFormat>
+    -> std::unique_ptr<PointerFormat>
 {
     LuaRelativeOffsetFormatLoader loader;
     if (auto maybePointerFormat = loader.load(format, state))
@@ -91,7 +91,7 @@ auto loadRelativeOffsetFormat(const sol::table& format, sol::this_state state)
     }
     else
     {
-        throw std::runtime_error{"could not construct RelativeOffsetFormat"};
+        throw std::runtime_error{"could not construct PointerFormat"};
     }
 }
 
@@ -266,13 +266,11 @@ auto openBinaryLibrary(sol::this_state state) -> sol::table
                                      sol::base_classes, sol::bases<DataFormat>());
     module.new_usertype<RecordFormat>("RecordFormat", sol::call_constructor, &loadRecordFormat,
                                       sol::base_classes, sol::bases<DataFormat>());
-    module.new_usertype<PointerFormat>("PointerFormat", sol::base_classes,
+    module.new_usertype<PointerFormat>("PointerFormat", sol::call_constructor,
+                                       &loadRelativeOffsetFormat, sol::base_classes,
                                        sol::bases<DataFormat>());
     module.new_usertype<IntegerFormat>("IntegerFormat", sol::call_constructor, &loadIntegerFormat,
                                        sol::base_classes, sol::bases<DataFormat>());
-    module.new_usertype<RelativeOffsetFormat>("RelativeOffsetFormat", sol::call_constructor,
-                                              &loadRelativeOffsetFormat, sol::base_classes,
-                                              sol::bases<DataFormat, PointerFormat>());
 
     return module;
 }
