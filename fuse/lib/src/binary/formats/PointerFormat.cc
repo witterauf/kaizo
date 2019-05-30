@@ -74,11 +74,14 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
                 }
                 else if (addresses.empty())
                 {
-                    throw std::runtime_error{"could not map address"};
+                    throw std::runtime_error{"could not map address " + maybeAddress->toString() +
+                                             ", read from offset " +
+                                             std::to_string(reader.offset())};
                 }
                 else
                 {
-                    throw std::runtime_error{"address maps to more than one source address"};
+                    throw std::runtime_error{"address " + maybeAddress->toString() +
+                                             " maps to more than one source address"};
                 }
             }
             else

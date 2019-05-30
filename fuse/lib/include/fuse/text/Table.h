@@ -16,6 +16,8 @@ public:
         friend class Table;
 
     public:
+        EntryReference() = default;
+
         auto binary() const -> const BinarySequence&
         {
             return *m_binary;
@@ -33,8 +35,8 @@ public:
         {
         }
 
-        const BinarySequence* m_binary;
-        const TableEntry* m_text;
+        const BinarySequence* m_binary{nullptr};
+        const TableEntry* m_text{nullptr};
     };
 
     void setName(const std::string& name);

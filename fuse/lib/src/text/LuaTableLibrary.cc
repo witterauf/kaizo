@@ -1,5 +1,6 @@
 #include <diagnostics/ConsoleDiagnosticsConsumer.h>
 #include <diagnostics/DiagnosticsReporter.h>
+#include <fuse/text/AsciiEncoding.h>
 #include <fuse/text/LuaTableLibrary.h>
 #include <fuse/text/LuaTableReader.h>
 #include <fuse/text/LuaTableWriter.h>
@@ -8,6 +9,7 @@
 #include <fuse/text/TableDecoder.h>
 #include <fuse/text/TableEncoder.h>
 #include <fuse/text/TableEntry.h>
+#include <fuse/text/TableMapper.h>
 #include <fuse/text/TextEncoding.h>
 #include <sol.hpp>
 
@@ -59,6 +61,53 @@ static auto TextEncoding_decode(TextEncoding& encoding, const Binary& binary, si
     return table;
 }
 
+auto TableEntry_fromTable(const TableEntry& entry, sol::this_state s) -> sol::table
+{
+    sol::state_view lua{s};
+    auto table = lua.create_table();
+    table["kind"] = entry.kind();
+    switch (entry.kind())
+    {
+    case TableEntry::Kind::Text: table["text"] = entry.text(); break;
+    case TableEntry::Kind::Control:
+    case TableEntry::Kind::End:
+        table["label"] = entry.labelName();
+        // table["arguments"] = lua.create_table();
+        break;
+    case TableEntry::Kind::TableSwitch:
+        table["label"] = entry.labelName();
+        table["target_table"] = entry.targetTable();
+        break;
+    }
+    return table;
+}
+
+auto tableFromMapping(const TableMapper::Mapping& mapping, sol::this_state s) -> sol::table
+{
+    sol::state_view lua{s};
+    auto table = lua.create_table();
+    table["entry"] = lua.create_table();
+    table["entry"]["kind"] = mapping.entry.text().kind();
+    table["arguments"] = lua.create_table();
+    for (auto i = 0U; i < mapping.arguments.size(); ++i)
+    {
+        table["arguments"][i + 1] = mapping.arguments[i];
+    }
+    return table;
+}
+
+void TableMapper_setMapper(TableMapper& tableMapper, sol::function mapper, sol::this_state s)
+{
+    tableMapper.setMapper(
+        [mapper, s](const std::string& text, const TableMapper::Mapping& mapping) {
+            auto mappingTable = tableFromMapping(mapping, s);
+            mapper(text, mappingTable);
+            return true;
+        });
+}
+
+static std::shared_ptr<TextEncoding> ASCII{new AsciiEncoding};
+
 auto openTextLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
@@ -84,8 +133,14 @@ auto openTextLibrary(sol::this_state state) -> sol::table
     module.new_usertype<StringSet>("StringSet", "new", sol::constructors<StringSet()>(), "insert",
                                    &StringSet::insert, "get_strings", &StringSet_getStrings);
 
+    module.new_usertype<TableMapper>(
+        "TableMapper", "new", sol::constructors<TableMapper(), TableMapper(const Table&)>(), "map",
+        sol::resolve<void(const std::string&)>(&TableMapper::map), "set_mapper",
+        &TableMapper_setMapper);
+
     module.new_usertype<TextEncoding>("TextEncoding", "decode", &TextEncoding_decode, "encode",
                                       &TextEncoding::encode);
+    module["ASCII"] = ASCII;
 
     return module;
 }

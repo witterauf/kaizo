@@ -143,6 +143,7 @@ set(FUSE_TEXT_SOURCES
     #${FUSE_INCLUDE_DIRECTORY}/text/TableReader.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableDecoder.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoder.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/TableMapper.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableReader.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/text/LuaTableLibrary.h
@@ -150,6 +151,7 @@ set(FUSE_TEXT_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/text/TextEncoding.h
     ${FUSE_INCLUDE_DIRECTORY}/text/TableEncoding.h
     ${FUSE_INCLUDE_DIRECTORY}/text/StringSet.h
+    ${FUSE_INCLUDE_DIRECTORY}/text/AsciiEncoding.h
     text/ShiftJis.cc
     text/ShiftJisToUnicode.h
     text/Table.cc
@@ -158,6 +160,7 @@ set(FUSE_TEXT_SOURCES
     #text/TableParser.cc
     #text/TableReader.cc
     text/TableEncoder.cc
+    text/TableMapper.cc
     text/LuaTableReader.cc
     text/LuaTableWriter.cc
     text/TableEntry.cc
@@ -166,6 +169,7 @@ set(FUSE_TEXT_SOURCES
     text/LuaTableLibrary.cc
     text/TableEncoding.cc
     text/StringSet.cc
+    text/AsciiEncoding.cc
 )
 
 set(FUSE_GRAPHICS_SOURCES

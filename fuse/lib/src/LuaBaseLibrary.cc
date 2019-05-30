@@ -140,6 +140,11 @@ void Binary_write(Binary& binary, size_t offset, uint8_t value)
     binary.writeLittle<1>(offset, value);
 }
 
+auto Binary_read(const Binary& binary, size_t offset) -> uint8_t
+{
+    return binary.readLittle<1, uint8_t>(offset);
+}
+
 auto openBaseLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
@@ -149,7 +154,7 @@ auto openBaseLibrary(sol::this_state state) -> sol::table
     module.new_usertype<Binary>("Binary", "load", sol::factories(&loadBinary), "save", &saveBinary,
                                 "new", sol::constructors<Binary(), Binary(size_t)>(), "size",
                                 sol::property(&Binary::size), "append", &Binary_append, "write",
-                                &Binary_write);
+                                &Binary_write, "read", &Binary_read);
     module.new_usertype<StringCollection>("StringCollection", "insert", &StringCollection::insert,
                                           "strings", StringCollection_strings);
     module["loadcsv"] = &loadCsvFile;
