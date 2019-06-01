@@ -108,6 +108,23 @@ auto LuaTableReader::load(const std::filesystem::path& luaFile) -> std::optional
     return load(luaFile, lua.lua_state());
 }
 
+auto LuaTableReader::load(const std::filesystem::path& luaFile,
+                          const std::vector<std::filesystem::path>& scripts) -> std::optional<Table>
+{
+    sol::state lua;
+    lua.open_libraries(sol::lib::base, sol::lib::table);
+    lua["text"] = openTextLibrary(lua.lua_state());
+    lua.script(TableMerge);
+    for (auto const& script : scripts)
+    {
+        if (!script.empty())
+        {
+            lua.script_file(script.string());
+        }
+    }
+    return load(luaFile, lua.lua_state());
+}
+
 auto LuaTableReader::read(const sol::table& luaTable) -> std::optional<Table>
 {
     Table table;

@@ -286,6 +286,22 @@ source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
 
+###[ Lua sources ]#################################################################################
+
+compile_lua_bytecode(PrettyPrint SOURCES PrettyPrint.lua)
+
+add_collection_library(FuseLuaRuntime
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/PrettyPrint.lua"
+  WORKING_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}"
+  NAMESPACE
+    lua::fuse
+  OUTPUT_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
+target_sources(FuseLuaRuntime PRIVATE PrettyPrint.lua)
+
 ###[ library ]#####################################################################################
 
 add_library(FuseLibrary
@@ -302,6 +318,7 @@ target_link_libraries(FuseLibrary
         LodePNG::LodePNG
         sol2
         Lua::FileSystem
+        FuseLuaRuntime
 )
 target_compile_features(FuseLibrary PUBLIC cxx_std_17)
 target_all_warnings(FuseLibrary)

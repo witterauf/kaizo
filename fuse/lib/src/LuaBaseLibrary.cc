@@ -1,3 +1,4 @@
+#include <FuseLuaRuntime.h>
 #include <fstream>
 #include <fuse/Binary.h>
 #include <fuse/Integers.h>
@@ -148,7 +149,26 @@ auto Binary_read(const Binary& binary, size_t offset) -> uint8_t
 auto openBaseLibrary(sol::this_state state) -> sol::table
 {
     sol::state_view lua(state);
+
+    auto const bytecode = lua::fuse::open("PrettyPrint.lua");
+    auto const reader = [](lua_State*, void* voidBytecode, size_t* size) {
+        auto const* bytecode = reinterpret_cast<std::pair<const uint8_t*, size_t>*>(voidBytecode);
+        *size = bytecode->second;
+        return reinterpret_cast<const char*>(bytecode->first);
+    };
+    auto library = lua.load(reader, (void*)&bytecode, "[PrettyPrint]");
+    auto result = library();
+    if (!result.valid())
+    {
+        throw FuseException{ "could not open library PrettyPrint" };
+    }
+    if (result.get_type() != sol::type::table)
+    {
+        throw FuseException{ "library must return a table" };
+    }
+
     sol::table module = lua.create_table();
+    module["pprint"] = result.get<sol::table>();
     module.new_enum("SIGNEDNESS", "SIGNED", Signedness::Signed, "UNSIGNED", Signedness::Unsigned);
     module.new_enum("ENDIANNESS", "LITTLE", Endianness::Little, "BIG", Endianness::Big);
     module.new_usertype<Binary>("Binary", "load", sol::factories(&loadBinary), "save", &saveBinary,
@@ -159,6 +179,7 @@ auto openBaseLibrary(sol::this_state state) -> sol::table
                                           "strings", StringCollection_strings);
     module["loadcsv"] = &loadCsvFile;
     module["savecsv"] = &saveCsvFile;
+
     return module;
 }
 

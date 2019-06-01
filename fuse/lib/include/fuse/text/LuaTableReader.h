@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <optional>
 #include <sol_forward.hpp>
+#include <vector>
 
 namespace diagnostics {
 class DiagnosticsReporter;
@@ -19,6 +20,8 @@ public:
     auto reporter() -> diagnostics::DiagnosticsReporter&;
 
     auto load(const std::filesystem::path& luaFile, sol::this_state state) -> std::optional<Table>;
+    auto load(const std::filesystem::path& luaFile,
+              const std::vector<std::filesystem::path>& scripts) -> std::optional<Table>;
     auto load(const std::filesystem::path& luaFile) -> std::optional<Table>;
 
     auto read(const sol::table& table) -> std::optional<Table>;
