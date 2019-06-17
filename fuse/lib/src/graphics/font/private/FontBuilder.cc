@@ -1,6 +1,12 @@
 #include "FontBuilder.h"
+#include <diagnostics/Contracts.h>
 
 namespace fuse::graphics {
+
+void FontBuilder::appendBitmap(const Image& image)
+{
+    m_bitmaps.push_back(image);
+}
 
 void FontBuilder::setFontMetrics(const FontMetrics& metrics)
 {
@@ -9,17 +15,14 @@ void FontBuilder::setFontMetrics(const FontMetrics& metrics)
 
 void FontBuilder::addGlyph(const GlyphDescriptor& glyph)
 {
+    Expects(glyph.bitmapIndex > 0);
+    Expects(glyph.bitmapIndex - 1 < m_bitmaps.size());
     m_glyphs.push_back(glyph);
 }
 
 void FontBuilder::setPixelTransformation(std::unique_ptr<TileTransformation>&& transformation)
 {
     m_transformation = std::move(transformation);
-}
-
-void FontBuilder::setBitmap(const Image& image)
-{
-    m_bitmap = image;
 }
 
 void FontBuilder::setGlyphPixelFormat(const GlyphPixelFormat& format)
@@ -37,7 +40,7 @@ auto FontBuilder::build() const -> Font
 
     for (auto const& glyph : m_glyphs)
     {
-        auto tile = Tile::extractFrom(m_bitmap, glyph.boundingBox);
+        auto tile = Tile::extractFrom(m_bitmaps[glyph.bitmapIndex - 1], glyph.boundingBox);
         if (m_transformation)
         {
             tile = m_transformation->transform(tile);
@@ -55,11 +58,6 @@ auto FontBuilder::build() const -> Font
 auto FontBuilder::fontMetrics() const -> const FontMetrics&
 {
     return m_metrics;
-}
-
-auto FontBuilder::bitmap() const -> const Image&
-{
-    return m_bitmap;
 }
 
 auto FontBuilder::transformation() const -> const TileTransformation*

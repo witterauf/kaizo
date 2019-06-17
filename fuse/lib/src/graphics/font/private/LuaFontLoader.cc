@@ -22,6 +22,24 @@ auto LuaFontLoader::loadImage(const std::string& name) -> std::optional<Image>
     }
 }
 
+auto LuaFontLoader::loadBitmapPaths(const sol::table& table)
+    -> std::optional<std::vector<std::string>>
+{
+    std::vector<std::string> paths;
+    for (auto i = 1U; i <= table.size(); ++i)
+    {
+        if (auto maybePath = table.get<sol::optional<std::string>>(i))
+        {
+            paths.push_back(*maybePath);
+        }
+        else
+        {
+            return {};
+        }
+    }
+    return paths;
+}
+
 auto LuaFontLoader::loadPixelConversion(const sol::table& table)
     -> std::optional<std::unique_ptr<TileTransformation>>
 {
@@ -111,6 +129,7 @@ auto LuaFontLoader::loadGlyph(const sol::table& table)
         {
             FontBuilder::GlyphDescriptor glyph;
             glyph.shrinkToFit = table.get_or("shrink", true);
+            glyph.bitmapIndex = table.get_or("bitmap", 1ULL);
             glyph.baseLine = *maybeBaseLine;
             glyph.boundingBox = *maybeBoundingBox;
             glyph.characters = *maybeCharacters;
@@ -140,12 +159,23 @@ auto LuaFontLoader::loadFont(sol::table table) -> std::optional<Font>
     FontBuilder builder;
 
     bool imageSuccess{false};
-    if (auto maybeImageFile = requireField<std::string>(table, "bitmap"))
+    if (auto maybeBitmapsTable = requireField<sol::table>(table, "bitmaps"))
     {
-        if (auto maybeBitmap = loadImage(*maybeImageFile))
+        if (auto maybeBitmapPaths = loadBitmapPaths(*maybeBitmapsTable))
         {
-            builder.setBitmap(*maybeBitmap);
             imageSuccess = true;
+            for (auto const& path : *maybeBitmapPaths)
+            {
+                if (auto maybeBitmap = loadImage(path))
+                {
+                    builder.appendBitmap(*maybeBitmap);
+                }
+                else
+                {
+                    imageSuccess = false;
+                    break;
+                }
+            }
         }
     }
 

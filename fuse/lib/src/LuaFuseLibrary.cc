@@ -4,14 +4,25 @@
 #include <fuse/binary/LuaBinaryLibrary.h>
 #include <fuse/graphics/GraphicsLuaLibrary.h>
 #include <fuse/lua/Utilities.h>
-#include <fuse/text/LuaTableLibrary.h>
 #include <fuse/systems/LuaSystemsLibrary.h>
+#include <fuse/text/LuaTableLibrary.h>
 // clang-format off
 #include <sol.hpp>
 #include <lfs.h>
 // clang-format on
 
 namespace fuse {
+
+static constexpr char TableMerge[] = R"lua(table["merge"] = function(table1, table2)
+  local table = {}
+  for k, v in pairs(table1) do
+    table[k] = v
+  end
+  for k, v in pairs(table2) do
+    table[k] = v
+  end
+  return table
+end)lua";
 
 void openFuseLibrary(sol::this_state state)
 {
@@ -23,6 +34,7 @@ void openFuseLibrary(sol::this_state state)
     lua["text"] = text::openTextLibrary(state);
     lua["systems"] = openSystemsLibrary(state);
     luaopen_lfs(lua.lua_state());
+    lua.script(TableMerge);
 }
 
 } // namespace fuse

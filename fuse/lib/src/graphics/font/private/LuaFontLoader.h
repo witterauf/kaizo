@@ -32,6 +32,8 @@ public:
     auto loadBoundingBox(const sol::table& table) -> std::optional<TileRegion>;
     auto loadGlyphPixelFormat(const sol::table& table)
         -> std::optional<FontBuilder::GlyphPixelFormat>;
+    auto loadBitmapPaths(const sol::table& table)
+        -> std::optional<std::vector<std::string>>;
 
 private:
     std::filesystem::path m_basePath;
