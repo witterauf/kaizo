@@ -13,7 +13,7 @@ namespace fuse::graphics {
 class FontLoader
 {
 public:
-    auto loadFromFile(std::filesystem::path& filename) -> std::optional<Font>;
+    auto loadFromFile(const std::filesystem::path& filename) -> std::optional<Font>;
 };
 
 } // namespace fuse::graphics

@@ -15,7 +15,7 @@ namespace {
 
 } // namespace
 
-auto FontLoader::loadFromFile(std::filesystem::path& filename) -> std::optional<Font>
+auto FontLoader::loadFromFile(const std::filesystem::path& filename) -> std::optional<Font>
 {
     sol::state lua;
     lua.require("graphics", sol::c_call<decltype(&openGraphicsLibrary), &openGraphicsLibrary>);
