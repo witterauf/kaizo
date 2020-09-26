@@ -63,10 +63,7 @@ void StringFormat::doEncode(DataWriter& writer, const Data& data)
 
 auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto data = std::make_unique<StringFormat>(m_encoding);
-    data->m_fixedLength = m_fixedLength;
-    copyDataFormat(*data);
-    return std::move(data);
+    return std::unique_ptr<StringFormat>{new StringFormat{*this}};
 }
 
 } // namespace fuse::binary

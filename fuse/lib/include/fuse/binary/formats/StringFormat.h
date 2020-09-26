@@ -7,7 +7,7 @@
 
 namespace fuse::binary {
 
-class StringFormat : public DataFormat
+class StringFormat final : public DataFormat
 {
 public:
     StringFormat() = default;
@@ -18,6 +18,8 @@ public:
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
+    StringFormat(const StringFormat& other) = default;
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 

@@ -34,7 +34,8 @@ public:
     virtual auto copy() const -> std::unique_ptr<Data> = 0;
 
 protected:
-    Data(DataType type);
+    Data(const DataType type);
+    Data(const Data& other) = default;
 
 private:
     const DataType m_type;

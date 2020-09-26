@@ -76,15 +76,18 @@ void RecordFormat::doEncode(DataWriter& writer, const Data& data)
     }
 }
 
+RecordFormat::RecordFormat(const RecordFormat& other)
+    : DataFormat{other}
+{
+    for (auto const& element : other.m_elements)
+    {
+        m_elements.push_back({element.name, element.format->copy()});
+    }
+}
+
 auto RecordFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto format = std::make_unique<RecordFormat>();
-    for (auto const& element : m_elements)
-    {
-        format->m_elements.push_back({element.name, element.format->copy()});
-    }
-    copyDataFormat(*format);
-    return std::move(format);
+    return std::unique_ptr<RecordFormat>{new RecordFormat{*this}};
 }
 
 } // namespace fuse::binary

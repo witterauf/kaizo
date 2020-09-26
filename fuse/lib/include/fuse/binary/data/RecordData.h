@@ -7,7 +7,7 @@
 
 namespace fuse::binary {
 
-class RecordData : public Data
+class RecordData final : public Data
 {
 public:
     RecordData();
@@ -24,6 +24,8 @@ public:
     auto copy() const -> std::unique_ptr<Data> override;
 
 private:
+    RecordData(const RecordData& other);
+
     std::map<std::string, std::unique_ptr<Data>> m_elements;
 };
 

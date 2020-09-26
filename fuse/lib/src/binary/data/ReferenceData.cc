@@ -25,7 +25,7 @@ bool ReferenceData::isEqual(const Data& rhs) const
 
 auto ReferenceData::copy() const -> std::unique_ptr<Data>
 {
-    return std::make_unique<ReferenceData>(path());
+    return std::unique_ptr<ReferenceData>{new ReferenceData{*this}};
 }
 
 } // namespace fuse::binary

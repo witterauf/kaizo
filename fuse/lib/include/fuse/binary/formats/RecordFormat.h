@@ -6,7 +6,7 @@
 
 namespace fuse::binary {
 
-class RecordFormat : public DataFormat
+class RecordFormat final : public DataFormat
 {
 public:
     struct Element
@@ -14,6 +14,8 @@ public:
         std::string name;
         std::unique_ptr<DataFormat> format;
     };
+
+    RecordFormat() = default;
 
     void append(const std::string& name, std::unique_ptr<DataFormat>&& data);
 
@@ -25,6 +27,8 @@ public:
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
+    RecordFormat(const RecordFormat& other);
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 

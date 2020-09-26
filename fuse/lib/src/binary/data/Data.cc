@@ -4,7 +4,7 @@
 
 namespace fuse::binary {
 
-Data::Data(DataType type)
+Data::Data(const DataType type)
     : m_type{type}
 {
 }

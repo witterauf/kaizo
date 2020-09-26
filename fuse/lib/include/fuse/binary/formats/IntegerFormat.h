@@ -6,13 +6,12 @@
 
 namespace fuse::binary {
 
-class IntegerFormat : public DataFormat
+class IntegerFormat final : public DataFormat
 {
 public:
     IntegerFormat() = default;
     explicit IntegerFormat(size_t size, Signedness signedness = Signedness::Unsigned,
                            Endianness endianness = Endianness::Little);
-    explicit IntegerFormat(const IntegerLayout& layout);
 
     bool isSigned() const;
     bool isUnsigned() const;
@@ -26,6 +25,8 @@ public:
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
+    IntegerFormat(const IntegerFormat& other);
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 

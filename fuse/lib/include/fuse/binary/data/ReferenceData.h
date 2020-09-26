@@ -5,7 +5,7 @@
 
 namespace fuse::binary {
 
-class ReferenceData : public Data
+class ReferenceData final : public Data
 {
 public:
     explicit ReferenceData(const DataPath& path);
@@ -16,6 +16,8 @@ public:
     auto copy() const -> std::unique_ptr<Data> override;
 
 private:
+    ReferenceData(const ReferenceData& other) = default;
+
     DataPath m_path;
 };
 

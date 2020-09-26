@@ -34,6 +34,8 @@ public:
     void setSizeProvider(std::unique_ptr<BinarySizeProvider>&& sizeProvider);
 
 protected:
+    BinaryFormat(const BinaryFormat& other);
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
 
 private:

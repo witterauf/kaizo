@@ -6,16 +6,6 @@
 
 namespace fuse::binary {
 
-void DataFormat::storeAs(const std::string& label)
-{
-    m_storeAs = label;
-}
-
-void DataFormat::doNotStore()
-{
-    m_storeAs = {};
-}
-
 void DataFormat::setFixedOffset(size_t offset)
 {
     m_offset = offset;
@@ -62,16 +52,6 @@ void DataFormat::encode(DataWriter& writer, const Data& data)
     writer.skip(m_skipBefore);
     doEncode(writer, data);
     writer.skip(m_skipAfter);
-}
-
-void DataFormat::copyDataFormat(DataFormat& format) const
-{
-    format.m_offset = m_offset;
-    format.m_skipAfter = m_skipAfter;
-    format.m_skipBefore = m_skipBefore;
-    format.m_alignment = m_alignment;
-    format.m_storeAs = m_storeAs;
-    format.m_trackTag = m_trackTag;
 }
 
 void DataFormat::track(DataReader& reader, size_t offset, size_t size)

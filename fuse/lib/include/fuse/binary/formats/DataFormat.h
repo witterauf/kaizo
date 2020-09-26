@@ -15,9 +15,6 @@ class DataFormat
 public:
     virtual ~DataFormat() = default;
 
-    void storeAs(const std::string& label);
-    void doNotStore();
-
     void setFixedOffset(size_t offset);
     void setAlignment(size_t alignment);
     void setSkipAfter(size_t size);
@@ -33,9 +30,11 @@ public:
     virtual auto copy() const -> std::unique_ptr<DataFormat> = 0;
 
 protected:
+    DataFormat() = default;
+    DataFormat(const DataFormat& other) = default;
+
     virtual auto doDecode(DataReader& reader) -> std::unique_ptr<Data> = 0;
     virtual void doEncode(DataWriter& writer, const Data& data) = 0;
-    void copyDataFormat(DataFormat& format) const;
     void track(DataReader& reader, size_t offset, size_t size);
 
 private:

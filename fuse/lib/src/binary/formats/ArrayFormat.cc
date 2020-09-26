@@ -56,16 +56,19 @@ void ArrayFormat::doEncode(DataWriter& writer, const Data& data)
     }
 }
 
+ArrayFormat::ArrayFormat(const ArrayFormat& other)
+    : DataFormat{other}
+    , m_elementFormat{other.m_elementFormat->copy()}
+{
+    if (other.m_sizeProvider)
+    {
+        m_sizeProvider = other.m_sizeProvider->copy();
+    }
+}
+
 auto ArrayFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto arrayFormat = std::make_unique<ArrayFormat>();
-    arrayFormat->m_elementFormat = m_elementFormat->copy();
-    if (m_sizeProvider)
-    {
-        arrayFormat->m_sizeProvider = m_sizeProvider->copy();
-    }
-    copyDataFormat(*arrayFormat);
-    return std::move(arrayFormat);
+    return std::unique_ptr<ArrayFormat>{new ArrayFormat{*this}};
 }
 
 } // namespace fuse::binary

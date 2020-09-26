@@ -38,15 +38,22 @@ auto PointerFormat::addressFormat() const -> const AddressFormat&
     return *m_addressFormat;
 }
 
+PointerFormat::PointerFormat(const PointerFormat& other)
+    : DataFormat{other}
+    , m_addressFormat{other.m_addressFormat}
+    , m_useAddressMap{other.m_useAddressMap}
+    , m_nullPointer{other.m_nullPointer}
+    , m_layout{other.m_layout}
+{
+    if (other.m_pointedFormat)
+    {
+        m_pointedFormat = other.m_pointedFormat->copy();
+    }
+}
+
 auto PointerFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto format = std::make_unique<PointerFormat>();
-    if (m_layout)
-    {
-        format->setLayout(m_layout->copy());
-    }
-    copyPointerFormat(*format);
-    return format;
+    return std::unique_ptr<PointerFormat>{new PointerFormat{*this}};
 }
 
 void PointerFormat::setLayout(std::unique_ptr<AddressStorageFormat>&& layout)
@@ -111,7 +118,7 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
 
     if (data.type() == DataType::Reference)
     {
-        auto const referenceData = static_cast<const ReferenceData&>(data);
+        auto const& referenceData = static_cast<const ReferenceData&>(data);
         destination = referenceData.path();
     }
     else if (m_pointedFormat)
@@ -131,18 +138,6 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
 
     writer.addUnresolvedReference(makeStorageFormat(), destination);
     writeAddressPlaceHolder(writer);
-}
-
-void PointerFormat::copyPointerFormat(PointerFormat& format) const
-{
-    format.m_addressFormat = m_addressFormat;
-    if (m_pointedFormat)
-    {
-        format.m_pointedFormat = m_pointedFormat->copy();
-    }
-    format.m_useAddressMap = m_useAddressMap;
-    format.m_nullPointer = m_nullPointer;
-    copyDataFormat(format);
 }
 
 bool PointerFormat::hasNullPointer() const

@@ -14,11 +14,14 @@ class ReferenceFormat;
 class PointerFormat : public DataFormat
 {
 public:
+    PointerFormat() = default;
+
     void useAddressMap(bool on);
     void setNullPointer(const Address& null);
     void setAddressFormat(AddressFormat* format);
     void setPointedFormat(std::unique_ptr<DataFormat>&& format);
     void setLayout(std::unique_ptr<AddressStorageFormat>&& layout);
+
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
     auto addressFormat() const -> const AddressFormat&;
@@ -26,14 +29,14 @@ public:
     auto nullPointer() const -> const Address&;
 
 protected:
+    PointerFormat(const PointerFormat& other);
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 
     virtual auto readAddress(DataReader& reader) -> std::optional<Address>;
     virtual void writeAddressPlaceHolder(DataWriter& writer);
     virtual auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>;
-
-    void copyPointerFormat(PointerFormat& format) const;
 
 private:
     AddressFormat* m_addressFormat{nullptr};

@@ -4,7 +4,7 @@
 
 namespace fuse::binary {
 
-class NullData : public Data
+class NullData final : public Data
 {
 public:
     NullData();

@@ -18,6 +18,8 @@ public:
     auto copy() const -> std::unique_ptr<Data> override;
 
 private:
+    StringData(const StringData& other) = default;
+
     std::string m_value;
 };
 

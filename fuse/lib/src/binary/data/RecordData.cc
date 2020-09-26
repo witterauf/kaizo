@@ -73,16 +73,20 @@ bool RecordData::isEqual(const Data& rhs) const
     return false;
 }
 
-auto RecordData::copy() const -> std::unique_ptr<Data>
+RecordData::RecordData(const RecordData& other)
+    : Data{other}
 {
-    auto data = std::make_unique<RecordData>();
-    for (auto const& pair : m_elements)
+    for (auto const& pair : other.m_elements)
     {
         auto const& name = pair.first;
         auto const& element = *pair.second;
-        data->set(name, element.copy());
+        m_elements.insert(std::make_pair(name, element.copy()));
     }
-    return std::move(data);
+}
+
+auto RecordData::copy() const -> std::unique_ptr<Data>
+{
+    return std::unique_ptr<RecordData>{new RecordData{*this}};
 }
 
 } // namespace fuse::binary

@@ -35,14 +35,18 @@ private:
     size_t m_fixedSize{0};
 };
 
-class ArrayFormat : public DataFormat
+class ArrayFormat final : public DataFormat
 {
 public:
+    ArrayFormat() = default;
+
     void setSizeProvider(std::unique_ptr<ArraySizeProvider>&& sizeProvider);
     void setElementFormat(std::unique_ptr<DataFormat>&& format);
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
 protected:
+    ArrayFormat(const ArrayFormat& other);
+
     auto doDecode(DataReader& reader) -> std::unique_ptr<Data> override;
     void doEncode(DataWriter& writer, const Data& data) override;
 

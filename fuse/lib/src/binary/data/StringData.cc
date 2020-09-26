@@ -34,9 +34,7 @@ bool StringData::isEqual(const Data& rhs) const
 
 auto StringData::copy() const -> std::unique_ptr<Data>
 {
-    auto data = std::make_unique<StringData>();
-    data->m_value = m_value;
-    return std::move(data);
+    return std::unique_ptr<StringData>{new StringData{*this}};
 }
 
 } // namespace fuse::binary

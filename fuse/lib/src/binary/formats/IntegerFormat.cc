@@ -14,11 +14,6 @@ IntegerFormat::IntegerFormat(size_t size, Signedness signedness, Endianness endi
     m_layout.endianness = endianness;
 }
 
-IntegerFormat::IntegerFormat(const IntegerLayout& layout)
-    : m_layout{layout}
-{
-}
-
 bool IntegerFormat::isSigned() const
 {
     return m_layout.signedness == Signedness::Signed;
@@ -117,11 +112,20 @@ void IntegerFormat::doEncode(DataWriter& writer, const Data& data)
     }
 }
 
+auto IntegerFormat::layout() const -> const IntegerLayout&
+{
+    return m_layout;
+}
+
+IntegerFormat::IntegerFormat(const IntegerFormat& other)
+    : DataFormat{other}
+    , m_layout{other.m_layout}
+{
+}
+
 auto IntegerFormat::copy() const -> std::unique_ptr<DataFormat>
 {
-    auto format = std::make_unique<IntegerFormat>(m_layout);
-    copyDataFormat(*format);
-    return std::move(format);
+    return std::unique_ptr<IntegerFormat>{new IntegerFormat{*this}};
 }
 
 } // namespace fuse::binary

@@ -8,13 +8,13 @@ IntegerData::IntegerData()
 {
 }
 
-IntegerData::IntegerData(int64_t value)
+IntegerData::IntegerData(const int64_t value)
     : Data{DataType::Integer}
     , m_value{value}
 {
 }
 
-IntegerData::IntegerData(uint64_t value)
+IntegerData::IntegerData(const uint64_t value)
     : Data{DataType::Integer}
     , m_value{value}
 {
@@ -29,11 +29,14 @@ bool IntegerData::isEqual(const Data& rhs) const
     return false;
 }
 
+IntegerData::IntegerData(const IntegerData& other)
+    : Data{other}
+{
+}
+
 auto IntegerData::copy() const -> std::unique_ptr<Data>
 {
-    auto data = std::make_unique<IntegerData>();
-    data->m_value = m_value;
-    return std::move(data);
+    return std::unique_ptr<IntegerData>{new IntegerData{*this}};
 }
 
 bool IntegerData::isNegative() const
