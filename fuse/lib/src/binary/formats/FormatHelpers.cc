@@ -1,4 +1,5 @@
 #include "FormatHelpers.h"
+#include <stdexcept>
 
 namespace fuse::binary {
 

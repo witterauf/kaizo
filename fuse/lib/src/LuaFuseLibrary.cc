@@ -2,10 +2,7 @@
 #include <fuse/LuaFuseLibrary.h>
 #include <fuse/addresses/LuaAddressLibrary.h>
 #include <fuse/binary/LuaBinaryLibrary.h>
-#include <fuse/graphics/GraphicsLuaLibrary.h>
 #include <fuse/lua/Utilities.h>
-#include <fuse/systems/LuaSystemsLibrary.h>
-#include <fuse/text/LuaTableLibrary.h>
 // clang-format off
 #include <sol.hpp>
 #include <lfs.h>
@@ -30,9 +27,6 @@ void openFuseLibrary(sol::this_state state)
     merge(lua, openBaseLibrary(state));
     lua["addresses"] = openAddressLibrary(state);
     lua["binary"] = binary::openBinaryLibrary(state);
-    lua["graphics"] = graphics::openGraphicsLibrary(state);
-    lua["text"] = text::openTextLibrary(state);
-    lua["systems"] = openSystemsLibrary(state);
     luaopen_lfs(lua.lua_state());
     lua.script(TableMerge);
 }

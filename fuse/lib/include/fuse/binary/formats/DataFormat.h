@@ -13,6 +13,8 @@ class DataWriter;
 class DataFormat
 {
 public:
+    virtual ~DataFormat() = default;
+
     void storeAs(const std::string& label);
     void doNotStore();
 

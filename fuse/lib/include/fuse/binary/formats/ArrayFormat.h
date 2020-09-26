@@ -8,6 +8,7 @@ namespace fuse::binary {
 class ArraySizeProvider
 {
 public:
+    virtual ~ArraySizeProvider() = default;
     virtual auto provideSize(const DataReader& reader) const -> size_t = 0;
     virtual auto copy() const -> std::unique_ptr<ArraySizeProvider> = 0;
 };

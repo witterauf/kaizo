@@ -16,6 +16,8 @@ public:
     using address_t = uint64_t;
     using offset_t = int64_t;
 
+    virtual ~AddressFormat() = default;
+
     virtual auto applyOffset(const Address& address, offset_t offset) const -> Address = 0;
     virtual auto subtract(const Address& a, const Address& b) const -> offset_t = 0;
     virtual auto fromInteger(address_t address) const -> std::optional<Address> = 0;

@@ -7,6 +7,7 @@ namespace fuse::binary {
 class BinarySizeProvider
 {
 public:
+    virtual ~BinarySizeProvider() = default;
     virtual auto provideSize(const DataReader& reader) const -> size_t = 0;
 };
 

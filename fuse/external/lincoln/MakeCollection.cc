@@ -162,6 +162,7 @@ void MakeCollection::generateImplementationFile()
     {
         m_output << "#include \"" << m_arguments.collectionName << ".h\"\n";
         m_output << "#include <map>\n\n";
+        m_output << "#include <string>\n\n";
         m_output << "namespace {\n\n";
         generateFileArrays();
         generateFileMap();

@@ -18,6 +18,8 @@ class AddressStorageFormat
 public:
     static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<AddressStorageFormat>;
 
+    virtual ~AddressStorageFormat() = default;
+
     virtual bool isCompatible(const Address address) const = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
     virtual auto writeAddress(const Address address) const -> std::vector<BinaryPatch> = 0;

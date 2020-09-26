@@ -8,6 +8,7 @@ namespace fuse::text {
 class TextEncoding
 {
 public:
+    virtual ~TextEncoding() = default;
     virtual bool canEncode() const = 0;
     virtual auto encode(const std::string& tex) -> Binary = 0;
     virtual bool canDecode() const = 0;

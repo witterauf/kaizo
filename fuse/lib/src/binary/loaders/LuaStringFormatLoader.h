@@ -2,7 +2,6 @@
 
 #include "LuaDataFormatLoader.h"
 #include <fuse/binary/formats/StringFormat.h>
-#include <fuse/text/Table.h>
 
 namespace fuse::binary {
 
@@ -17,7 +16,6 @@ public:
     auto load(const sol::table& format, sol::this_state state)
         -> std::optional<std::unique_ptr<StringFormat>>;
     auto loadTableFormat(const sol::table& format) -> std::optional<std::unique_ptr<StringFormat>>;
-    auto loadTable(const std::filesystem::path& filename) -> std::optional<text::Table>;
 
 private:
     bool loadFixedLength(const sol::table& table, StringFormat& format);

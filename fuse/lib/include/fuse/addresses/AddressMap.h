@@ -9,6 +9,7 @@ namespace fuse {
 class AddressMap
 {
 public:
+    virtual ~AddressMap() = default;
     virtual auto sourceFormat() const -> const AddressFormat& = 0;
     virtual auto targetFormat() const -> const AddressFormat& = 0;
     virtual auto toTargetAddress(const Address) const -> std::optional<Address> = 0;

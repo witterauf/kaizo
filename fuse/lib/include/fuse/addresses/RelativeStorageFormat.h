@@ -11,6 +11,7 @@ namespace fuse {
 class BaseAddressProvider
 {
 public:
+    virtual ~BaseAddressProvider() = default;
     virtual auto provideAddress() const -> Address = 0;
     virtual auto copy() const -> std::unique_ptr<BaseAddressProvider> = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
