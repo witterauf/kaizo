@@ -20,7 +20,13 @@ struct PyIntegerFormat
     PyDataFormat dataFormat;
 };
 
+struct PyStringFormat
+{
+    PyDataFormat dataFormat;
+};
+
 extern PyTypeObject PyDataFormatType;
 extern PyTypeObject PyIntegerFormatType;
+extern PyTypeObject PyStringFormatType;
 
 bool registerDataFormatTypes(PyObject* module);
