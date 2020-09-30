@@ -10,7 +10,7 @@ static PyMethodDef PyDataFormat_methods[] = {{NULL}};
 
 PyTypeObject PyDataFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "fusepy.DataFormat"};
 
-static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject* kwargs)
+static bool PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject* kwargs)
 {
     static const char* keywords[] = {"fixed_offset", "alignment", "skip_before",
                                      "skip_after",   "tag",       NULL};
@@ -25,7 +25,7 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
                                      &tag))
     {
         std::cout << "blub";
-        return -1;
+        return false;
     }
 
     if (fixedOffsetObj)
@@ -38,7 +38,7 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
         else
         {
             PyErr_SetString(PyExc_TypeError, "fixed_offset must be an integer");
-            return -1;
+            return false;
         }
     }
 
@@ -54,13 +54,13 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
             else
             {
                 PyErr_SetString(PyExc_ValueError, "alignment must not be 0");
-                return -1;
+                return false;
             }
         }
         else
         {
             PyErr_SetString(PyExc_TypeError, "alignment must be an integer");
-            return -1;
+            return false;
         }
     }
 
@@ -74,7 +74,7 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
         else
         {
             PyErr_SetString(PyExc_TypeError, "skip_before must be an integer");
-            return -1;
+            return false;
         }
     }
 
@@ -88,7 +88,7 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
         else
         {
             PyErr_SetString(PyExc_TypeError, "skip_after must be an integer");
-            return -1;
+            return false;
         }
     }
 
@@ -97,7 +97,7 @@ static int PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject*
         format.setTag(tag);
     }
 
-    return 0;
+    return true;
 }
 
 static bool registerDataFormat(PyObject* module)
@@ -218,7 +218,7 @@ static int PyIntegerFormat_init(PyIntegerFormat* self, PyObject* args, PyObject*
     self->dataFormat.format = new IntegerFormat{static_cast<size_t>(size), signedness, endianness};
 
     Py_DECREF(maybeSplitKeywords->first);
-    if (PyDataFormat_set_values(*self->dataFormat.format, args, maybeSplitKeywords->second) == -1)
+    if (!PyDataFormat_set_values(*self->dataFormat.format, args, maybeSplitKeywords->second))
     {
         Py_DECREF(maybeSplitKeywords->second);
         return -1;
