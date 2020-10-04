@@ -6,17 +6,19 @@ namespace fuse {
 BinaryStream::BinaryStream(const std::filesystem::path& filename, Mode mode)
     : m_mode{mode}
 {
+    open(filename, mode);
+}
+
+void BinaryStream::open(const std::filesystem::path& filename, const Mode mode)
+{
+    m_mode = mode;
+    m_stream.exceptions(std::fstream::badbit | std::fstream::failbit);
     switch (mode)
     {
-    case Mode::Input:
-        m_stream = std::fstream{filename, std::fstream::binary | std::fstream::in};
-        break;
-    case Mode::Output:
-        m_stream = std::fstream{filename, std::fstream::binary | std::fstream::out};
-        break;
+    case Mode::Input: m_stream.open(filename, std::fstream::binary | std::fstream::in); break;
+    case Mode::Output: m_stream.open(filename, std::fstream::binary | std::fstream::out); break;
     case Mode::InputOutput:
-        m_stream =
-            std::fstream{filename, std::fstream::binary | std::fstream::out | std::fstream::in};
+        m_stream.open(filename, std::fstream::binary | std::fstream::out | std::fstream::in);
         break;
     default: InvalidCase(mode);
     }

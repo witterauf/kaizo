@@ -1,4 +1,5 @@
 add_subdirectory(catch)
+add_subdirectory(contracts)
 add_subdirectory(diagnostics)
 add_subdirectory(lincoln)
 add_subdirectory(lodepng)

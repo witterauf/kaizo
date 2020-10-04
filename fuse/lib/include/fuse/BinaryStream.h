@@ -18,12 +18,14 @@ public:
         InputOutput
     };
 
+    BinaryStream() = default;
     explicit BinaryStream(const std::filesystem::path& filename, Mode mode);
 
     void setEndianness(Endianness endianness);
     void setLittleEndian();
     void setBigEndian();
 
+    void open(const std::filesystem::path& filename, const Mode mode);
     void seek(size_t offset);
     auto writeOffset() -> size_t;
     auto size() -> size_t;

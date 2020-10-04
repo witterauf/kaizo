@@ -1,3 +1,6 @@
 [submodule "external/diagnostics"]
 	path = external/diagnostics
 	url = https://github.com/witterauf/diagnostics.git
+[submodule "external/contracts"]
+	path = external/contracts
+	url = https://github.com/witterauf/contracts.git

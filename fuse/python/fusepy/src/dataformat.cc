@@ -24,7 +24,6 @@ static bool PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject
                                      &fixedOffsetObj, &alignmentObj, &skipBeforeObj, &skipAfterObj,
                                      &tag))
     {
-        std::cout << "blub";
         return false;
     }
 

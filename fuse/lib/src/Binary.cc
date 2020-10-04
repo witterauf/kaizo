@@ -1,5 +1,5 @@
+#include "fuse/Binary.h"
 #include <fstream>
-#include <fuse/Binary.h>
 
 namespace fuse {
 
@@ -126,4 +126,4 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary
     return lhs += rhs;
 }
 
-} // namespace fuse
+} // namespace kaizo
