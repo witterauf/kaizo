@@ -113,14 +113,21 @@ set(KAIZO_SYSTEMS_SOURCES
     systems/psp/LuaPspLibrary.cc
 )
 
+set(KAIZO_VFS_SOURCES
+  ${KAIZO_INCLUDE_DIRECTORY}/vfs/VirtualFileSystem.h
+  src/vfs/VirtualFileSystem.cc
+)
+
 set(KAIZO_SOURCES
     ${KAIZO_BINARY_SOURCES}
+    ${KAIZO_VFS_SOURCES}
     #${KAIZO_TEXT_SOURCES}
     #${KAIZO_GRAPHICS_SOURCES}
     #${KAIZO_SYSTEMS_SOURCES}
 )
 
 source_group("Binary" FILES ${KAIZO_BINARY_SOURCES})
+source_group("VFS" FILES ${KAIZO_VFS_SOURCES})
 #source_group("Graphics" FILES ${KAIZO_GRAPHICS_SOURCES})
 #source_group("Systems" FILES ${KAIZO_SYSTEMS_SOURCES})
 #source_group("Text" FILES ${KAIZO_TEXT_SOURCES})
@@ -136,8 +143,9 @@ target_include_directories(KaizoLibrary
 target_link_libraries(KaizoLibrary
     PRIVATE
         Diagnostics::Diagnostics
-        Fuse::Fuse
         #LodePNG::LodePNG
+    PUBLIC
+        Fuse::Fuse
 )
 target_compile_features(KaizoLibrary PUBLIC cxx_std_20)
 target_all_warnings(KaizoLibrary)

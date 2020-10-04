@@ -1,9 +1,10 @@
+#include "kaizo/binary/Binary.h"
 #include <fstream>
-#include <fuse/Binary.h>
 
-namespace fuse {
+namespace kaizo {
 
 namespace fs = std::filesystem;
+using namespace fuse;
 
 Binary::Binary(size_t size)
     : m_data(size)

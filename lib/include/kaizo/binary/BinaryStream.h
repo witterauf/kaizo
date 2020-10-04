@@ -6,7 +6,7 @@
 #include <fuse/Integers.h>
 #include <string>
 
-namespace fuse {
+namespace kaizo {
 
 class BinaryStream
 {
@@ -20,7 +20,7 @@ public:
 
     explicit BinaryStream(const std::filesystem::path& filename, Mode mode);
 
-    void setEndianness(Endianness endianness);
+    void setEndianness(fuse::Endianness endianness);
     void setLittleEndian();
     void setBigEndian();
 
@@ -43,8 +43,8 @@ public:
 
 private:
     Mode m_mode;
-    Endianness m_endianness{Endianness::Little};
+    fuse::Endianness m_endianness{fuse::Endianness::Little};
     std::fstream m_stream;
 };
 
-} // namespace fuse
+} // namespace kaizo
