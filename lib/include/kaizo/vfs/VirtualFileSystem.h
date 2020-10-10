@@ -3,6 +3,7 @@
 #include <fuse/Binary.h>
 #include <fuse/BinaryStream.h>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace kaizo {
@@ -20,9 +21,10 @@ public:
     virtual auto fileCount() const -> size_t = 0;
     virtual auto fileInfo(const size_t index) const -> FileInfo = 0;
     virtual auto fileName(const size_t index) const -> std::string = 0;
-    virtual auto fileIndex(const std::string& name) const -> size_t = 0;
+    virtual auto fileIndex(const std::string& name) const -> std::optional<size_t> = 0;
     virtual auto openFile(const size_t index) -> fuse::Binary = 0;
     virtual auto openFolder(const size_t index) -> std::unique_ptr<VirtualFileSystem> = 0;
+    virtual auto glob(const std::string& pattern) const -> std::vector<size_t>;
 
     bool isFolder(const size_t index) const;
     bool isFile(const size_t index) const;

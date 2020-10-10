@@ -1,2 +1,2 @@
-from _kaizopy import *
+from kaizopy._kaizopy import *
 import kaizopy.vfs

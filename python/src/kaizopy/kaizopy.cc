@@ -79,6 +79,26 @@ static auto PyVirtualFileSystem_file_name(PyVirtualFileSystem* pyVfs, PyObject* 
     }
 }
 
+static auto PyVirtualFileSystem_file_index(PyVirtualFileSystem* pyVfs, PyObject* arg) -> PyObject*
+{
+    const char* name = PyUnicode_AsUTF8(arg);
+    if (!name)
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a string");
+        return NULL;
+    }
+
+    if (auto const maybeIndex = pyVfs->vfs->fileIndex(name))
+    {
+        return PyLong_FromUnsignedLongLong(*maybeIndex);
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
 static auto PyVirtualFileSystem_open_folder(PyVirtualFileSystem* self, PyObject* arg) -> PyObject*
 {
     if (auto maybeIndex = toFileIndex(self, arg))
@@ -94,6 +114,29 @@ static auto PyVirtualFileSystem_open_folder(PyVirtualFileSystem* self, PyObject*
             return NULL;
         }
         return (PyObject*)pyVfs;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+static auto PyVirtualFileSystem_open_file(PyVirtualFileSystem* self, PyObject* arg) -> PyObject*
+{
+    if (auto maybeIndex = toFileIndex(self, arg))
+    {
+        try
+        {
+            auto binary = self->vfs->openFile(*maybeIndex);
+            auto* bytes = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(binary.data()),
+                                                    binary.size());
+            return bytes;
+        }
+        catch (std::exception& e)
+        {
+            PyErr_SetString(PyExc_RuntimeError, e.what());
+            return NULL;
+        }
     }
     else
     {
@@ -122,11 +165,15 @@ static PyMethodDef PyVirtualFileSystem_methods[] = {
      "return the size of the file with the given index"},
     {"file_name", (PyCFunction)PyVirtualFileSystem_file_name, METH_O,
      "return the name of the file with the given index"},
+    {"file_index", (PyCFunction)PyVirtualFileSystem_file_index, METH_O,
+     "return the index of the file with the given name"},
     {"open_folder", (PyCFunction)PyVirtualFileSystem_open_folder, METH_O,
      "return a new virtual file system representing the folder with the given index"},
+    {"open_file", (PyCFunction)PyVirtualFileSystem_open_file, METH_O,
+     "return a bytes object with the content of the file with the given index"},
     {NULL}};
 
-PyTypeObject PyVirtualFileSystemType = {PyVarObject_HEAD_INIT(NULL, 0) "kaizopy.VirtualFileSystem"};
+PyTypeObject PyVirtualFileSystemType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._VirtualFileSystem"};
 
 static bool registerVirtualFileSystem(PyObject* module)
 {
@@ -141,7 +188,7 @@ static bool registerVirtualFileSystem(PyObject* module)
         return false;
     }
     Py_INCREF(&PyVirtualFileSystemType);
-    PyModule_AddObject(module, "VirtualFileSystem", (PyObject*)&PyVirtualFileSystemType);
+    PyModule_AddObject(module, "_VirtualFileSystem", (PyObject*)&PyVirtualFileSystemType);
     return true;
 }
 
@@ -149,7 +196,8 @@ static bool registerVirtualFileSystem(PyObject* module)
 
 static PyMethodDef PyFileTypeDescriptor_methods[] = {{NULL}};
 
-PyTypeObject PyFileTypeDescriptorType = {PyVarObject_HEAD_INIT(NULL, 0) "kaizopy.FileTypeDescriptor"};
+PyTypeObject PyFileTypeDescriptorType = {
+    PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy.FileTypeDescriptor"};
 
 static void PyFileTypeDescriptor_dealloc(PyFileTypeDescriptor* self)
 {

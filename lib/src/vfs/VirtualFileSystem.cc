@@ -1,4 +1,5 @@
 #include "kaizo/vfs/VirtualFileSystem.h"
+#include <regex>
 #include <stdexcept>
 
 namespace kaizo {
@@ -16,6 +17,20 @@ bool VirtualFileSystem::isFile(const size_t index) const
 auto VirtualFileSystem::fileSize(const size_t index) const -> size_t
 {
     return fileInfo(index).size;
+}
+
+auto VirtualFileSystem::glob(const std::string& pattern) const -> std::vector<size_t>
+{
+    const std::regex regex{pattern};
+    std::vector<size_t> matches;
+    for (size_t index = 0; index < fileCount(); ++index)
+    {
+        if (std::regex_match(fileName(index), regex))
+        {
+            matches.push_back(index);
+        }
+    }
+    return matches;
 }
 
 bool RegularFile::isFolder() const
