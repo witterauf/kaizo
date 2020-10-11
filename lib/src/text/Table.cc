@@ -1,7 +1,7 @@
-#include <diagnostics/Contracts.h>
-#include <fuse/text/Table.h>
+#include "kaizo/text/Table.h"
+#include <contracts/Contracts.h>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 void Table::setName(const std::string& name)
 {
@@ -67,4 +67,4 @@ auto Table::entry(size_t index) const -> EntryReference
     return EntryReference{&iter->first, &iter->second};
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

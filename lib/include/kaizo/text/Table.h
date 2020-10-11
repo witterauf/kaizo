@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class Table final
 {

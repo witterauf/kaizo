@@ -1,3 +1,4 @@
+/*
 #include "TableParser.h"
 #include <cctype>
 #include <diagnostics/Contracts.h>
@@ -438,3 +439,4 @@ void TableParser::reportUnknownParameterFormat()
 }
 
 } // namespace fuse::text
+*/

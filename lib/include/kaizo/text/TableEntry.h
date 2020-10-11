@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 using BinarySequence = std::string;
 
@@ -108,4 +108,4 @@ auto TableEntry::ParameterFormat::decode(InputIterator begin) const -> argument_
     }
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

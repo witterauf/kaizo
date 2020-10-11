@@ -1,11 +1,12 @@
+#include "kaizo/text/TableDecoder.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
-#include <fuse/text/TableDecoder.h>
+#include <contracts/Contracts.h>
 #include <fuse/utilities/StringAlgorithms.h>
 
+using namespace fuse;
 using namespace fuse::utilities;
 
-namespace fuse::text {
+namespace kaizo::text {
 
 TableDecoder::TableDecoder(const Table& table)
 {
@@ -76,7 +77,7 @@ void TableDecoder::setMissingDecoder(MissingDecoder* missingDecoder)
     m_missingDecoder = std::move(missingDecoder);
 }
 
-auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>
+auto TableDecoder::decode(const BinaryView& binary, size_t offset) -> std::pair<size_t, std::string>
 {
     m_binary = &binary;
     m_offset = offset;
@@ -138,7 +139,7 @@ auto TableDecoder::decode(const Binary& binary, size_t offset) -> std::pair<size
                 throw std::runtime_error{"exceeded fixed length"};
             }
         }
-    }    
+    }
     if (m_fixedLength)
     {
         auto const length = m_offset - offset;
@@ -215,4 +216,4 @@ void TableDecoder::advance(size_t size)
     m_offset += size;
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

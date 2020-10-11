@@ -5,7 +5,7 @@ using namespace kaizo;
 
 //##[ VirtualFileSystem ]##########################################################################
 
-static auto PyVirtualFileSystem_file_count_get(PyVirtualFileSystem* pyVfs, void* closure)
+static auto PyVirtualFileSystem_file_count_get(PyVirtualFileSystem* pyVfs, void*)
     -> PyObject*
 {
     return PyLong_FromSize_t(pyVfs->vfs->fileCount());

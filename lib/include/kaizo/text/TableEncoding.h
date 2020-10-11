@@ -3,11 +3,11 @@
 #include "Table.h"
 #include "TableDecoder.h"
 #include "TableEncoder.h"
-#include "TextEncoding.h"
+#include <fuse/text/TextEncoding.h>
 
-namespace fuse::text {
+namespace kaizo::text {
 
-class TableEncoding : public TextEncoding
+class TableEncoding : public fuse::text::TextEncoding
 {
 public:
     void addTable(const Table& table);
@@ -15,9 +15,10 @@ public:
     void setMissingDecoder(std::unique_ptr<MissingDecoder>&& decoder);
 
     bool canEncode() const override;
-    auto encode(const std::string& text) -> Binary override;
+    auto encode(const std::string& text) -> fuse::Binary override;
     bool canDecode() const override;
-    auto decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string> override;
+    auto decode(const fuse::BinaryView& binary, size_t offset)
+        -> std::pair<size_t, std::string> override;
     auto copy() const -> std::unique_ptr<TextEncoding> override;
 
 private:
@@ -26,4 +27,4 @@ private:
     std::unique_ptr<MissingDecoder> m_missingDecoder;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text

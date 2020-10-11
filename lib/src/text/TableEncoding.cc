@@ -1,6 +1,8 @@
-#include <fuse/text/TableEncoding.h>
+#include "kaizo/text/TableEncoding.h"
 
-namespace fuse::text {
+using namespace fuse;
+
+namespace kaizo::text {
 
 void TableEncoding::addTable(const Table& table)
 {
@@ -35,7 +37,8 @@ bool TableEncoding::canDecode() const
     return true;
 }
 
-auto TableEncoding::decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>
+auto TableEncoding::decode(const BinaryView& binary, size_t offset)
+    -> std::pair<size_t, std::string>
 {
     return m_decoder.decode(binary, offset);
 }
@@ -49,4 +52,4 @@ auto TableEncoding::copy() const -> std::unique_ptr<TextEncoding>
     return std::move(encoding);
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

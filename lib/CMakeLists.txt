@@ -26,38 +26,22 @@ set(KAIZO_BINARY_LOADERS_SOURCES
 )
 
 set(KAIZO_TEXT_SOURCES
-    ${KAIZO_INCLUDE_DIRECTORY}/text/ShiftJis.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/Table.h
-    #${KAIZO_INCLUDE_DIRECTORY}/text/TableReader.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/TableDecoder.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/TableEncoder.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/TableMapper.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/LuaTableReader.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/LuaTableWriter.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/LuaTableLibrary.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/TableEntry.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/TextEncoding.h
     ${KAIZO_INCLUDE_DIRECTORY}/text/TableEncoding.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/StringSet.h
-    ${KAIZO_INCLUDE_DIRECTORY}/text/AsciiEncoding.h
-    text/ShiftJis.cc
-    text/ShiftJisToUnicode.h
-    text/Table.cc
-    text/TableDecoder.cc
-    #text/TableParser.h
-    #text/TableParser.cc
-    #text/TableReader.cc
-    text/TableEncoder.cc
-    text/TableMapper.cc
-    text/LuaTableReader.cc
-    text/LuaTableWriter.cc
-    text/TableEntry.cc
-    text/TableControlParser.h
-    text/TableControlParser.cc
-    text/LuaTableLibrary.cc
-    text/TableEncoding.cc
-    text/StringSet.cc
-    text/AsciiEncoding.cc
+    src/text/Table.cc
+    src/text/TableDecoder.cc
+    src/text/TableEncoder.cc
+    src/text/TableMapper.cc
+    src/text/TableEntry.cc
+    src/text/TableEncoding.cc
+    src/text/TableControlParser.h
+    src/text/TableControlParser.cc
+    src/text/TableParser.h
+    src/text/TableParser.cc
 )
 
 set(KAIZO_GRAPHICS_SOURCES
@@ -121,7 +105,7 @@ set(KAIZO_VFS_SOURCES
 set(KAIZO_SOURCES
     ${KAIZO_BINARY_SOURCES}
     ${KAIZO_VFS_SOURCES}
-    #${KAIZO_TEXT_SOURCES}
+    ${KAIZO_TEXT_SOURCES}
     #${KAIZO_GRAPHICS_SOURCES}
     #${KAIZO_SYSTEMS_SOURCES}
 )
@@ -130,7 +114,7 @@ source_group("Binary" FILES ${KAIZO_BINARY_SOURCES})
 source_group("VFS" FILES ${KAIZO_VFS_SOURCES})
 #source_group("Graphics" FILES ${KAIZO_GRAPHICS_SOURCES})
 #source_group("Systems" FILES ${KAIZO_SYSTEMS_SOURCES})
-#source_group("Text" FILES ${KAIZO_TEXT_SOURCES})
+source_group("Text" FILES ${KAIZO_TEXT_SOURCES})
 
 add_library(KaizoLibrary
     ${KAIZO_SOURCES}
@@ -143,6 +127,7 @@ target_include_directories(KaizoLibrary
 target_link_libraries(KaizoLibrary
     PRIVATE
         Diagnostics::Diagnostics
+        Contracts::Library
         #LodePNG::LodePNG
     PUBLIC
         Fuse::Fuse

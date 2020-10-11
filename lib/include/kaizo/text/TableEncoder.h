@@ -4,7 +4,7 @@
 #include <fuse/Binary.h>
 #include <optional>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class TableEncoder
 {
@@ -23,7 +23,7 @@ public:
     void setFixedLength(size_t length);
     void unsetFixedLength();
 
-    auto encode(const std::string& text) -> Binary;
+    auto encode(const std::string& text) -> fuse::Binary;
 
     auto encodeCharacters(size_t begin, size_t end)
         -> std::optional<std::pair<size_t, BinarySequence>>;
@@ -38,11 +38,11 @@ private:
 
     const std::string* m_text{nullptr};
     size_t m_index{0};
-    Binary m_binary;
+    fuse::Binary m_binary;
 
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text

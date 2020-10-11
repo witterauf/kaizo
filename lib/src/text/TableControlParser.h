@@ -1,11 +1,11 @@
 #pragma once
 
-#include <fuse/text/Table.h>
+#include <kaizo/text/Table.h>
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class TableControlParser
 {
@@ -41,4 +41,4 @@ private:
     size_t m_index{0};
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text

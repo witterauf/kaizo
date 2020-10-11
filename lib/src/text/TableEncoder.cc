@@ -1,10 +1,11 @@
+#include "kaizo/text/TableEncoder.h"
 #include "TableControlParser.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
-#include <fuse/text/TableEncoder.h>
-#include <iostream>
 
-namespace fuse::text {
+using namespace fuse;
+
+namespace kaizo::text {
 
 TableEncoder::TableEncoder(const Table& table)
 {
@@ -208,4 +209,4 @@ auto TableEncoder::textLength() const -> size_t
     return m_text->length();
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

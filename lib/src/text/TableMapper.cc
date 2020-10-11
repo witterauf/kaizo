@@ -1,9 +1,9 @@
+#include "kaizo/text/TableMapper.h"
 #include "TableControlParser.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
-#include <fuse/text/TableMapper.h>
+#include <contracts/Contracts.h>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 TableMapper::TableMapper(const Table& table)
 {
@@ -207,4 +207,4 @@ bool TableMapper::map(const std::string& text, const Mapping& mapping)
     return m_mapper(text, mapping);
 }
 
-} // namespace fuse::text
+} // namespace kaizo::text

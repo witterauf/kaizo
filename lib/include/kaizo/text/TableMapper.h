@@ -3,7 +3,7 @@
 #include "Table.h"
 #include <functional>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class TableMapper
 {
@@ -48,4 +48,4 @@ private:
     Mapper m_mapper;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text

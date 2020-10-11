@@ -1,13 +1,14 @@
+/*
 #pragma once
 
-#include <fuse/text/Table.h>
+#include <kaizo/text/Table.h>
 #include <optional>
 
 namespace diagnostics {
 class SourceReporter;
 }
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class TableParser
 {
@@ -57,4 +58,5 @@ private:
     diagnostics::SourceReporter* m_reporter{nullptr};
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text
+*/

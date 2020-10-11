@@ -9,6 +9,8 @@ if (Python_FOUND)
   add_library(kaizopy SHARED
     src/kaizopy/kaizopy.h
     src/kaizopy/kaizopy.cc
+    src/kaizopy/text.h
+    src/kaizopy/text.cc
   )
   target_compile_features(kaizopy PRIVATE cxx_std_20)
   target_link_libraries(kaizopy

@@ -1,16 +1,17 @@
 #pragma once
 
 #include "Table.h"
-#include <fuse/Binary.h>
+#include <fuse/BinaryView.h>
 #include <optional>
 #include <vector>
 
-namespace fuse::text {
+namespace kaizo::text {
 
 class MissingDecoder
 {
 public:
-    virtual auto decode(const Binary& binary, size_t offset)
+    virtual ~MissingDecoder() = default;
+    virtual auto decode(const fuse::BinaryView& binary, size_t offset)
         -> std::optional<std::pair<size_t, std::string>> = 0;
     virtual auto copy() const -> std::unique_ptr<MissingDecoder> = 0;
 };
@@ -33,7 +34,7 @@ public:
     void setFixedLength(size_t length);
     void unsetFixedLength();
 
-    auto decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>;
+    auto decode(const fuse::BinaryView& binary, size_t offset) -> std::pair<size_t, std::string>;
 
     auto decodeControl(const TableEntry& control) -> std::string;
     auto decodeText(const TableEntry& text) -> std::string;
@@ -50,8 +51,8 @@ private:
     auto data() const -> const uint8_t*;
     void advance(size_t size);
 
-    const Binary* m_binary{nullptr};
+    const fuse::BinaryView* m_binary{nullptr};
     size_t m_offset{0};
 };
 
-} // namespace fuse::text
+} // namespace kaizo::text
