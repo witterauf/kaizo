@@ -23,7 +23,8 @@ bool AsciiEncoding::canDecode() const
     return true;
 }
 
-auto AsciiEncoding::decode(const Binary& binary, size_t offset) -> std::pair<size_t, std::string>
+auto AsciiEncoding::decode(const BinaryView& binary, size_t offset)
+    -> std::pair<size_t, std::string>
 {
     std::string text;
     while (offset < binary.size())

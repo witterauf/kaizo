@@ -1,5 +1,6 @@
 #include "fusepy.h"
 #include "dataformat.h"
+#include "text.h"
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -9,7 +10,7 @@ static PyMethodDef fusepy_functions[] = {
 };
 
 static PyModuleDef fusepymodule = {PyModuleDef_HEAD_INIT,
-                                   "tcpapy",
+                                   "_fusepy",
                                    "Classes and functions for data extraction and insertion",
                                    -1,
                                    fusepy_functions,
@@ -18,7 +19,7 @@ static PyModuleDef fusepymodule = {PyModuleDef_HEAD_INIT,
                                    NULL,
                                    NULL};
 
-PyMODINIT_FUNC PyInit_fusepy(void)
+PyMODINIT_FUNC PyInit__fusepy(void)
 {
     PyObject* m = PyModule_Create(&fusepymodule);
     if (m == NULL)
@@ -27,6 +28,11 @@ PyMODINIT_FUNC PyInit_fusepy(void)
     }
 
     if (!registerDataFormatTypes(m))
+    {
+        return NULL;
+    }
+
+    if (!registerFuseText(m))
     {
         return NULL;
     }

@@ -6,6 +6,7 @@ set(FUSE_INCLUDE_DIRECTORY "${FUSE_BASE_INCLUDE_DIRECTORY}/fuse")
 set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/Binary.h
     ${FUSE_INCLUDE_DIRECTORY}/BinaryStream.h
+    ${FUSE_INCLUDE_DIRECTORY}/BinaryView.h
     ${FUSE_INCLUDE_DIRECTORY}/BinaryPatch.h
     ${FUSE_INCLUDE_DIRECTORY}/Rectangle.h
     ${FUSE_INCLUDE_DIRECTORY}/UsageMap.h
@@ -15,6 +16,7 @@ set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/FuseException.h
     Binary.cc
     BinaryStream.cc
+    BinaryView.cc
     BinaryPatch.cc
     UsageMap.cc
     LuaBaseLibrary.cc
