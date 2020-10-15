@@ -46,7 +46,7 @@ private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
-    MissingDecoder* m_missingDecoder;
+    MissingDecoder* m_missingDecoder{nullptr};
 
     auto data() const -> const uint8_t*;
     void advance(size_t size);

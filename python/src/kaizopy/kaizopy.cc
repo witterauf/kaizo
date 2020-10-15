@@ -1,12 +1,12 @@
 #include "kaizopy.h"
+#include "text.h"
 #include <optional>
 
 using namespace kaizo;
 
 //##[ VirtualFileSystem ]##########################################################################
 
-static auto PyVirtualFileSystem_file_count_get(PyVirtualFileSystem* pyVfs, void*)
-    -> PyObject*
+static auto PyVirtualFileSystem_file_count_get(PyVirtualFileSystem* pyVfs, void*) -> PyObject*
 {
     return PyLong_FromSize_t(pyVfs->vfs->fileCount());
 }
@@ -173,7 +173,8 @@ static PyMethodDef PyVirtualFileSystem_methods[] = {
      "return a bytes object with the content of the file with the given index"},
     {NULL}};
 
-PyTypeObject PyVirtualFileSystemType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._VirtualFileSystem"};
+PyTypeObject PyVirtualFileSystemType = {
+    PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._VirtualFileSystem"};
 
 static bool registerVirtualFileSystem(PyObject* module)
 {
@@ -280,6 +281,11 @@ PyMODINIT_FUNC PyInit__kaizopy(void)
     }
 
     if (!registerVirtualFileSystemTypes(m))
+    {
+        return NULL;
+    }
+
+    if (!registerKaizoText(m))
     {
         return NULL;
     }

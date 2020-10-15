@@ -27,6 +27,7 @@ if (Python_FOUND)
   else()
     set_target_properties(kaizopy PROPERTIES PREFIX "")
   endif()
+  set_target_properties(kaizopy PROPERTIES DEBUG_POSTFIX "_d")
   set_target_properties(kaizopy PROPERTIES OUTPUT_NAME "_kaizopy")
 
   add_library(Kaizo::Python ALIAS kaizopy)
