@@ -54,8 +54,7 @@ static auto PyTextEncoding_encode(PyTextEncoding* self, PyObject* arg) -> PyObje
     return bytes;
 }
 
-static auto PyTextEncoding_decode(PyTextEncoding* self, PyObject* args, PyObject*)
-    -> PyObject*
+static auto PyTextEncoding_decode(PyTextEncoding* self, PyObject* args, PyObject*) -> PyObject*
 {
     Py_buffer buffer;
     unsigned long long offset{0};
@@ -66,12 +65,20 @@ static auto PyTextEncoding_decode(PyTextEncoding* self, PyObject* args, PyObject
 
     const uint8_t* data = reinterpret_cast<const uint8_t*>(buffer.buf);
     auto const size = buffer.len;
-    auto const [newOffset, string] =
-        self->encoding->decode(BinaryView{data, static_cast<size_t>(size)}, offset);
-    PyBuffer_Release(&buffer);
-
-    auto tuple = Py_BuildValue("(Ks#)", newOffset, string.c_str(), (Py_ssize_t)string.length());
-    return tuple;
+    try
+    {
+        auto const [newOffset, string] =
+            self->encoding->decode(BinaryView{data, static_cast<size_t>(size)}, offset);
+        PyBuffer_Release(&buffer);
+        auto tuple = Py_BuildValue("(Ks#)", newOffset, string.c_str(), (Py_ssize_t)string.length());
+        return tuple;
+    }
+    catch (std::exception& e)
+    {
+        PyBuffer_Release(&buffer);
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+        return NULL;
+    }
 }
 
 static void PyTextEncoding_dealloc(PyTextEncoding* self)
