@@ -55,18 +55,29 @@ class VirtualFileSystem(ABC):
     def open_file_by_index(self, index):
         pass
 
-    def _name_to_index(self, name, func):
-        index = self.file_index(name)
-        if index:
-            return func(index)
-        else:
-            raise ValueError(f"file {name} does not exist")
-
     def is_folder(self, name):
-        return self._name_to_index(name, self.is_folder_by_index)
+        return self.is_folder_by_index(self.file_index(name))
 
     def open_folder(self, name):
-        return self._name_to_index(name, self.open_folder_by_index)
+        return self.open_folder_by_index(self.file_index(name))
+
+    def open_file(self, path):
+        return self._open_file(path.parts)
+
+    def _open_file(self, parts):
+        if not parts:
+            raise ValueError("parts must be non-empty")
+        
+        index = self.file_index(parts[0])
+        if len(parts) == 1:
+            if self.is_folder_by_index(index):
+                raise RuntimeError("not a file")
+            return self.open_file_by_index(index)
+        else:
+            if not self.is_folder_by_index(index):
+                raise RuntimeError("not a folder")
+            vfs = self.open_folder_by_index(index)
+            return vfs._open_file(parts[1:])
 
     def glob(self, pattern):
         pattern_parts = pattern.split('/')
