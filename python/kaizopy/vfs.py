@@ -5,8 +5,8 @@ import re
 def vfsiter(vfs, level=0):
     for index in range(vfs.file_count):
         yield (vfs, index, level)
-        if vfs.is_folder(index):
-            next_vfs = vfs.open_folder(index)
+        if vfs.is_folder_by_index(index):
+            next_vfs = vfs.open_folder_by_index(index)
             yield from vfsiter(next_vfs, level + 1)
 
 class VfsPath:
@@ -98,7 +98,7 @@ class VirtualFileSystem(ABC):
                     folder_files = folder._glob(pattern_list[1:])
                     for file_name in folder_files:
                         files.append(name + "/" + file_name)
-                else:
+                elif len(pattern_list) == 1:
                     files.append(name)
         return files
 
