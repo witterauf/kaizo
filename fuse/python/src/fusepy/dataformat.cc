@@ -1,4 +1,6 @@
 #include "dataformat.h"
+#include "addresses.h"
+#include "text.h"
 #include <iostream>
 #include <map>
 
@@ -6,98 +8,98 @@ using namespace fuse::binary;
 
 //##[ DataFormat ]#################################################################################
 
-static PyMethodDef PyDataFormat_methods[] = {{NULL}};
-
-PyTypeObject PyDataFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "fusepy.DataFormat"};
-
-static bool PyDataFormat_set_values(DataFormat& format, PyObject* args, PyObject* kwargs)
+static auto PyDataFormat_set_skip_before(PyDataFormat* self, PyObject* pySkip) -> PyObject*
 {
-    static const char* keywords[] = {"fixed_offset", "alignment", "skip_before",
-                                     "skip_after",   "tag",       NULL};
-
-    PyObject* fixedOffsetObj{nullptr};
-    PyObject* alignmentObj{nullptr};
-    PyObject* skipBeforeObj{nullptr};
-    PyObject* skipAfterObj{nullptr};
-    const char* tag{nullptr};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|$OOOOs", const_cast<char**>(keywords),
-                                     &fixedOffsetObj, &alignmentObj, &skipBeforeObj, &skipAfterObj,
-                                     &tag))
+    auto const skip = PyLong_AsUnsignedLongLong(pySkip);
+    if (skip == static_cast<unsigned long long>(-1) && PyErr_Occurred())
     {
-        return false;
+        return NULL;
     }
 
-    if (fixedOffsetObj)
-    {
-        if (PyLong_Check(fixedOffsetObj))
-        {
-            auto const fixedOffset = PyLong_AsUnsignedLongLong(fixedOffsetObj);
-            format.setFixedOffset(fixedOffset);
-        }
-        else
-        {
-            PyErr_SetString(PyExc_TypeError, "fixed_offset must be an integer");
-            return false;
-        }
-    }
-
-    if (alignmentObj)
-    {
-        if (PyLong_Check(alignmentObj))
-        {
-            auto const alignment = PyLong_AsUnsignedLongLong(alignmentObj);
-            if (alignment != 0)
-            {
-                format.setAlignment(alignment);
-            }
-            else
-            {
-                PyErr_SetString(PyExc_ValueError, "alignment must not be 0");
-                return false;
-            }
-        }
-        else
-        {
-            PyErr_SetString(PyExc_TypeError, "alignment must be an integer");
-            return false;
-        }
-    }
-
-    if (skipBeforeObj)
-    {
-        if (PyLong_Check(skipBeforeObj))
-        {
-            auto const value = PyLong_AsUnsignedLongLong(skipBeforeObj);
-            format.setSkipBefore(value);
-        }
-        else
-        {
-            PyErr_SetString(PyExc_TypeError, "skip_before must be an integer");
-            return false;
-        }
-    }
-
-    if (skipAfterObj)
-    {
-        if (PyLong_Check(skipAfterObj))
-        {
-            auto const value = PyLong_AsUnsignedLongLong(skipAfterObj);
-            format.setSkipAfter(value);
-        }
-        else
-        {
-            PyErr_SetString(PyExc_TypeError, "skip_after must be an integer");
-            return false;
-        }
-    }
-
-    if (tag)
-    {
-        format.setTag(tag);
-    }
-
-    return true;
+    self->format->setSkipBefore(skip);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
+
+static auto PyDataFormat_set_skip_after(PyDataFormat* self, PyObject* pySkip) -> PyObject*
+{
+    auto const skip = PyLong_AsUnsignedLongLong(pySkip);
+    if (skip == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    self->format->setSkipAfter(skip);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyDataFormat_set_alignment(PyDataFormat* self, PyObject* pyAlignment) -> PyObject*
+{
+    auto const alignment = PyLong_AsUnsignedLongLong(pyAlignment);
+    if (alignment == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    self->format->setAlignment(alignment);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyDataFormat_set_fixed_offset(PyDataFormat* self, PyObject* pyOffset) -> PyObject*
+{
+    auto const offset = PyLong_AsUnsignedLongLong(pyOffset);
+    if (offset == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    self->format->setFixedOffset(offset);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyDataFormat_set_tag(PyDataFormat* self, PyObject* pyTag) -> PyObject*
+{
+    const char* tag = PyUnicode_AsUTF8(pyTag);
+    if (!tag)
+    {
+        return NULL;
+    }
+    if (tag[0] == '\0')
+    {
+        PyErr_SetString(PyExc_ValueError, "expected a non-empty string");
+        return NULL;
+    }
+    self->format->setTag(tag);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyDataFormat_methods[] = {
+    {"set_skip_before", (PyCFunction)PyDataFormat_set_skip_before, METH_O,
+     "set the number of bytes to skip before decoding"},
+    {"set_skip_after", (PyCFunction)PyDataFormat_set_skip_after, METH_O,
+     "set the number of bytes to skip after decoding"},
+    {"set_skip_alignment", (PyCFunction)PyDataFormat_set_alignment, METH_O,
+     "set the alignment at which decoding starts"},
+    {"set_skip_fixed_offset", (PyCFunction)PyDataFormat_set_fixed_offset, METH_O,
+     "set an offset from which decoding starts"},
+    {"set_tag", (PyCFunction)PyDataFormat_set_tag, METH_O,
+     "set an offset from which decoding starts"},
+    {NULL}};
+
+static void PyDataFormat_dealloc(PyDataFormat* self)
+{
+    if (self->format)
+    {
+        delete self->format;
+    }
+    Py_TYPE(self)->tp_free(self);
+}
+
+PyTypeObject PyDataFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._DataFormat"};
 
 static bool registerDataFormat(PyObject* module)
 {
@@ -105,82 +107,29 @@ static bool registerDataFormat(PyObject* module)
     PyDataFormatType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
     PyDataFormatType.tp_doc = "Describes the format of a sequence of bytes";
     PyDataFormatType.tp_methods = PyDataFormat_methods;
+    PyDataFormatType.tp_dealloc = (destructor)&PyDataFormat_dealloc;
     if (PyType_Ready(&PyDataFormatType) < 0)
     {
         return false;
     }
     Py_INCREF(&PyDataFormatType);
-    PyModule_AddObject(module, "DataFormat", (PyObject*)&PyDataFormatType);
+    PyModule_AddObject(module, "_DataFormat", (PyObject*)&PyDataFormatType);
     return true;
 }
 
 //##[ IntegerFormat ]##############################################################################
 
-static auto splitKeywordArgs(PyObject* kwargs, const char** keywords)
-    -> std::optional<std::pair<PyObject*, PyObject*>>
-{
-    PyObject *key{nullptr}, *value{nullptr};
-    Py_ssize_t pos{0};
-
-    PyObject* matches = PyDict_New();
-    PyObject* remaining = PyDict_New();
-
-    while (PyDict_Next(kwargs, &pos, &key, &value))
-    {
-        if (PyUnicode_Check(key))
-        {
-            const char** keyword = keywords;
-            bool found{false};
-            while (*keyword != nullptr)
-            {
-                if (PyUnicode_CompareWithASCIIString(key, *keyword) == 0)
-                {
-                    found = true;
-                    break;
-                }
-                ++keyword;
-            }
-            if (found)
-            {
-                PyDict_SetItem(matches, key, value);
-            }
-            else
-            {
-                PyDict_SetItem(remaining, key, value);
-            }
-        }
-        else
-        {
-            Py_DECREF(matches);
-            Py_DECREF(remaining);
-            return {};
-        }
-    }
-
-    return std::make_pair(matches, remaining);
-}
-
 static int PyIntegerFormat_init(PyIntegerFormat* self, PyObject* args, PyObject* kwargs)
 {
     static const char* keywords[] = {"size", "signedness", "endianness", NULL};
-
-    auto maybeSplitKeywords = splitKeywordArgs(kwargs, keywords);
-    if (!maybeSplitKeywords)
-    {
-        PyErr_SetString(PyExc_TypeError, "only string keys allowed in kwargs");
-        return -1;
-    }
 
     unsigned long long size;
     PyObject* signednessObj{nullptr};
     PyObject* endiannessObj{nullptr};
     size_t row{0}, column{0};
-    if (!PyArg_ParseTupleAndKeywords(args, maybeSplitKeywords->first, "K|$OO",
-                                     const_cast<char**>(keywords), &size, &signednessObj,
-                                     &endiannessObj))
+    if (PyArg_ParseTupleAndKeywords(args, kwargs, "KOO", const_cast<char**>(keywords), &size,
+                                    &signednessObj, &endiannessObj) < 0)
     {
-        Py_DECREF(maybeSplitKeywords->first);
-        Py_DECREF(maybeSplitKeywords->second);
         return -1;
     }
 
@@ -215,37 +164,18 @@ static int PyIntegerFormat_init(PyIntegerFormat* self, PyObject* args, PyObject*
     }
 
     self->dataFormat.format = new IntegerFormat{static_cast<size_t>(size), signedness, endianness};
-
-    Py_DECREF(maybeSplitKeywords->first);
-    if (!PyDataFormat_set_values(*self->dataFormat.format, args, maybeSplitKeywords->second))
-    {
-        Py_DECREF(maybeSplitKeywords->second);
-        return -1;
-    }
-
-    Py_DECREF(maybeSplitKeywords->second);
     return 0;
-}
-
-static void PyIntegerFormat_dealloc(PyIntegerFormat* self)
-{
-    if (self->dataFormat.format)
-    {
-        delete self->dataFormat.format;
-    }
-    Py_TYPE(self)->tp_free(self);
 }
 
 static PyMethodDef PyIntegerFormat_methods[] = {{NULL}};
 
-PyTypeObject PyIntegerFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "fusepy.IntegerFormat"};
+PyTypeObject PyIntegerFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._IntegerFormat"};
 
 static bool registerIntegerFormat(PyObject* module)
 {
     PyIntegerFormatType.tp_new = PyType_GenericNew;
     PyIntegerFormatType.tp_base = &PyDataFormatType;
     PyIntegerFormatType.tp_basicsize = sizeof(PyIntegerFormat);
-    PyIntegerFormatType.tp_dealloc = (destructor)PyIntegerFormat_dealloc;
     PyIntegerFormatType.tp_flags = Py_TPFLAGS_DEFAULT;
     PyIntegerFormatType.tp_doc = "Describes the binary format of an integer";
     PyIntegerFormatType.tp_methods = PyIntegerFormat_methods;
@@ -255,7 +185,7 @@ static bool registerIntegerFormat(PyObject* module)
         return false;
     }
     Py_INCREF(&PyIntegerFormatType);
-    PyModule_AddObject(module, "IntegerFormat", (PyObject*)&PyIntegerFormatType);
+    PyModule_AddObject(module, "_IntegerFormat", (PyObject*)&PyIntegerFormatType);
     return true;
 }
 
@@ -263,49 +193,23 @@ static bool registerIntegerFormat(PyObject* module)
 
 static int PyStringFormat_init(PyIntegerFormat* self, PyObject* args, PyObject* kwargs)
 {
-    static const char* keywords[] = {"size", "signedness", "endianness", NULL};
+    static const char* keywords[] = {"encoding", NULL};
 
-    unsigned long long size;
-    PyObject* signednessObj;
-    PyObject* endiannessObj;
-    size_t row{0}, column{0};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|$KOO", const_cast<char**>(keywords), &size,
-                                     &signednessObj, &endiannessObj))
+    PyObject* pyEncoding;
+    if (PyArg_ParseTupleAndKeywords(args, kwargs, "O", const_cast<char**>(keywords), &pyEncoding) <
+        0)
     {
         return -1;
     }
 
-    fuse::Signedness signedness{fuse::Signedness::Unsigned};
-    if (signednessObj)
+    if (!PyObject_IsInstance(pyEncoding, (PyObject*)&Py_TextEncoding))
     {
-        if (PyObject_HasAttrString(signednessObj, "value"))
-        {
-            auto* value = PyObject_GetAttrString(signednessObj, "value");
-            if (PyLong_Check(value))
-            {
-                signedness = static_cast<fuse::Signedness>(PyLong_AsSize_t(value));
-            }
-            Py_DECREF(value);
-        }
-        Py_DECREF(signednessObj);
+        PyErr_SetString(PyExc_TypeError, "expected a _TextEncoding");
+        return -1;
     }
 
-    fuse::Endianness endianness{fuse::Endianness::Little};
-    if (endiannessObj)
-    {
-        if (PyObject_HasAttrString(endiannessObj, "value"))
-        {
-            auto* value = PyObject_GetAttrString(endiannessObj, "value");
-            if (PyLong_Check(value))
-            {
-                endianness = static_cast<fuse::Endianness>(PyLong_AsSize_t(value));
-            }
-            Py_DECREF(value);
-        }
-        Py_DECREF(endiannessObj);
-    }
-
-    self->dataFormat.format = new IntegerFormat{static_cast<size_t>(size), signedness, endianness};
+    self->dataFormat.format =
+        new StringFormat{reinterpret_cast<PyTextEncoding*>(pyEncoding)->encoding};
     return 0;
 }
 
@@ -320,7 +224,7 @@ static void PyStringFormat_dealloc(PyIntegerFormat* self)
 
 static PyMethodDef PyStringFormat_methods[] = {{NULL}};
 
-PyTypeObject PyStringFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "fusepy.StringFormat"};
+PyTypeObject PyStringFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._StringFormat"};
 
 static bool registerStringFormat(PyObject* module)
 {
@@ -337,7 +241,224 @@ static bool registerStringFormat(PyObject* module)
         return false;
     }
     Py_INCREF(&PyStringFormatType);
-    PyModule_AddObject(module, "StringFormat", (PyObject*)&PyStringFormatType);
+    PyModule_AddObject(module, "_StringFormat", (PyObject*)&PyStringFormatType);
+    return true;
+}
+
+//##[ RecordFormat ]###############################################################################
+
+static int PyRecordFormat_init(PyRecordFormat* self, PyObject* args, PyObject* kwargs)
+{
+    self->dataFormat.format = new RecordFormat;
+    return 0;
+}
+
+static auto PyRecordFormat_append_element(PyRecordFormat* self, PyObject* const* args,
+                                          const Py_ssize_t nargs) -> PyObject*
+{
+    if (nargs != 2)
+    {
+        PyErr_SetString(PyExc_TypeError, "wrong number of arguments; expected 2");
+        return NULL;
+    }
+
+    const char* name = PyUnicode_AsUTF8(args[0]);
+    if (!name)
+    {
+        return NULL;
+    }
+
+    if (!PyObject_IsInstance(args[1], (PyObject*)&PyDataFormatType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a _DataFormat");
+        return NULL;
+    }
+
+    auto elementFormat = reinterpret_cast<PyDataFormat*>(args[1])->format->copy();
+    auto* asRecord = static_cast<RecordFormat*>(self->dataFormat.format);
+    asRecord->append(name, std::move(elementFormat));
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyRecordFormat_methods[] = {
+    {"append_element", (PyCFunction)PyRecordFormat_append_element, METH_FASTCALL,
+     "append an element format to the Record"},
+    {NULL}};
+
+PyTypeObject PyRecordFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._RecordFormat"};
+
+static bool registerRecordFormat(PyObject* module)
+{
+    PyRecordFormatType.tp_new = PyType_GenericNew;
+    PyRecordFormatType.tp_base = &PyDataFormatType;
+    PyRecordFormatType.tp_basicsize = sizeof(PyRecordFormat);
+    PyRecordFormatType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyRecordFormatType.tp_doc = "Describes the binary format of a record";
+    PyRecordFormatType.tp_methods = PyRecordFormat_methods;
+    PyRecordFormatType.tp_init = (initproc)PyRecordFormat_init;
+    if (PyType_Ready(&PyRecordFormatType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyRecordFormatType);
+    PyModule_AddObject(module, "_RecordFormat", (PyObject*)&PyRecordFormatType);
+    return true;
+}
+
+//##[ ArrayFormat ]###############################################################################
+
+static int PyArrayFormat_init(PyArrayFormat* self, PyObject* args, PyObject* kwargs)
+{
+    self->dataFormat.format = new ArrayFormat;
+    return 0;
+}
+
+static auto PyArrayFormat_set_fixed_length(PyArrayFormat* self, PyObject* pyLength) -> PyObject*
+{
+    auto const length = PyLong_AsUnsignedLongLong(pyLength);
+    if (length == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto& asArray = static_cast<ArrayFormat&>(*self->dataFormat.format);
+    asArray.setSizeProvider(std::make_unique<FixedSizeProvider>(length));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyArrayFormat_set_element_format(PyArrayFormat* self, PyObject* pyFormat) -> PyObject*
+{
+    if (!PyObject_IsInstance(pyFormat, (PyObject*)&PyDataFormatType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a _DataFormat");
+        return NULL;
+    }
+    auto elementFormat = reinterpret_cast<PyDataFormat*>(pyFormat)->format->copy();
+    auto& asArray = static_cast<ArrayFormat&>(*self->dataFormat.format);
+    asArray.setElementFormat(std::move(elementFormat));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyArrayFormat_methods[] = {
+    {"set_fixed_length", (PyCFunction)PyArrayFormat_set_fixed_length, METH_O,
+     "make the Array a fixed length"},
+    {"set_element_format", (PyCFunction)PyArrayFormat_set_element_format, METH_O,
+     "set the DataFormat of the elements of this Array"},
+    {NULL}};
+
+PyTypeObject PyArrayFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._ArrayFormat"};
+
+static bool registerArrayFormat(PyObject* module)
+{
+    PyArrayFormatType.tp_new = PyType_GenericNew;
+    PyArrayFormatType.tp_base = &PyDataFormatType;
+    PyArrayFormatType.tp_basicsize = sizeof(PyArrayFormat);
+    PyArrayFormatType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyArrayFormatType.tp_doc = "Describes the binary format of an array";
+    PyArrayFormatType.tp_methods = PyArrayFormat_methods;
+    PyArrayFormatType.tp_init = (initproc)PyArrayFormat_init;
+    if (PyType_Ready(&PyArrayFormatType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyArrayFormatType);
+    PyModule_AddObject(module, "_ArrayFormat", (PyObject*)&PyArrayFormatType);
+    return true;
+}
+
+//##[ ArrayFormat ]###############################################################################
+
+static int PyPointerFormat_init(PyPointerFormat* self, PyObject* args, PyObject* kwargs)
+{
+    self->dataFormat.format = new PointerFormat;
+    return 0;
+}
+
+static auto PyPointerFormat_set_pointee_format(PyPointerFormat* self, PyObject* pyFormat)
+    -> PyObject*
+{
+    if (!PyObject_IsInstance(pyFormat, (PyObject*)&PyDataFormatType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a _DataFormat");
+        return NULL;
+    }
+    auto elementFormat = reinterpret_cast<PyDataFormat*>(pyFormat)->format->copy();
+    auto& asPointer = static_cast<PointerFormat&>(*self->dataFormat.format);
+    asPointer.setPointedFormat(std::move(elementFormat));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyPointerFormat_set_address_layout(PyPointerFormat* self, PyObject* pyLayout)
+    -> PyObject*
+{
+    if (!PyObject_IsInstance(pyLayout, (PyObject*)&PyAddressLayoutType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an _AddressLayout");
+        return NULL;
+    }
+    auto layout = reinterpret_cast<PyAddressLayout*>(pyLayout)->layout->copy();
+    auto& asPointer = static_cast<PointerFormat&>(*self->dataFormat.format);
+    asPointer.setLayout(std::move(layout));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyPointerFormat_set_address_format(PyPointerFormat* self, PyObject* pyFormat)
+    -> PyObject*
+{
+    if (!PyObject_IsInstance(pyFormat, (PyObject*)&PyAddressFormatType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an _AddressFormat");
+        return NULL;
+    }
+    auto const* format = reinterpret_cast<PyAddressFormat*>(pyFormat)->format;
+    auto& asPointer = static_cast<PointerFormat&>(*self->dataFormat.format);
+    asPointer.setAddressFormat(const_cast<fuse::AddressFormat*>(format));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyPointerFormat_use_address_map(PyPointerFormat* self, PyObject* pyUseAddressMap)
+    -> PyObject*
+{
+    auto& asPointer = static_cast<PointerFormat&>(*self->dataFormat.format);
+    asPointer.useAddressMap(PyObject_IsTrue(pyUseAddressMap) != 0);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyPointerFormat_methods[] = {
+    {"set_pointee_format", (PyCFunction)PyPointerFormat_set_pointee_format, METH_O,
+     "set the DataFormat of the pointed-at element"},
+    {"set_address_layout", (PyCFunction)PyPointerFormat_set_address_layout, METH_O,
+     "set the AddressLayout (storage layout) of the address to be decoded"},
+    {"set_address_format", (PyCFunction)PyPointerFormat_set_address_format, METH_O,
+     "set the AddressFormat (logical structure) of the address to be decoded"},
+    {"use_address_map", (PyCFunction)PyPointerFormat_use_address_map, METH_O,
+     "set whether the decoded Address is filtered through an AddressMap"},
+    {NULL}};
+
+PyTypeObject PyPointerFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._PointerFormat"};
+
+static bool registerPointerFormat(PyObject* module)
+{
+    PyPointerFormatType.tp_new = PyType_GenericNew;
+    PyPointerFormatType.tp_base = &PyDataFormatType;
+    PyPointerFormatType.tp_basicsize = sizeof(PyPointerFormat);
+    PyPointerFormatType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyPointerFormatType.tp_doc = "Describes the binary format of a pointer";
+    PyPointerFormatType.tp_methods = PyPointerFormat_methods;
+    PyPointerFormatType.tp_init = (initproc)PyPointerFormat_init;
+    if (PyType_Ready(&PyPointerFormatType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyPointerFormatType);
+    PyModule_AddObject(module, "_PointerFormat", (PyObject*)&PyPointerFormatType);
     return true;
 }
 
@@ -399,12 +520,21 @@ bool registerDataFormatTypes(PyObject* module)
     {
         return false;
     }
-    /*
     if (!registerStringFormat(module))
     {
         return false;
     }
-    */
-
+    if (!registerRecordFormat(module))
+    {
+        return false;
+    }
+    if (!registerArrayFormat(module))
+    {
+        return false;
+    }
+    if (!registerPointerFormat(module))
+    {
+        return false;
+    }
     return true;
 }

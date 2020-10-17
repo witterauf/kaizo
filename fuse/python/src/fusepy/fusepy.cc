@@ -1,4 +1,5 @@
 #include "fusepy.h"
+#include "addresses.h"
 #include "dataformat.h"
 #include "text.h"
 
@@ -26,16 +27,17 @@ PyMODINIT_FUNC PyInit__fusepy(void)
     {
         return NULL;
     }
-
     if (!registerDataFormatTypes(m))
     {
         return NULL;
     }
-
     if (!registerFuseText(m))
     {
         return NULL;
     }
-
+    if (!registerFuseAddresses(m))
+    {
+        return NULL;
+    }
     return m;
 }

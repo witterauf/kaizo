@@ -83,10 +83,7 @@ static auto PyTextEncoding_decode(PyTextEncoding* self, PyObject* args, PyObject
 
 static void PyTextEncoding_dealloc(PyTextEncoding* self)
 {
-    if (self->encoding)
-    {
-        delete self->encoding;
-    }
+    self->encoding.reset();
     Py_TYPE(self)->tp_free(self);
 }
 
@@ -122,7 +119,7 @@ bool registerTextEncoding(PyObject* module)
     PyModule_AddObject(module, "_TextEncoding", (PyObject*)&Py_TextEncoding);
 
     auto* ascii = PyObject_New(PyTextEncoding, &Py_TextEncoding);
-    ascii->encoding = new fuse::text::AsciiEncoding;
+    new (&ascii->encoding) std::shared_ptr<fuse::text::TextEncoding>{new fuse::text::AsciiEncoding};
     PyModule_AddObject(module, "_AsciiEncoding", (PyObject*)ascii);
 
     return true;

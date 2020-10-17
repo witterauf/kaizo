@@ -20,11 +20,10 @@ extern "C" {
 struct PyTextEncoding
 {
     PyObject_HEAD;
-    fuse::text::TextEncoding* encoding;
+    std::shared_ptr<fuse::text::TextEncoding> encoding;
 };
 
 extern EXPORTED PyTypeObject Py_TextEncoding;
 
 bool registerFuseText(PyObject* module);
-
 }

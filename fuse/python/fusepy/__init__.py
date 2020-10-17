@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from fusepy._fusepy import *
 from fusepy._fusepy import _TextEncoding
 from fusepy._fusepy import _AsciiEncoding
+from fusepy.format import *
+import fusepy.addresses
 
 class TextEncoding(ABC):
 

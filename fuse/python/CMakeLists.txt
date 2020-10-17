@@ -16,8 +16,12 @@ if (Python_FOUND)
     src/fusepy/fusepy.cc
     src/fusepy/dataformat.h
     src/fusepy/dataformat.cc
+    src/fusepy/addresses.h
+    src/fusepy/addresses.cc
     src/fusepy/text.h
     src/fusepy/text.cc
+    src/fusepy/python_helpers.h
+    src/fusepy/python_helpers.cc
   )
   target_compile_features(fusepy PRIVATE cxx_std_20)
   target_link_libraries(fusepy PRIVATE Fuse::Fuse Python::Module)
