@@ -15,6 +15,9 @@ class DataFormat:
         if "alignment" in kwargs:
             self._format.set_alignment(int(kwargs['alignment']))
 
+    def decode(self, reader):
+        return self._format.decode(reader._reader)
+
 class IntegerFormat(DataFormat):
     def __init__(self, size, unsignedness=Signedness.UNSIGNED, endianness=Endianness.LITTLE, **kwargs):
         self._format = _IntegerFormat(size, unsignedness, endianness)

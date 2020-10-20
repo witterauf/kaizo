@@ -16,10 +16,14 @@ if (Python_FOUND)
     src/fusepy/fusepy.cc
     src/fusepy/dataformat.h
     src/fusepy/dataformat.cc
+    src/fusepy/data.h
+    src/fusepy/data.cc
     src/fusepy/addresses.h
     src/fusepy/addresses.cc
     src/fusepy/text.h
     src/fusepy/text.cc
+    src/fusepy/binary.h
+    src/fusepy/binary.cc
     src/fusepy/python_helpers.h
     src/fusepy/python_helpers.cc
   )

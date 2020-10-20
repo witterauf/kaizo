@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fuse/addresses/AddressFormat.h>
+#include <fuse/addresses/AddressMap.h>
 #include <fuse/addresses/AddressStorageFormat.h>
 
 #define PY_SSIZE_T_CLEAN
@@ -23,8 +24,21 @@ struct PyRelativeAddressLayout
     PyAddressLayout base;
 };
 
+struct PyAddressMap
+{
+    PyObject_HEAD;
+    fuse::AddressMap* map;
+};
+
+struct PyRegionedAddressMap
+{
+    PyAddressMap base;
+};
+
 extern PyTypeObject PyAddressFormatType;
 extern PyTypeObject PyAddressLayoutType;
 extern PyTypeObject PyRelativeAddressLayoutType;
+extern PyTypeObject PyAddressMapType;
+extern PyTypeObject PyRegionedAddressMapType;
 
 bool registerFuseAddresses(PyObject* module);

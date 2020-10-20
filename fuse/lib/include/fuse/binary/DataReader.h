@@ -4,6 +4,7 @@
 #include "DataRangeTracker.h"
 #include <cstddef>
 #include <fuse/Binary.h>
+#include <fuse/BinaryView.h>
 #include <fuse/addresses/AddressMap.h>
 #include <map>
 #include <memory>
@@ -15,10 +16,12 @@ class Data;
 class DataReader
 {
 public:
+    DataReader(const BinaryView& binary);
     DataReader(const std::filesystem::path& filename);
     ~DataReader();
 
     auto binary() const -> const Binary&;
+    auto dataSize() const -> size_t;
     auto offset() const -> size_t;
     void advance(size_t size);
     void setOffset(size_t offset);

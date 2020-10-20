@@ -6,6 +6,12 @@
 
 namespace fuse::binary {
 
+DataReader::DataReader(const BinaryView& binary)
+{
+    m_source = Binary::fromArray(binary.data(), binary.size());
+    m_addressMap = std::make_unique<IdempotentAddressMap>(fileOffsetFormat());
+}
+
 DataReader::DataReader(const std::filesystem::path& filename)
 {
     m_source = Binary::load(filename);
@@ -13,6 +19,11 @@ DataReader::DataReader(const std::filesystem::path& filename)
 }
 
 DataReader::~DataReader() = default;
+
+auto DataReader::dataSize() const -> size_t
+{
+    return m_source.size();
+}
 
 auto DataReader::binary() const -> const Binary&
 {

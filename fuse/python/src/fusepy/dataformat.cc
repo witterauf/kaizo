@@ -1,5 +1,7 @@
 #include "dataformat.h"
 #include "addresses.h"
+#include "binary.h"
+#include "data.h"
 #include "text.h"
 #include <iostream>
 #include <map>
@@ -77,6 +79,42 @@ static auto PyDataFormat_set_tag(PyDataFormat* self, PyObject* pyTag) -> PyObjec
     return Py_None;
 }
 
+static auto PyDataFormat_decode(PyDataFormat* self, PyObject* pyReader) -> PyObject*
+{
+    if (!PyObject_IsInstance(pyReader, (PyObject*)&PyDataReaderType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a _DataReader");
+        return NULL;
+    }
+
+    auto& reader = reinterpret_cast<PyDataReader*>(pyReader)->reader;
+
+    std::unique_ptr<Data> data;
+    try
+    {
+        data = self->format->decode(reader);
+    }
+    catch (std::exception& e)
+    {
+        PyErr_SetString(PyExc_RuntimeError, e.what());
+        return NULL;
+    }
+
+    if (!data)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "could not decode DataFormat");
+        return NULL;
+    }
+
+    auto* pyData = toNativePython(*data);
+    if (!pyData)
+    {
+        return NULL;
+    }
+
+    return pyData;
+}
+
 static PyMethodDef PyDataFormat_methods[] = {
     {"set_skip_before", (PyCFunction)PyDataFormat_set_skip_before, METH_O,
      "set the number of bytes to skip before decoding"},
@@ -88,6 +126,8 @@ static PyMethodDef PyDataFormat_methods[] = {
      "set an offset from which decoding starts"},
     {"set_tag", (PyCFunction)PyDataFormat_set_tag, METH_O,
      "set an offset from which decoding starts"},
+    {"decode", (PyCFunction)PyDataFormat_decode, METH_O,
+     "decode the given DataFormat starting from the current offset"},
     {NULL}};
 
 static void PyDataFormat_dealloc(PyDataFormat* self)

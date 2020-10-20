@@ -1,5 +1,5 @@
 from fusepy._fusepy import *
-from fusepy._fusepy import _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout
+from fusepy._fusepy import _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _AddressMap, _RegionedAddressMap
 
 class AddressLayout:
     def __init__(self, layout):
@@ -23,3 +23,16 @@ class AddressFormat:
         self._format = format
 
 FileOffset = AddressFormat(_FileOffset)
+
+class AddressMap:
+    def __init__(self, map):
+        if not isinstance(map, _AddressMap):
+            raise TypeError("expected an _AddressMap")
+        self._map = map
+
+class RegionedAddressMap(AddressMap):
+    def __init__(self, source_format, target_format):
+        self._map = _RegionedAddressMap(source_format._format, target_format._format)
+
+    def add_region(self, source, target, size):
+        self._map.add_region(source, target, size)

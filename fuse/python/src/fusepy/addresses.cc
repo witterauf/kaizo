@@ -1,5 +1,6 @@
 #include "addresses.h"
 #include <fuse/addresses/AbsoluteOffset.h>
+#include <fuse/addresses/RegionAddressMap.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
 
 using namespace fuse;
@@ -150,6 +151,145 @@ static bool registerRelativeAddressLayout(PyObject* module)
     return true;
 }
 
+//##[ AddressMap ]#################################################################################
+
+static PyMethodDef PyAddressMap_methods[] = {{NULL}};
+
+static void PyAddressMap_dealloc(PyAddressMap* self)
+{
+    delete self->map;
+    Py_TYPE(self)->tp_free(self);
+}
+
+PyTypeObject PyAddressMapType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._AddressMap"};
+
+static bool registerAddressMap(PyObject* module)
+{
+    PyAddressMapType.tp_basicsize = sizeof(PyAddressMap);
+    PyAddressMapType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyAddressMapType.tp_doc = "Describes a map from one AddressFormat to another";
+    PyAddressMapType.tp_methods = PyAddressMap_methods;
+    PyAddressMapType.tp_dealloc = (destructor)&PyAddressMap_dealloc;
+    if (PyType_Ready(&PyAddressMapType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyAddressMapType);
+    PyModule_AddObject(module, "_AddressMap", (PyObject*)&PyAddressMapType);
+    return true;
+}
+
+//##[ RegionedAddressMap ]######################################################################
+
+static int PyRegionedAddressMap_init(PyRegionedAddressMap* self, PyObject* args, PyObject*)
+{
+    PyObject* pySource{nullptr};
+    PyObject* pyTarget{nullptr};
+    if (PyArg_ParseTuple(args, "OO", &pySource, &pyTarget) < 0)
+    {
+        return -1;
+    }
+
+    if (!PyObject_IsInstance(pySource, (PyObject*)&PyAddressFormatType) ||
+        !PyObject_IsInstance(pyTarget, (PyObject*)&PyAddressFormatType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected two _AddressFormats");
+        return -1;
+    }
+
+    auto const* source = reinterpret_cast<PyAddressFormat*>(pySource)->format;
+    auto const* target = reinterpret_cast<PyAddressFormat*>(pyTarget)->format;
+
+    self->base.map = new RegionAddressMap{source, target};
+    return 0;
+}
+
+static auto PyRegionedAddressMap_add_region(PyRegionedAddressMap* self, PyObject* const* args,
+                                            const Py_ssize_t nargs) -> PyObject*
+{
+    if (nargs != 3)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "wrong number of arguments; expected 3");
+        return NULL;
+    }
+
+    std::optional<Address> maybeSource;
+    if (PyLong_Check(args[0]))
+    {
+        auto const address = PyLong_AsUnsignedLongLong(args[0]);
+        if (auto const maybeAddress = self->base.map->sourceFormat().fromInteger(address))
+        {
+            maybeSource = maybeAddress;
+        }
+        else
+        {
+            PyErr_SetString(PyExc_ValueError, "could not convert address");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an integer");
+        return NULL;
+    }
+
+    std::optional<Address> maybeTarget;
+    if (PyLong_Check(args[1]))
+    {
+        auto const address = PyLong_AsUnsignedLongLong(args[1]);
+        if (auto const maybeAddress = self->base.map->sourceFormat().fromInteger(address))
+        {
+            maybeTarget = maybeAddress;
+        }
+        else
+        {
+            PyErr_SetString(PyExc_ValueError, "could not convert address");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an integer");
+        return NULL;
+    }
+
+    auto const size = PyLong_AsUnsignedLongLong(args[2]);
+    if (size == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    static_cast<RegionAddressMap*>(self->base.map)->map(*maybeSource, *maybeTarget, size);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyRegionedAddressMap_methods[] = {
+    {"add_region", (PyCFunction)PyRegionedAddressMap_add_region, METH_FASTCALL,
+     "add a region to the RegionedAddressMap"},
+    {NULL}};
+
+PyTypeObject PyRegionedAddressMapType = {
+    PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._RegionedAddressMap"};
+
+static bool registerRegionedAddressMap(PyObject* module)
+{
+    PyRegionedAddressMapType.tp_new = PyType_GenericNew;
+    PyRegionedAddressMapType.tp_base = &PyAddressMapType;
+    PyRegionedAddressMapType.tp_basicsize = sizeof(PyRegionedAddressMap);
+    PyRegionedAddressMapType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyRegionedAddressMapType.tp_doc = "Describes an AddressMap partitioned into regions";
+    PyRegionedAddressMapType.tp_methods = PyRegionedAddressMap_methods;
+    PyRegionedAddressMapType.tp_init = (initproc)&PyRegionedAddressMap_init;
+    if (PyType_Ready(&PyRegionedAddressMapType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyRegionedAddressMapType);
+    PyModule_AddObject(module, "_RegionedAddressMap", (PyObject*)&PyRegionedAddressMapType);
+    return true;
+}
+
 //#################################################################################################
 
 bool registerFuseAddresses(PyObject* module)
@@ -163,6 +303,14 @@ bool registerFuseAddresses(PyObject* module)
         return false;
     }
     if (!registerRelativeAddressLayout(module))
+    {
+        return false;
+    }
+    if (!registerAddressMap(module))
+    {
+        return false;
+    }
+    if (!registerRegionedAddressMap(module))
     {
         return false;
     }

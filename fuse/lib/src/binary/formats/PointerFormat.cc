@@ -66,6 +66,7 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     Expects(m_addressFormat);
     Expects(m_pointedFormat);
 
+    auto const pointerOffset = reader.offset();
     if (auto maybeAddress = readAddress(reader))
     {
         if (!m_nullPointer || !(*maybeAddress == *m_nullPointer))
@@ -81,19 +82,30 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
                 }
                 else if (addresses.empty())
                 {
-                    throw std::runtime_error{"could not map address " + maybeAddress->toString() +
-                                             ", read from offset " +
-                                             std::to_string(reader.offset())};
+                    throw std::runtime_error{
+                        "error decoding pointer at offset " + std::to_string(pointerOffset) +
+                        "could not map address " + maybeAddress->toString() +
+                        ", read from offset " + std::to_string(reader.offset())};
                 }
                 else
                 {
-                    throw std::runtime_error{"address " + maybeAddress->toString() +
+                    throw std::runtime_error{"error decoding pointer at offset " +
+                                             std::to_string(pointerOffset) + "address " +
+                                             maybeAddress->toString() +
                                              " maps to more than one source address"};
                 }
             }
             else
             {
                 newOffset = maybeAddress->toInteger();
+            }
+
+            if (newOffset >= reader.dataSize())
+            {
+                throw std::runtime_error{"error decoding pointer at offset " +
+                                         std::to_string(pointerOffset) + ": address " +
+                                         maybeAddress->toString() + " maps to invalid offset " +
+                                         std::to_string(newOffset)};
             }
 
             reader.setOffset(newOffset);
