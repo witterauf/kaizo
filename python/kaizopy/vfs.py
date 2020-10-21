@@ -69,6 +69,8 @@ class VirtualFileSystem(ABC):
             raise ValueError("parts must be non-empty")
         
         index = self.file_index(parts[0])
+        if not index:
+            raise ValueError(f'file {parts[0]} does not exist')
         if len(parts) == 1:
             if self.is_folder_by_index(index):
                 raise RuntimeError("not a file")
