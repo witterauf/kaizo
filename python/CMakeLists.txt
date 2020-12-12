@@ -11,15 +11,18 @@ if (Python_FOUND)
     src/kaizopy/kaizopy.cc
     src/kaizopy/text.h
     src/kaizopy/text.cc
+    src/kaizopy/graphics.h
+    src/kaizopy/graphics.cc
   )
   target_compile_features(kaizopy PRIVATE cxx_std_20)
   target_link_libraries(kaizopy
     PRIVATE
       Fuse::Fuse
+      Fuse::Python
       Kaizo::Kaizo
       Python::Module
   )
-  target_compile_definitions(kaizopy PRIVATE "-DWIN_EXPORT")
+  target_compile_definitions(kaizopy PRIVATE "-DKAIZO_WIN_EXPORT")
   target_include_directories(kaizopy INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")
   if (WIN32)
     # Under Windows, Python >= 3.5 requires modules to be named .pyd, not .dll.

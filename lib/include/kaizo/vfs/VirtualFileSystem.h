@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BinarySource.h"
 #include <fuse/Binary.h>
 #include <fuse/BinaryStream.h>
 #include <memory>

@@ -25,6 +25,11 @@ class VfsPath:
     def __str__(self):
         return "/".join(self._parts)
 
+class FileArchive(ABC):
+  @abstractmethod
+  def open(self, path):
+    pass
+
 class VirtualFileSystem(ABC):
     @property
     @abstractmethod
@@ -69,7 +74,7 @@ class VirtualFileSystem(ABC):
             raise ValueError("parts must be non-empty")
         
         index = self.file_index(parts[0])
-        if not index:
+        if index is None:
             raise ValueError(f'file {parts[0]} does not exist')
         if len(parts) == 1:
             if self.is_folder_by_index(index):

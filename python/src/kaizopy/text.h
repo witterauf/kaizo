@@ -1,15 +1,16 @@
 #pragma once
 
+#include <fusepy/Text.h>
 #include <kaizo/text/Table.h>
 
 #ifdef _WIN32
-#ifdef WIN_EXPORT
-#define EXPORTED __declspec(dllexport)
+#ifdef KAIZO_WIN_EXPORT
+#define KAIZO_EXPORTED __declspec(dllexport)
 #else
-#define EXPORTED __declspec(dllimport)
+#define KAIZO_EXPORTED __declspec(dllimport)
 #endif
 #else
-#define EXPORTED
+#define KAIZO_EXPORTED
 #endif
 
 extern "C" {
@@ -23,8 +24,15 @@ struct PyKaizoTable
     kaizo::text::Table* table;
 };
 
-extern EXPORTED PyTypeObject PyKaizoTableType;
-auto EXPORTED makeTable(kaizo::text::Table* table) -> PyKaizoTable*;
+extern KAIZO_EXPORTED PyTypeObject PyKaizoTableType;
+auto KAIZO_EXPORTED makeTable(kaizo::text::Table* table) -> PyKaizoTable*;
+
+struct PyKaizoTableEncoding
+{
+    PyTextEncoding base;
+};
+
+extern KAIZO_EXPORTED PyTypeObject PyKaizoTableEncodingType;
 
 bool registerKaizoText(PyObject* module);
 }

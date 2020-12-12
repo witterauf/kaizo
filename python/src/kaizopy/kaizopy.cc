@@ -1,4 +1,5 @@
 #include "kaizopy.h"
+#include "graphics.h"
 #include "text.h"
 #include <optional>
 
@@ -264,7 +265,7 @@ static PyMethodDef kaizopy_functions[] = {
 
 static PyModuleDef kaizopymodule = {PyModuleDef_HEAD_INIT,
                                     "_kaizopy",
-                                    "Utility classes and functions for the Tales of series",
+                                    "Classes and functions for ROM hacking",
                                     -1,
                                     kaizopy_functions,
                                     NULL,
@@ -284,8 +285,11 @@ PyMODINIT_FUNC PyInit__kaizopy(void)
     {
         return NULL;
     }
-
     if (!registerKaizoText(m))
+    {
+        return NULL;
+    }
+    if (!registerKaizoGraphics(m))
     {
         return NULL;
     }

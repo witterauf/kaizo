@@ -3,10 +3,10 @@
 #include <kaizo/vfs/VirtualFileSystem.h>
 
 #ifdef _WIN32
-#ifdef WIN_EXPORT
-#define EXPORTED __declspec(dllexport)
+#ifdef KAIZO_WIN_EXPORT
+#define KAIZO_EXPORTED __declspec(dllexport)
 #else
-#define EXPORTED __declspec(dllimport)
+#define KAIZO_EXPORTED __declspec(dllimport)
 #endif
 #else
 #define EXPORTED
@@ -29,10 +29,10 @@ struct PyFileTypeDescriptor
     std::shared_ptr<kaizo::FileTypeDescriptor> descriptor;
 };
 
-extern EXPORTED PyTypeObject PyVirtualFileSystemType;
-extern EXPORTED PyTypeObject PyFileTypeDescriptorType;
+extern KAIZO_EXPORTED PyTypeObject PyVirtualFileSystemType;
+extern KAIZO_EXPORTED PyTypeObject PyFileTypeDescriptorType;
 
 bool registerVirtualFileSystem(PyObject* module);
 
-auto EXPORTED PyFileTypeDescriptor_New(std::shared_ptr<kaizo::FileTypeDescriptor>) -> PyObject*;
+auto KAIZO_EXPORTED PyFileTypeDescriptor_New(std::shared_ptr<kaizo::FileTypeDescriptor>) -> PyObject*;
 }

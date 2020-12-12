@@ -1,6 +1,6 @@
-#include <fuse/graphics/font/Glyph.h>
+#include <kaizo/graphics/font/Glyph.h>
 
-namespace fuse::graphics {
+namespace kaizo {
 
 auto Glyph::width() const -> size_t
 {
@@ -133,4 +133,4 @@ void GlyphBuilder::shrink()
     }
 }
 
-} // namespace fuse::graphics
+} // namespace kaizo

@@ -1,8 +1,8 @@
-#include "PngFormat.h"
+#include "kaizo/graphics/ImageFileFormat.h"
+#include "PngFileFormat.h"
 #include <algorithm>
 #include <cctype>
 #include <functional>
-#include <fuse/graphics/image/ImageFormat.h>
 #include <map>
 
 namespace {
@@ -16,12 +16,12 @@ auto toLower(std::string string) -> std::string
 
 } // namespace
 
-namespace fuse::graphics {
+namespace kaizo {
 
-const std::map<std::string, std::function<std::unique_ptr<ImageFormat>()>> Formats = {
-    {"png", []() { return std::make_unique<PngFormat>(); }}};
+const std::map<std::string, std::function<std::unique_ptr<ImageFileFormat>()>> Formats = {
+    {"png", []() { return std::make_unique<PngFileFormat>(); }}};
 
-auto ImageFormat::makeFormat(const std::string& extension) -> std::unique_ptr<ImageFormat>
+auto ImageFileFormat::makeFormat(const std::string& extension) -> std::unique_ptr<ImageFileFormat>
 {
     auto const format = Formats.find(toLower(extension));
     if (format != Formats.cend())
@@ -34,4 +34,4 @@ auto ImageFormat::makeFormat(const std::string& extension) -> std::unique_ptr<Im
     }
 }
 
-} // namespace fuse::graphics
+} // namespace kaizo

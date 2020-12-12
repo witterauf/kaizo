@@ -1,6 +1,114 @@
 #include "text.h"
+#include <kaizo/text/TableEncoding.h>
 
 using namespace kaizo::text;
+
+//##[ TableEncoding ]##############################################################################
+
+static PyMethodDef PyKaizoTableEncoding_methods[] = {{NULL}};
+
+PyTypeObject PyKaizoTableEncodingType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._TableEncoding"};
+
+class PythonMissingDecoder : public MissingDecoder
+{
+public:
+    explicit PythonMissingDecoder(PyObject* callable)
+        : m_callable{callable}
+    {
+        Py_INCREF(m_callable);
+    }
+
+    ~PythonMissingDecoder()
+    {
+        Py_DECREF(m_callable);
+    }
+
+    auto decode(const fuse::BinaryView& binary, size_t offset)
+        -> std::optional<std::pair<size_t, std::string>> override
+    {
+        PyObject* args = Py_BuildValue("(y#K)", binary.data(), binary.size(), (Py_ssize_t)offset);
+        PyObject* result = PyObject_CallObject(m_callable, args);
+        Py_DECREF(args);
+        if (!result)
+        {
+            return {};
+        }
+
+        const char* text{nullptr};
+        unsigned long long newOffset{0};
+        Py_ssize_t length{0};
+        if (PyArg_ParseTuple(result, "Ks#", &newOffset, &text, &length) < 0)
+        {
+            Py_DECREF(result);
+            return {};
+        }
+
+        std::string textString(text, length);
+        Py_DECREF(result);
+        return std::make_pair(newOffset, textString);
+    }
+
+    auto copy() const -> std::unique_ptr<MissingDecoder>
+    {
+        return std::make_unique<PythonMissingDecoder>(m_callable);
+    }
+
+private:
+    PyObject* m_callable{nullptr};
+};
+
+static int PyKaizoTableEncoding_init(PyKaizoTableEncoding* self, PyObject* args, PyObject*)
+{
+    PyObject* pyTable{nullptr};
+    PyObject* pyCallable{nullptr};
+    if (PyArg_ParseTuple(args, "OO", &pyTable, &pyCallable) < 0)
+    {
+        return -1;
+    }
+
+    if (!PyObject_IsInstance(pyTable, (PyObject*)&PyKaizoTableType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected a Table as first argument");
+        return -1;
+    }
+    if (pyCallable != Py_None && !PyCallable_Check(pyCallable))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected None or a callable object as second argument");
+        return -1;
+    }
+
+    auto* encoding = new TableEncoding;
+    if (pyCallable != Py_None)
+    {
+        encoding->setMissingDecoder(std::make_unique<PythonMissingDecoder>(pyCallable));
+    }
+    encoding->addTable(*reinterpret_cast<PyKaizoTable*>(pyTable)->table);
+
+    new (&self->base.encoding) std::shared_ptr<fuse::text::TextEncoding>(encoding);
+    return 0;
+}
+
+static bool registerKaizoTableEncoding(PyObject* module)
+{
+    PyKaizoTableEncodingType.tp_new = PyType_GenericNew;
+    PyKaizoTableEncodingType.tp_basicsize = sizeof(PyKaizoTableEncoding);
+    PyKaizoTableEncodingType.tp_base = &Py_TextEncoding;
+    PyKaizoTableEncodingType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyKaizoTableEncodingType.tp_doc = "Represents a TextEncoding based on Tables";
+    PyKaizoTableEncodingType.tp_methods = PyKaizoTableEncoding_methods;
+    PyKaizoTableEncodingType.tp_init = (initproc)PyKaizoTableEncoding_init;
+    if (PyType_Ready(&PyKaizoTableEncodingType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyKaizoTableEncodingType);
+    if (PyModule_AddObject(module, "_TableEncoding", (PyObject*)&PyKaizoTableEncodingType) < 0)
+    {
+        Py_DECREF(&PyKaizoTableEncodingType);
+        return false;
+    }
+    return true;
+}
 
 //##[ Table ]######################################################################################
 
@@ -324,6 +432,10 @@ auto makeTable(kaizo::text::Table* table) -> PyKaizoTable*
 bool registerKaizoText(PyObject* module)
 {
     if (!registerTable(module))
+    {
+        return false;
+    }
+    if (!registerKaizoTableEncoding(module))
     {
         return false;
     }

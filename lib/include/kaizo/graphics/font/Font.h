@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Glyph.h"
-#include <fuse/graphics/tiles/Palette.h>
 #include <optional>
 #include <vector>
 
-namespace fuse::graphics {
+namespace kaizo {
 
 class Font
 {
@@ -38,4 +37,4 @@ private:
     Glyph::pixel_t m_backgroundColor{0};
 };
 
-} // namespace fuse::graphics
+} // namespace kaizo

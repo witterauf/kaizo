@@ -1,32 +1,18 @@
+#include "kaizo/graphics/Tile.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
-#include <fuse/graphics/image/Image.h>
-#include <fuse/graphics/tiles/Tile.h>
+#include <contracts/Contracts.h>
 
-namespace fuse::graphics {
+namespace kaizo {
 
-auto Tile::extractFrom(const Image& image, const TileRegion& region) -> Tile
-{
-    Expects(image.contains(region));
-    Tile extracted{region.width(), region.height()};
-    for (auto y = 0U; y < region.height(); ++y)
-    {
-        for (auto x = 0U; x < region.width(); ++x)
-        {
-            auto const color = image.pixel(region.left() + x, region.top() + y);
-            extracted.setPixel(x, y, color);
-        }
-    }
-    return extracted;
-}
-
-Tile::Tile(size_t width, size_t height)
+Tile::Tile(const size_t width, const size_t height, const PixelFormat format)
     : m_width{width}
     , m_height{height}
+    , m_format{format}
     , m_data(width * height, 0)
 {
     Expects(width > 0);
     Expects(height > 0);
+    Expects(format.bitsPerPixel() <= 32);
 }
 
 auto Tile::width() const -> size_t
@@ -39,38 +25,63 @@ auto Tile::height() const -> size_t
     return m_height;
 }
 
-void Tile::setPixel(size_t x, size_t y, pixel_t value)
+auto Tile::pixelCount() const -> size_t
 {
-    m_data[offset(x, y)] = value;
+    return m_width * m_height;
 }
 
-auto Tile::pixel(size_t x, size_t y) const -> pixel_t
+auto Tile::bitsPerPixel() const -> uint8_t
+{
+    return static_cast<uint8_t>(m_format.bitsPerPixel());
+}
+
+auto Tile::format() const -> PixelFormat
+{
+    return m_format;
+}
+
+void Tile::setPixel(const size_t x, const size_t y, const pixel_t value)
+{
+    m_data[offset(x, y)] = value & (static_cast<pixel_t>(-1) >> (32 - bitsPerPixel()));
+}
+
+void Tile::setPixel(const size_t index, const pixel_t value)
+{
+    m_data[index] = value & (static_cast<pixel_t>(-1) >> (32 - bitsPerPixel()));
+}
+
+auto Tile::pixel(const size_t x, const size_t y) const -> pixel_t
 {
     return m_data[offset(x, y)];
 }
 
-auto Tile::operator()(size_t x, size_t y) -> pixel_t&
+auto Tile::pixel(const size_t index) const -> pixel_t
 {
-    return m_data[offset(x, y)];
+    return m_data[index];
 }
 
-auto Tile::operator()(size_t x, size_t y) const -> pixel_t
+auto Tile::data() const -> const pixel_t*
 {
-    return m_data[offset(x, y)];
+    return m_data.data();
 }
 
-auto Tile::offset(size_t x, size_t y) const -> size_t
+auto Tile::dataSize() const -> size_t
+{
+    return m_data.size();
+}
+
+auto Tile::offset(const size_t x, const size_t y) const -> size_t
 {
     Expects(x < width());
     Expects(y < height());
     return y * width() + x;
 }
 
-auto Tile::clip(const TileRegion& region) const -> Tile
+auto Tile::crop(const TileRegion& region) const -> Tile
 {
     Expects(contains(region));
 
-    Tile clipped{region.width(), region.height()};
+    Tile clipped{region.width(), region.height(), format()};
     for (auto y = 0U; y < clipped.height(); ++y)
     {
         for (auto x = 0U; x < clipped.width(); ++x)
@@ -82,8 +93,10 @@ auto Tile::clip(const TileRegion& region) const -> Tile
     return clipped;
 }
 
-auto Tile::boundingBox(pixel_t background) const -> TileRegion
+auto Tile::boundingBox(const pixel_t background) const -> TileRegion
 {
+    Expects(background == 0 || background < (1UL << bitsPerPixel()));
+
     size_t left{m_width};
     size_t right{0};
     size_t top{m_height};
@@ -119,4 +132,4 @@ bool Tile::contains(const TileRegion& region) const
            region.bottom() <= m_height;
 }
 
-} // namespace fuse::graphics
+} // namespace kaizo

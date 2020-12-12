@@ -1,5 +1,5 @@
-#include <diagnostics/Contracts.h>
-#include <fuse/graphics/font/Font.h>
+#include <constracts/Contracts.h>
+#include <kaizo/graphics/font/Font.h>
 
 namespace fuse::graphics {
 

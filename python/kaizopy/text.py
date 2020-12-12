@@ -1,5 +1,11 @@
-from kaizopy._kaizopy import _Table
+from kaizopy._kaizopy import _Table, _TableEncoding
 from enum import Enum
+from fusepy import ExtensionTextEncoding
+
+class TableEncoding(ExtensionTextEncoding):
+    def __init__(self, table, missing_decoder=None):
+        encoding = _TableEncoding(table._table, missing_decoder)
+        super().__init__(encoding)
 
 class TableEntryKind(Enum):
     TEXT = 0

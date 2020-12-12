@@ -1,10 +1,10 @@
 #pragma once
 
 #include <fuse/Rectangle.h>
-#include <fuse/graphics/tiles/Tile.h>
+#include <kaizo/graphics/tiles/Tile.h>
 #include <string>
 
-namespace fuse::graphics {
+namespace kaizo {
 
 class Glyph
 {
@@ -28,10 +28,10 @@ public:
     auto operator()(size_t x, size_t y) const -> pixel_t;
 
 private:
-    Tile m_tile;
     std::string m_characters;
+    Tile m_tile;
+    pixel_t m_background;
     size_t m_baseline;
-    Tile::pixel_t m_background;
 };
 
 class GlyphBuilder
@@ -55,4 +55,4 @@ private:
     Glyph::pixel_t m_backgroundColor{0};
 };
 
-} // namespace fuse::graphics
+} // namespace kaizo
