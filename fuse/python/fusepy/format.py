@@ -57,7 +57,7 @@ class PointerFormat(DataFormat):
         self._format.set_pointee_format(pointee._format)
         self._format.set_address_layout(layout._layout)
         self._format.set_address_format(format._format)
-        if null_pointer:
+        if null_pointer is not None:
             self._format.set_null_pointer(null_pointer)
         self._format.use_address_map(use_address_map)
         self._setup(**kwargs)

@@ -120,9 +120,9 @@ static PyMethodDef PyDataFormat_methods[] = {
      "set the number of bytes to skip before decoding"},
     {"set_skip_after", (PyCFunction)PyDataFormat_set_skip_after, METH_O,
      "set the number of bytes to skip after decoding"},
-    {"set_skip_alignment", (PyCFunction)PyDataFormat_set_alignment, METH_O,
+    {"set_alignment", (PyCFunction)PyDataFormat_set_alignment, METH_O,
      "set the alignment at which decoding starts"},
-    {"set_skip_fixed_offset", (PyCFunction)PyDataFormat_set_fixed_offset, METH_O,
+    {"set_fixed_offset", (PyCFunction)PyDataFormat_set_fixed_offset, METH_O,
      "set an offset from which decoding starts"},
     {"set_tag", (PyCFunction)PyDataFormat_set_tag, METH_O,
      "set an offset from which decoding starts"},
@@ -432,6 +432,25 @@ static auto PyPointerFormat_set_pointee_format(PyPointerFormat* self, PyObject* 
     return Py_None;
 }
 
+static auto PyPointerFormat_set_nullpointer(PyPointerFormat* self, PyObject* pyAddress) -> PyObject*
+{
+    auto const address = PyLong_AsUnsignedLongLong(pyAddress);
+    if (address == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto maybeAddress =
+        static_cast<PointerFormat*>(self->dataFormat.format)->addressFormat().fromInteger(address);
+    if (!maybeAddress)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "could not convert into Address");
+        return NULL;
+    }
+    static_cast<PointerFormat*>(self->dataFormat.format)->setNullPointer(*maybeAddress);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static auto PyPointerFormat_set_address_layout(PyPointerFormat* self, PyObject* pyLayout)
     -> PyObject*
 {
@@ -478,6 +497,8 @@ static PyMethodDef PyPointerFormat_methods[] = {
      "set the AddressLayout (storage layout) of the address to be decoded"},
     {"set_address_format", (PyCFunction)PyPointerFormat_set_address_format, METH_O,
      "set the AddressFormat (logical structure) of the address to be decoded"},
+    {"set_null_pointer", (PyCFunction)PyPointerFormat_set_nullpointer, METH_O,
+     "set the address which is considered the null pointer"},
     {"use_address_map", (PyCFunction)PyPointerFormat_use_address_map, METH_O,
      "set whether the decoded Address is filtered through an AddressMap"},
     {NULL}};

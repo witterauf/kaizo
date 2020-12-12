@@ -15,6 +15,7 @@ public:
     void setBaseAddress(const Address base);
     void setOffsets(signed hi16, signed lo16);
 
+    auto getName() const -> std::string override;
     bool isCompatible(const Address address) const override;
     void serialize(LuaWriter& writer) const override;
     auto writeAddress(const Address address) const -> std::vector<BinaryPatch> override;

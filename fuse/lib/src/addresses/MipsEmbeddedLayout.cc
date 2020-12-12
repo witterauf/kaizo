@@ -64,7 +64,7 @@ auto MipsEmbeddedLayout::writeAddress(const Address address) const -> std::vecto
     Expects(isCompatible(address));
     auto const offset = static_cast<uint32_t>(address.subtract(m_baseAddress));
     auto const loPart = static_cast<uint16_t>(offset & 0xFFFF);
-    // The loPart is interpreted as a signed 16-bit number, so everythin >= 0x8000 is actually
+    // The loPart is interpreted as a signed 16-bit number, so everything >= 0x8000 is actually
     // negative; therefore, we have to increase the hiPart by 1 so the address is correct
     // after dynamic relocation.
     auto const hiPart = static_cast<uint16_t>((offset >> 16) + (loPart >= 0x8000 ? 1 : 0));
@@ -112,6 +112,11 @@ auto MipsEmbeddedLayout::copy() const -> std::unique_ptr<AddressStorageFormat>
     copied->m_offsetHi16 = m_offsetHi16;
     copied->m_offsetLo16 = m_offsetLo16;
     return copied;
+}
+
+auto MipsEmbeddedLayout::getName() const -> std::string
+{
+    return "MipsEmbeddedLayout";
 }
 
 } // namespace fuse

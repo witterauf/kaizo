@@ -10,6 +10,7 @@ auto toNativePython(const fuse::binary::Data& data) -> PyObject*
     case DataType::String: return toNativePython(static_cast<const StringData&>(data));
     case DataType::Array: return toNativePython(static_cast<const ArrayData&>(data));
     case DataType::Record: return toNativePython(static_cast<const RecordData&>(data));
+    case DataType::Null: Py_INCREF(Py_None); return Py_None;
     default: PyErr_SetString(PyExc_ValueError, "unsupported Data"); return NULL;
     }
 }

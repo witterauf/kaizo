@@ -31,7 +31,7 @@ if (Python_FOUND)
   target_link_libraries(fusepy PRIVATE Fuse::Fuse Python::Module)
   target_include_directories(fusepy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
   if (WIN32)
-    target_compile_definitions(fusepy PRIVATE "-DWIN_EXPORT")
+    target_compile_definitions(fusepy PRIVATE "-DFUSE_WIN_EXPORT")
     # Under Windows, Python >= 3.5 requires modules to be named .pyd, not .dll.
     set_target_properties(fusepy PROPERTIES SUFFIX ".pyd")
   else()

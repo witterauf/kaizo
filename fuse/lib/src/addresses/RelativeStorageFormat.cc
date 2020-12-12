@@ -134,4 +134,9 @@ auto RelativeStorageFormat::copy() const -> std::unique_ptr<AddressStorageFormat
     return std::move(copied);
 }
 
+auto RelativeStorageFormat::getName() const -> std::string
+{
+    return "RelativeAddressLayout";
+}
+
 } // namespace fuse

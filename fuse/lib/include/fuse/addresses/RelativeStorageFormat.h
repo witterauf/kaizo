@@ -38,6 +38,7 @@ public:
     void setNullPointer(const Address null, AddressFormat::offset_t offset);
     void setOffsetFormat(const IntegerLayout& layout);
 
+    auto getName() const -> std::string override;
     bool isCompatible(const Address address) const override;
     void serialize(LuaWriter& writer) const override;
     auto writeAddress(const Address address) const -> std::vector<BinaryPatch> override;

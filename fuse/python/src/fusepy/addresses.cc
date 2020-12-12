@@ -1,5 +1,6 @@
 #include "addresses.h"
 #include <fuse/addresses/AbsoluteOffset.h>
+#include <fuse/addresses/MipsEmbeddedLayout.h>
 #include <fuse/addresses/RegionAddressMap.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
 
@@ -104,6 +105,39 @@ static auto PyRelativeAddressLayout_set_layout(PyRelativeAddressLayout* self, Py
     return Py_None;
 }
 
+static auto PyRelativeAddressLayout_set_null_pointer(PyRelativeAddressLayout* self,
+                                                     PyObject* const* args, const Py_ssize_t nargs)
+    -> PyObject*
+{
+    if (nargs != 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "wrong number of arguments; expected 2");
+        return NULL;
+    }
+
+    auto const address = PyLong_AsUnsignedLongLong(args[0]);
+    if (address == static_cast<decltype(address)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto const offset = PyLong_AsLongLong(args[1]);
+    if (offset == static_cast<decltype(offset)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto maybeAddress = fileOffsetFormat()->fromInteger(address);
+    if (!maybeAddress)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "could not convert into Address");
+        return NULL;
+    }
+
+    static_cast<RelativeStorageFormat*>(self->base.layout)->setNullPointer(*maybeAddress, offset);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static auto PyRelativeAddressLayout_set_fixed_base_address(PyRelativeAddressLayout* self,
                                                            PyObject* pyAddress) -> PyObject*
 {
@@ -128,6 +162,8 @@ static PyMethodDef PyRelativeAddressLayout_methods[] = {
      "append an element format to the Record"},
     {"set_fixed_base_address", (PyCFunction)PyRelativeAddressLayout_set_fixed_base_address, METH_O,
      "sets the base of the RelativeAddressLayout to a fixed address"},
+    {"set_null_pointer", (PyCFunction)PyRelativeAddressLayout_set_null_pointer, METH_FASTCALL,
+     "sets the offsets which is considered the null pointer"},
     {NULL}};
 
 PyTypeObject PyRelativeAddressLayoutType = {
@@ -148,6 +184,87 @@ static bool registerRelativeAddressLayout(PyObject* module)
     }
     Py_INCREF(&PyRelativeAddressLayoutType);
     PyModule_AddObject(module, "_RelativeAddressLayout", (PyObject*)&PyRelativeAddressLayoutType);
+    return true;
+}
+
+//##[ PyMipsEmbeddedLayout ]#######################################################################
+
+static int PyMipsEmbeddedLayout_init(PyMipsEmbeddedLayout* self, PyObject*, PyObject*)
+{
+    self->base.layout = new MipsEmbeddedLayout;
+    return 0;
+}
+
+static auto PyMipsEmbeddedLayout_set_offsets(PyMipsEmbeddedLayout* self, PyObject* const* args,
+                                             const Py_ssize_t nargs) -> PyObject*
+{
+    if (nargs != 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "wrong number of arguments; expected 2");
+        return NULL;
+    }
+
+    auto const hi16 = PyLong_AsLongLong(args[0]);
+    if (hi16 == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto const lo16 = PyLong_AsLongLong(args[1]);
+    if (lo16 == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    static_cast<MipsEmbeddedLayout*>(self->base.layout)->setOffsets(hi16, lo16);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyMipsEmbeddedLayout_set_base_address(PyMipsEmbeddedLayout* self, PyObject* pyAddress)
+    -> PyObject*
+{
+    auto const address = PyLong_AsUnsignedLongLong(pyAddress);
+    if (address == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto maybeAddress = fileOffsetFormat()->fromInteger(address);
+    if (!maybeAddress)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "could not convert into Address");
+        return NULL;
+    }
+    static_cast<MipsEmbeddedLayout*>(self->base.layout)->setBaseAddress(*maybeAddress);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef PyMipsEmbeddedLayout_methods[] = {
+    {"set_offsets", (PyCFunction)PyMipsEmbeddedLayout_set_offsets, METH_FASTCALL,
+     "set the offsets of the MSB and LSB parts of the pointer"},
+    {"set_base_address", (PyCFunction)PyMipsEmbeddedLayout_set_base_address, METH_O,
+     "set the base address of the pointer"},
+    {NULL}};
+
+PyTypeObject PyMipsEmbeddedLayoutType = {
+    PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._MipsEmbeddedLayout"};
+
+static bool registerMipsEmbeddedLayout(PyObject* module)
+{
+    PyMipsEmbeddedLayoutType.tp_new = PyType_GenericNew;
+    PyMipsEmbeddedLayoutType.tp_base = &PyAddressLayoutType;
+    PyMipsEmbeddedLayoutType.tp_basicsize = sizeof(PyMipsEmbeddedLayout);
+    PyMipsEmbeddedLayoutType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyMipsEmbeddedLayoutType.tp_doc = "Describes layout of a relative address";
+    PyMipsEmbeddedLayoutType.tp_methods = PyMipsEmbeddedLayout_methods;
+    PyMipsEmbeddedLayoutType.tp_init = (initproc)&PyMipsEmbeddedLayout_init;
+    if (PyType_Ready(&PyMipsEmbeddedLayoutType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyMipsEmbeddedLayoutType);
+    PyModule_AddObject(module, "_MipsEmbeddedLayout", (PyObject*)&PyMipsEmbeddedLayoutType);
     return true;
 }
 
@@ -303,6 +420,10 @@ bool registerFuseAddresses(PyObject* module)
         return false;
     }
     if (!registerRelativeAddressLayout(module))
+    {
+        return false;
+    }
+    if (!registerMipsEmbeddedLayout(module))
     {
         return false;
     }

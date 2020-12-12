@@ -20,6 +20,7 @@ public:
 
     virtual ~AddressStorageFormat() = default;
 
+    virtual auto getName() const -> std::string = 0;
     virtual bool isCompatible(const Address address) const = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
     virtual auto writeAddress(const Address address) const -> std::vector<BinaryPatch> = 0;

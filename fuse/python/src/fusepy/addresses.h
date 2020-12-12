@@ -24,6 +24,11 @@ struct PyRelativeAddressLayout
     PyAddressLayout base;
 };
 
+struct PyMipsEmbeddedLayout
+{
+    PyAddressLayout base;
+};
+
 struct PyAddressMap
 {
     PyObject_HEAD;
@@ -38,6 +43,7 @@ struct PyRegionedAddressMap
 extern PyTypeObject PyAddressFormatType;
 extern PyTypeObject PyAddressLayoutType;
 extern PyTypeObject PyRelativeAddressLayoutType;
+extern PyTypeObject PyMipsEmbeddedLayoutType;
 extern PyTypeObject PyAddressMapType;
 extern PyTypeObject PyRegionedAddressMapType;
 

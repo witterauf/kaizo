@@ -82,10 +82,10 @@ auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
                 }
                 else if (addresses.empty())
                 {
-                    throw std::runtime_error{
-                        "error decoding pointer at offset " + std::to_string(pointerOffset) +
-                        "could not map address " + maybeAddress->toString() +
-                        ", read from offset " + std::to_string(reader.offset())};
+                    throw std::runtime_error{"Error decoding pointer at offset " +
+                                             std::to_string(pointerOffset) + " using '" +
+                                             m_layout->getName() + "'; could not map address " +
+                                             maybeAddress->toString()};
                 }
                 else
                 {
