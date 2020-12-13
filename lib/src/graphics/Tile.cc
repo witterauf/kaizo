@@ -93,6 +93,27 @@ auto Tile::crop(const TileRegion& region) const -> Tile
     return clipped;
 }
 
+void Tile::blit(const Tile& source, const size_t x, const size_t y, const pixel_t background)
+{
+    if (x >= width() || y >= height())
+    {
+        return;
+    }
+
+    auto const xmax = x + source.width() > width() ? width() - x : source.width();
+    auto const ymax = y + source.height() > height() ? height() - y : source.height();
+    for (size_t ty = 0; ty < ymax; ++ty)
+    {
+        for (size_t tx = 0; tx < xmax; ++tx)
+        {
+            if (source.pixel(tx, ty) != background)
+            {
+                setPixel(x + tx, y + ty, source.pixel(tx, ty));
+            }
+        }
+    }
+}
+
 auto Tile::boundingBox(const pixel_t background) const -> TileRegion
 {
     Expects(background == 0 || background < (1UL << bitsPerPixel()));

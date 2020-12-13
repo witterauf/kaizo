@@ -199,6 +199,44 @@ static auto PyKaizoTile_crop(PyKaizoTile* self, PyObject* const* args, const Py_
     return PyKaizoTile_New(std::move(tile));
 }
 
+static auto PyKaizoTile_blit(PyKaizoTile* self, PyObject* const* args, const Py_ssize_t nargs)
+    -> PyObject*
+{
+    if (nargs != 4)
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "wrong number of arguments; expected 4 (source, x, y, bgColor)");
+        return NULL;
+    }
+
+    if (!PyObject_IsInstance(args[0], (PyObject*)&PyKaizoTileType))
+    {
+        PyErr_SetString(PyExc_TypeError, "first argument must be a Tile");
+        return NULL;
+    }
+    auto const* source = reinterpret_cast<PyKaizoTile*>(args[0]);
+
+    auto const x = PyLong_AsUnsignedLongLong(args[1]);
+    if (x == static_cast<decltype(x)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto const y = PyLong_AsUnsignedLongLong(args[2]);
+    if (y == static_cast<decltype(y)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    auto const background = PyLong_AsUnsignedLongLong(args[3]);
+    if (background == static_cast<decltype(background)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    self->tile.blit(source->tile, x, y, background);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static auto PyKaizoTile_getwidth(PyKaizoTile* self, void*) -> PyObject*
 {
     return PyLong_FromUnsignedLongLong(self->tile.width());
@@ -226,6 +264,7 @@ static PyMethodDef PyKaizoTile_methods[] = {
     {"set_pixel", (PyCFunction)PyKaizoTile_setpixel, METH_FASTCALL},
     {"get_pixel", (PyCFunction)PyKaizoTile_getpixel, METH_FASTCALL},
     {"crop", (PyCFunction)PyKaizoTile_crop, METH_FASTCALL},
+    {"blit", (PyCFunction)PyKaizoTile_blit, METH_FASTCALL},
     {NULL}};
 
 PyGetSetDef PyKaizoTile_getsets[] = {

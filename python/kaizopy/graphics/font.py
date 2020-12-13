@@ -155,7 +155,8 @@ class BitmapFontWriter:
 
         glyphs = self.font.to_glyphs(text)
         for glyph in glyphs:
-            self._write_glyph(glyph, canvas, x, y - glyph.ascent)
+            #self._write_glyph(glyph, canvas, x, y - glyph.ascent)
+            canvas.blit(glyph.tile, x, y - glyph.ascent, glyph.bgcolor)
             x += glyph.advance_width
 
     def _write_glyph(self, glyph, canvas, x, y):
