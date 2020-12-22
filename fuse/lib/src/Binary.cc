@@ -50,6 +50,11 @@ auto Binary::data(size_t offset) const -> const uint8_t*
     return m_data.data() + offset;
 }
 
+auto Binary::data(size_t offset) -> uint8_t*
+{
+    return m_data.data() + offset;
+}
+
 auto Binary::begin() const -> const uint8_t*
 {
     return m_data.data();
@@ -126,4 +131,4 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary
     return lhs += rhs;
 }
 
-} // namespace kaizo
+} // namespace fuse

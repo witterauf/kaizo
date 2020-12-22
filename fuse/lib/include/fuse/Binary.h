@@ -20,6 +20,8 @@ public:
 
     auto size() const -> size_t;
     auto data(size_t offset = 0) const -> const uint8_t*;
+    auto data(size_t offset = 0) -> uint8_t*;
+
     auto read(size_t offset, size_t length) const -> Binary;
     template <class T> auto readAs(size_t offset, const IntegerLayout& layout) const -> T;
 
