@@ -93,22 +93,23 @@ auto Tile::crop(const TileRegion& region) const -> Tile
     return clipped;
 }
 
-void Tile::blit(const Tile& source, const size_t x, const size_t y, const pixel_t background)
+void Tile::blit(size_t x, size_t y, const Tile& source, const TileRegion& region,
+                const pixel_t background)
 {
     if (x >= width() || y >= height())
     {
         return;
     }
 
-    auto const xmax = x + source.width() > width() ? width() - x : source.width();
-    auto const ymax = y + source.height() > height() ? height() - y : source.height();
+    auto const xmax = x + region.width() > width() ? width() - x : region.width();
+    auto const ymax = y + region.height() > height() ? height() - y : region.height();
     for (size_t ty = 0; ty < ymax; ++ty)
     {
         for (size_t tx = 0; tx < xmax; ++tx)
         {
-            if (source.pixel(tx, ty) != background)
+            if (source.pixel(region.left() + tx, region.top() + ty) != background)
             {
-                setPixel(x + tx, y + ty, source.pixel(tx, ty));
+                setPixel(x + tx, y + ty, source.pixel(region.left() + tx, region.top() + ty));
             }
         }
     }

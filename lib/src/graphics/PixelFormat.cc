@@ -16,6 +16,21 @@ auto toLower(std::string string) -> std::string
 
 namespace kaizo {
 
+PixelFormat::PixelFormat()
+    : m_format{0}
+{
+}
+
+auto PixelFormat::integerRepresentation() -> repr_t
+{
+    return m_format;
+}
+
+auto PixelFormat::fromIntegerRepresentation(const repr_t repr) -> PixelFormat
+{
+    return PixelFormat{repr};
+}
+
 auto PixelFormat::makeIndexed(const uint8_t bitsPerPixel) -> PixelFormat
 {
     return PixelFormat{Format::Indexed, 1, bitsPerPixel, bitsPerPixel};
@@ -55,6 +70,11 @@ auto PixelFormat::rgba() -> PixelFormat
     return makeChannels(Format::RGBA, 32, 8);
 }
 
+bool PixelFormat::isIndexed() const
+{
+    return format() == Format::Indexed;
+}
+
 auto PixelFormat::bitsPerPixel() const -> unsigned
 {
     return m_format & 0xff;
@@ -78,6 +98,11 @@ auto PixelFormat::format() const -> Format
 bool PixelFormat::operator==(const PixelFormat rhs) const
 {
     return m_format == rhs.m_format;
+}
+
+PixelFormat::PixelFormat(const repr_t format)
+    : m_format{format}
+{
 }
 
 PixelFormat::PixelFormat(const Format format, const uint8_t channels, const uint8_t bitsPerChannel,

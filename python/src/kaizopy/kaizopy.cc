@@ -1,5 +1,6 @@
 #include "kaizopy.h"
 #include "graphics.h"
+#include "systems.h"
 #include "text.h"
 #include <optional>
 
@@ -259,26 +260,65 @@ bool registerVirtualFileSystemTypes(PyObject* module)
     return true;
 }
 
-static PyMethodDef kaizopy_functions[] = {
-    {NULL},
-};
-
 static PyModuleDef kaizopymodule = {PyModuleDef_HEAD_INIT,
                                     "_kaizopy",
                                     "Classes and functions for ROM hacking",
                                     -1,
-                                    kaizopy_functions,
+                                    NULL,
                                     NULL,
                                     NULL,
                                     NULL,
                                     NULL};
 
+static bool registerTypes(PyObject* m, const std::map<std::string, PyTypeObject*>& types)
+{
+    for (auto& type : types)
+    {
+        if (PyType_Ready(type.second) < 0)
+        {
+            return false;
+        }
+        Py_INCREF(type.second);
+        if (PyModule_AddObject(m, type.first.c_str(), (PyObject*)type.second) < 0)
+        {
+            Py_DECREF(type.second);
+            return false;
+        }
+    }
+    return true;
+}
+
 PyMODINIT_FUNC PyInit__kaizopy(void)
 {
+    std::vector<std::shared_ptr<KaizoModule>> modules{std::make_shared<GraphicsModule>(),
+                                                      std::make_shared<SystemsModule>()};
+
+    for (auto& module : modules)
+    {
+        module->initialize();
+    }
+
+    static std::vector<PyMethodDef> functions;
+    for (auto& module : modules)
+    {
+        auto const moduleFunctions = module->createFunctions();
+        functions.insert(functions.end(), moduleFunctions.cbegin(), moduleFunctions.cend());
+    }
+    functions.push_back(PyMethodDef{nullptr});
+    kaizopymodule.m_methods = functions.data();
+
     PyObject* m = PyModule_Create(&kaizopymodule);
     if (m == NULL)
     {
         return NULL;
+    }
+
+    for (auto& module : modules)
+    {
+        if (!registerTypes(m, module->createTypes()))
+        {
+            return NULL;
+        }
     }
 
     if (!registerVirtualFileSystemTypes(m))
@@ -286,10 +326,6 @@ PyMODINIT_FUNC PyInit__kaizopy(void)
         return NULL;
     }
     if (!registerKaizoText(m))
-    {
-        return NULL;
-    }
-    if (!registerKaizoGraphics(m))
     {
         return NULL;
     }

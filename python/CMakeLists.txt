@@ -7,12 +7,20 @@ if (Python_FOUND)
   message(STATUS "Found Python ${Python_VERSION}")
 
   add_library(kaizopy SHARED
+    src/kaizopy/kaizomodule.h
+    src/kaizopy/kaizomodule.cc
+    src/kaizopy/pyutilities.h
+    src/kaizopy/pyutilities.cc
     src/kaizopy/kaizopy.h
     src/kaizopy/kaizopy.cc
     src/kaizopy/text.h
     src/kaizopy/text.cc
     src/kaizopy/graphics.h
     src/kaizopy/graphics.cc
+    src/kaizopy/systems.h
+    src/kaizopy/systems.cc
+    src/kaizopy/vfs.h
+    src/kaizopy/vfs.cc
   )
   target_compile_features(kaizopy PRIVATE cxx_std_20)
   target_link_libraries(kaizopy

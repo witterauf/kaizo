@@ -1,18 +1,20 @@
-#include <diagnostics/Contracts.h>
-#include <fuse/systems/psp/TextureSwizzle.h>
+#include "kaizo/systems/psp/TextureSwizzle.h"
+#include <contracts/Contracts.h>
 
-namespace fuse::psp {
+using namespace fuse;
+
+namespace kaizo {
 
 static constexpr unsigned BlockWidth = 16;
 static constexpr unsigned BlockHeight = 8;
 static constexpr size_t BlockSize = BlockHeight * BlockWidth;
 
-auto swizzle(const Binary& unswizzled, unsigned width, size_t start, size_t end) -> Binary
+auto swizzle(const BinaryView& unswizzled, unsigned width, size_t start, size_t end) -> Binary
 {
     Expects((end - start) % BlockSize == 0);
     Expects(width % BlockWidth == 0);
 
-    Binary swizzled{unswizzled};
+    Binary swizzled(unswizzled.size());
     auto const size = end == 0 ? unswizzled.size() - start : end - start;
     auto const blockCount = size / BlockSize;
     auto const blocksPerRow = width / BlockWidth;
@@ -32,13 +34,13 @@ auto swizzle(const Binary& unswizzled, unsigned width, size_t start, size_t end)
     return swizzled;
 }
 
-auto unswizzle(const Binary& swizzled, unsigned width, size_t start, size_t end) -> Binary
+auto unswizzle(const BinaryView& swizzled, unsigned width, size_t start, size_t end) -> Binary
 {
     Expects((end - start) % BlockSize == 0);
     Expects(width % BlockWidth == 0);
 
     end = end == 0 ? swizzled.size() : end;
-    Binary unswizzled{swizzled};
+    Binary unswizzled(swizzled.size());
     auto const size = end - start;
     auto const blockCount = size / BlockSize;
     auto const blocksPerRow = width / BlockWidth;
@@ -58,4 +60,4 @@ auto unswizzle(const Binary& swizzled, unsigned width, size_t start, size_t end)
     return unswizzled;
 }
 
-} // namespace fuse::psp
+} // namespace kaizo

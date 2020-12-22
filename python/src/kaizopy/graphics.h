@@ -1,17 +1,21 @@
 #pragma once
 
+#include <kaizo/graphics/Palette.h>
 #include <kaizo/graphics/PixelFormat.h>
 #include <kaizo/graphics/Tile.h>
+#include <kaizo/graphics/TileFormat.h>
+#include <optional>
+#include <utility>
+#include <vector>
 
-#ifdef _WIN32
-#ifdef KAIZO_WIN_EXPORT
-#define KAIZO_EXPORTED __declspec(dllexport)
-#else
-#define KAIZO_EXPORTED __declspec(dllimport)
-#endif
-#else
-#define KAIZO_EXPORTED
-#endif
+#include "kaizomodule.h"
+#include "pyutilities.h"
+
+class GraphicsModule : public KaizoModule
+{
+public:
+    auto createTypes() -> std::map<std::string, PyTypeObject*> override;
+};
 
 extern "C" {
 
@@ -26,5 +30,27 @@ struct PyKaizoTile
 
 extern KAIZO_EXPORTED PyTypeObject PyKaizoTileType;
 
-bool registerKaizoGraphics(PyObject* module);
+struct PyKaizoPalette
+{
+    PyObject_HEAD;
+    kaizo::Palette palette;
+};
+
+extern KAIZO_EXPORTED PyTypeObject PyKaizoPaletteType;
+
+struct PyKaizoPixelFormat
+{
+    PyObject_HEAD;
+    kaizo::PixelFormat::repr_t representation;
+};
+
+extern KAIZO_EXPORTED PyTypeObject PyKaizoPixelFormatType;
+
+struct PyKaizoTileFormat
+{
+    PyObject_HEAD;
+    kaizo::TileFormat* format;
+};
+
+extern KAIZO_EXPORTED PyTypeObject PyKaizoTileFormatType;
 }

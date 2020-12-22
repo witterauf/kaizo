@@ -28,7 +28,8 @@ public:
 
     bool contains(const TileRegion& region) const;
     auto crop(const TileRegion& region) const -> Tile;
-    void blit(const Tile& source, const size_t x, const size_t y, const pixel_t background);
+    void blit(size_t x, size_t y, const Tile& source, const TileRegion& region,
+              const pixel_t background);
     auto boundingBox(const pixel_t background) const -> TileRegion;
 
     void setPixel(const size_t x, const size_t y, const pixel_t value);

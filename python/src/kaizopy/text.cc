@@ -110,6 +110,62 @@ static bool registerKaizoTableEncoding(PyObject* module)
     return true;
 }
 
+//##[ tableiterator ]##############################################################################
+
+/*
+struct PyKaizoTableIterator
+{
+    PyObject_HEAD;
+    Table* table;
+    size_t index;
+};
+
+PyTypeObject PyKaizoTableIteratorType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._TableIterator"};
+
+static PyMethodDef PyKaizoTableIterator_methods[] = {{NULL}};
+
+static auto PyKaizoTableIterator_iter(PyKaizoTableIterator* self) -> PyObject*
+{
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static auto PyKaizoTableIterator_iternext(PyKaizoTableIterator* self) -> PyObject*
+{
+    if (self->index >= self->table->size())
+    {
+        return NULL;
+    }
+    else
+    {
+        auto const& entry = self->table->entry(self->index);
+
+    }
+}
+
+static bool registerKaizoTableIterator(PyObject* module)
+{
+    PyKaizoTableIteratorType.tp_new = PyType_GenericNew;
+    PyKaizoTableIteratorType.tp_basicsize = sizeof(PyKaizoTableIterator);
+    PyKaizoTableIteratorType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyKaizoTableIteratorType.tp_doc = "Table iterator";
+    PyKaizoTableIteratorType.tp_methods = PyKaizoTableIterator_methods;
+    PyKaizoTableIteratorType.tp_iter = (getiterfunc)PyKaizoTableIterator_iter;
+    PyKaizoTableIteratorType.tp_iternext = (iternextfunc)PyKaizoTableIterator_iternext;
+    if (PyType_Ready(&PyKaizoTableIteratorType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyKaizoTableIteratorType);
+    if (PyModule_AddObject(module, "_Table", (PyObject*)&PyKaizoTableIteratorType) < 0)
+    {
+        Py_DECREF(&PyKaizoTableIteratorType);
+        return false;
+    }
+    return true;
+}
+*/
+
 //##[ Table ]######################################################################################
 
 static auto toBinarySequence(PyObject* data) -> std::optional<BinarySequence>
@@ -275,7 +331,10 @@ static auto PyKaizoTable_insert_control_entry(PyKaizoTable* self, PyObject* cons
 {
     if (nargs != 4)
     {
-        PyErr_SetString(PyExc_ValueError, "wrong number of arguments; expected 4");
+        PyErr_SetString(
+            PyExc_ValueError,
+            "wrong number of arguments; expected 4 (binary, label, parameters, postfix)");
+        return NULL;
     }
     if (!PyUnicode_Check(args[1]))
     {
@@ -375,16 +434,82 @@ static auto PyKaizoTable_insert_end_entry(PyKaizoTable* self, PyObject* const* a
     return Py_None;
 }
 
-static PyMethodDef PyKaizoTable_methods[] = {
-    {"insert_text_entry", (PyCFunction)PyKaizoTable_insert_text_entry, METH_FASTCALL,
-     "insert an entry into the table"},
-    {"insert_control_entry", (PyCFunction)PyKaizoTable_insert_control_entry, METH_FASTCALL,
-     "insert an entry into the table"},
-    {"insert_end_entry", (PyCFunction)PyKaizoTable_insert_end_entry, METH_FASTCALL,
-     "insert an entry into the table"},
-    {NULL}};
+static auto convert(const TableEntry::ParameterFormat& parameter) -> std::string
+{
+    std::string string;
+    string += (parameter.endianess == TableEntry::ParameterFormat::Endianess::Little) ? "<" : ">";
+    string += std::to_string(parameter.size);
+    switch (parameter.preferedDisplay)
+    {
+    case TableEntry::ParameterFormat::Display::Decimal: string += "d"; break;
+    case TableEntry::ParameterFormat::Display::Hexadecimal: string += "x"; break;
+    case TableEntry::ParameterFormat::Display::Binary: string += "b"; break;
+    default: break;
+    }
+    return string;
+}
 
-PyTypeObject PyKaizoTableType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._Table"};
+static auto makeTableControlEntry(const TableEntry& entry) -> PyObject*
+{
+    std::string parameters;
+    for (size_t i = 0; i < entry.parameterCount(); ++i)
+    {
+        auto const& parameter = entry.parameter(i);
+        parameters += convert(parameter);
+    }
+
+    return Py_BuildValue("(Ksss)", 1, entry.labelName().c_str(), entry.label().postfix.c_str(),
+                         parameters.c_str());
+}
+
+static auto makeTableTextEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Ks)", 0, entry.text());
+}
+
+static auto makeTableEndEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Kss)", 3, entry.label().name.c_str(), entry.label().postfix.c_str());
+}
+
+static auto makeTableSwitchEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Ks)", 3, entry.targetTable().c_str());
+}
+
+static auto PyKaizoTable_getentry(PyKaizoTable* self, PyObject* pyIndex) -> PyObject*
+{
+    auto const index = PyLong_AsUnsignedLongLong(pyIndex);
+    if (index == static_cast<decltype(index)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    if (index >= self->table->size())
+    {
+        PyErr_SetString(PyExc_IndexError, "invalid entry index");
+        return NULL;
+    }
+
+    auto const entry = self->table->entry(index);
+    PyObject* binary = Py_BuildValue("y#", entry.binary().c_str(), entry.binary().length());
+    switch (entry.text().kind())
+    {
+    case TableEntry::Kind::Text:
+        return Py_BuildValue("(NN)", binary, makeTableTextEntry(entry.text()));
+    case TableEntry::Kind::Control:
+        return Py_BuildValue("(NN)", binary, makeTableControlEntry(entry.text()));
+    case TableEntry::Kind::TableSwitch:
+        return Py_BuildValue("(NN)", binary, makeTableSwitchEntry(entry.text()));
+    case TableEntry::Kind::End:
+        return Py_BuildValue("(NN)", binary, makeTableEndEntry(entry.text()));
+    default: return NULL;
+    }
+}
+
+static auto PyKaizoTable_entry_count(PyKaizoTable* self, void*) -> PyObject*
+{
+    return PyLong_FromUnsignedLongLong(self->table->size());
+}
 
 static int PyKaizoTable_init(PyKaizoTable* self, PyObject*, PyObject*)
 {
@@ -398,6 +523,21 @@ static void PyKaizoTable_dealloc(PyKaizoTable* self)
     Py_TYPE(self)->tp_free(self);
 }
 
+PyTypeObject PyKaizoTableType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._Table"};
+
+static PyMethodDef PyKaizoTable_methods[] = {
+    {"insert_text_entry", (PyCFunction)PyKaizoTable_insert_text_entry, METH_FASTCALL,
+     "insert an entry into the table"},
+    {"insert_control_entry", (PyCFunction)PyKaizoTable_insert_control_entry, METH_FASTCALL,
+     "insert an entry into the table"},
+    {"insert_end_entry", (PyCFunction)PyKaizoTable_insert_end_entry, METH_FASTCALL,
+     "insert an entry into the table"},
+    {"get_entry", (PyCFunction)PyKaizoTable_getentry, METH_O, "get the entry with the given index"},
+    {NULL}};
+
+PyGetSetDef PyKaizoTable_getsets[] = {
+    {"entry_count", (getter)PyKaizoTable_entry_count, NULL, "the number of entries", NULL}, {NULL}};
+
 static bool registerTable(PyObject* module)
 {
     PyKaizoTableType.tp_new = PyType_GenericNew;
@@ -407,6 +547,7 @@ static bool registerTable(PyObject* module)
     PyKaizoTableType.tp_methods = PyKaizoTable_methods;
     PyKaizoTableType.tp_init = (initproc)PyKaizoTable_init;
     PyKaizoTableType.tp_dealloc = (destructor)PyKaizoTable_dealloc;
+    PyKaizoTableType.tp_getset = PyKaizoTable_getsets;
     if (PyType_Ready(&PyKaizoTableType) < 0)
     {
         return false;

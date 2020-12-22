@@ -45,58 +45,27 @@ set(KAIZO_TEXT_SOURCES
 )
 
 set(KAIZO_GRAPHICS_SOURCES
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/GraphicsLuaLibrary.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/font/Glyph.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/font/Font.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/font/FontWriter.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/font/FontLoader.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/font/LuaFontLibrary.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/image/Image.h
     ${KAIZO_INCLUDE_DIRECTORY}/graphics/ImageFileFormat.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/image/LuaImageLibrary.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/Palette.h
+    ${KAIZO_INCLUDE_DIRECTORY}/graphics/Palette.h
     ${KAIZO_INCLUDE_DIRECTORY}/graphics/Tile.h
+    ${KAIZO_INCLUDE_DIRECTORY}/graphics/TileConverter.h
+    ${KAIZO_INCLUDE_DIRECTORY}/graphics/TileFormat.h
     ${KAIZO_INCLUDE_DIRECTORY}/graphics/PixelFormat.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TileColorRemapper.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TileFormat.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TileImageFormat.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TileList.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TileTransformation.h
-    #${KAIZO_INCLUDE_DIRECTORY}/graphics/tiles/TilesLuaLibrary.h
-    #graphics/GraphicsLuaLibrary.cc
-    #src/graphics/font/Glyph.cc
-    #src/graphics/font/Font.cc
-    #graphics/font/FontWriter.cc
-    #graphics/font/FontLoader.cc
-    #graphics/font/LuaFontLibrary.cc
-    #graphics/font/private/LuaFontLoader.h
-    #graphics/font/private/LuaFontLoader.cc
-    #graphics/font/private/FontBuilder.h
-    #graphics/font/private/FontBuilder.cc
-    #src/graphics/image/Image.cc
     src/graphics/ImageFileFormat.cc
     src/graphics/PngFileFormat.h
     src/graphics/PngFileFormat.cc
-    #graphics/image/LuaImageLibrary.cc
-    #graphics/tiles/Palette.cc
     src/graphics/Tile.cc
     src/graphics/PixelFormat.cc
-    #graphics/tiles/TileColorRemapper.cc
-    #graphics/tiles/TileFormat.cc
-    #graphics/tiles/TileImageFormat.cc
-    #graphics/tiles/TileList.cc
-    #graphics/tiles/TilesLuaLibrary.cc
+    src/graphics/TileConverter.cc
+    src/graphics/TileFormat.cc
+    src/graphics/Palette.cc
 )
 
 set(KAIZO_SYSTEMS_SOURCES
-    ${KAIZO_INCLUDE_DIRECTORY}/systems/LuaSystemsLibrary.h
-    ${KAIZO_INCLUDE_DIRECTORY}/systems/gbc/GameboyColorAddress.h
     ${KAIZO_INCLUDE_DIRECTORY}/systems/psp/TextureSwizzle.h
-    ${KAIZO_INCLUDE_DIRECTORY}/systems/psp/LuaPspLibrary.h
-    systems/LuaSystemsLibrary.cc
-    systems/gbc/GameboyColorAddress.cc
-    systems/psp/TextureSwizzle.cc
-    systems/psp/LuaPspLibrary.cc
+    ${KAIZO_INCLUDE_DIRECTORY}/systems/psp/TileFormats.h
+    src/systems/psp/TextureSwizzle.cc
+    src/systems/psp/TileFormats.cc
 )
 
 set(KAIZO_VFS_SOURCES
@@ -111,13 +80,13 @@ set(KAIZO_SOURCES
     ${KAIZO_VFS_SOURCES}
     ${KAIZO_TEXT_SOURCES}
     ${KAIZO_GRAPHICS_SOURCES}
-    #${KAIZO_SYSTEMS_SOURCES}
+    ${KAIZO_SYSTEMS_SOURCES}
 )
 
 source_group("Binary" FILES ${KAIZO_BINARY_SOURCES})
 source_group("VFS" FILES ${KAIZO_VFS_SOURCES})
 source_group("Graphics" FILES ${KAIZO_GRAPHICS_SOURCES})
-#source_group("Systems" FILES ${KAIZO_SYSTEMS_SOURCES})
+source_group("Systems" FILES ${KAIZO_SYSTEMS_SOURCES})
 source_group("Text" FILES ${KAIZO_TEXT_SOURCES})
 
 add_library(KaizoLibrary

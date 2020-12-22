@@ -1,10 +1,12 @@
 #pragma once
 
-#include <fuse/Binary.h>
+#include <fuse/BinaryView.h>
 
-namespace fuse::psp {
+namespace kaizo {
 
-auto swizzle(const Binary& texture, unsigned width, size_t start = 0, size_t end = 0) -> Binary;
-auto unswizzle(const Binary& texture, unsigned width, size_t start = 0, size_t end = 0) -> Binary;
+auto swizzle(const fuse::BinaryView& texture, unsigned width, size_t start = 0, size_t end = 0)
+    -> fuse::Binary;
+auto unswizzle(const fuse::BinaryView& texture, unsigned width, size_t start = 0, size_t end = 0)
+    -> fuse::Binary;
 
-} // namespace fuse::psp
+} // namespace kaizo

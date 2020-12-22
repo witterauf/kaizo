@@ -1,9 +1,9 @@
-from kaizopy._kaizopy import Tile
-from pathlib import PurePath
+from kaizopy.graphics.tile import Tile, Image
+from pathlib import PurePath, Path
 import json
 from enum import Enum
 
-def _build_font(description):
+def _build_font(description, directory):
     metrics = description['metrics']
     pixel_format = description['pixel_format']
     font = BitmapFont(lineheight=metrics['lineheight'], baseline=metrics['baseline'],
@@ -11,8 +11,11 @@ def _build_font(description):
                         bgcolor=pixel_format['background_color'])
 
     bitmaps = []
-    for path in description['bitmaps']:
-        image, _ = Tile.load_from_file(path)
+    for filename in description['bitmaps']:
+        path = directory / filename
+        if not path.exists():
+            raise ValueError('could not find bitmap file (should reside in same directory)')
+        image, _ = Tile.load(str(path))
         bitmaps.append(image)
 
     glyphs = description['glyphs']
@@ -35,9 +38,10 @@ def _build_font(description):
     return font
 
 def _load_json_font(path):
+    directory = Path(path).resolve().parent
     with open(path, 'r') as f:
         description = json.load(f)
-        return _build_font(description)
+        return _build_font(description, directory)
 
 class BitmapGlyph:
     def __init__(self, characters, tile, baseline, bgcolor=0):
@@ -74,8 +78,9 @@ class BitmapGlyph:
     def get_pixel(self, x, y):
         return None
 
+    @property
     def bounding_box(self):
-        return ((0, 0), (0, 0))
+        return self.tile.bounding_box(self.bgcolor)
 
     def __str__(self):
         return self.characters
@@ -107,9 +112,14 @@ class BitmapFont:
     def glyph_count(self):
         return len(self.glyphs)
 
-    @property
     def glyph(self, index):
         return self.glyphs[index]
+
+    def glyph_by_characters(self, characters):
+        for glyph in self.glyphs:
+            if glyph.characters == characters:
+                return glyph
+        return None
 
     def to_glyphs(self, string):
         glyphs = []
