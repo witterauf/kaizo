@@ -4,3 +4,4 @@ import kaizopy.vfs
 import kaizopy.text
 import kaizopy.graphics
 import kaizopy.psp
+import kaizopy.archives

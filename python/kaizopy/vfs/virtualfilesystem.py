@@ -60,6 +60,9 @@ class VirtualFileSystem(ABC):
     def open_file_by_index(self, index):
         pass
 
+    def copy_with_replacements(self, replacer):
+        pass
+
     def is_folder(self, name):
         return self.is_folder_by_index(self.file_index(name))
 
@@ -141,3 +144,20 @@ class NativeVirtualFileSystem(VirtualFileSystem):
 
     def open_file_by_index(self, index):
         return self._vfs.open_file(index)
+
+class VirtualFileSystemWriter(ABC):
+    @abstractmethod
+    def create_file(self, properties):
+        pass
+
+    @abstractmethod
+    def enter_directory(self, properties):
+        pass
+
+    @abstractmethod
+    def leave_directory(self):
+        pass
+
+    @abstractmethod
+    def finish(self):
+        pass
