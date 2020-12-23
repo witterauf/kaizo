@@ -48,3 +48,5 @@ extern PyTypeObject PyAddressMapType;
 extern PyTypeObject PyRegionedAddressMapType;
 
 bool registerFuseAddresses(PyObject* module);
+
+auto PyAddressLayout_New(std::unique_ptr<fuse::AddressStorageFormat>&& layout) -> PyObject*;

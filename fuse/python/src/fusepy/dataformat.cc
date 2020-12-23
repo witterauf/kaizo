@@ -115,6 +115,48 @@ static auto PyDataFormat_decode(PyDataFormat* self, PyObject* pyReader) -> PyObj
     return pyData;
 }
 
+static auto PyDataFormat_encode(PyDataFormat* self, PyObject* const* args, const Py_ssize_t nargs)
+    -> PyObject*
+{
+    if (nargs != 3)
+    {
+        PyErr_SetString(PyExc_TypeError, "wrong number of arguments");
+        return NULL;
+    }
+
+    if (PyObject_IsInstance(args[0], (PyObject*)&PyDataWriterType) < 0)
+    {
+        PyErr_SetString(PyExc_TypeError, "writer must be of type _DataWriter");
+        return NULL;
+    }
+    auto& writer = reinterpret_cast<PyDataWriter*>(args[0])->writer;
+
+    const char* szPath = PyUnicode_AsUTF8(args[2]);
+    if (!szPath)
+    {
+        return NULL;
+    }
+    auto const maybePath = DataPath::fromString(szPath);
+    if (!maybePath)
+    {
+        PyErr_SetString(PyExc_ValueError, "invalid path string");
+        return NULL;
+    }
+
+    auto data = fromNativePython(args[1]);
+    if (!data)
+    {
+        return NULL;
+    }
+
+    writer.startData(*maybePath);
+    self->format->encode(writer, *data);
+    writer.finishData();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef PyDataFormat_methods[] = {
     {"set_skip_before", (PyCFunction)PyDataFormat_set_skip_before, METH_O,
      "set the number of bytes to skip before decoding"},
@@ -128,6 +170,8 @@ static PyMethodDef PyDataFormat_methods[] = {
      "set an offset from which decoding starts"},
     {"decode", (PyCFunction)PyDataFormat_decode, METH_O,
      "decode the given DataFormat starting from the current offset"},
+    {"encode", (PyCFunction)PyDataFormat_encode, METH_FASTCALL,
+     "encode the given DataFormat into a PackedObjects instance"},
     {NULL}};
 
 static void PyDataFormat_dealloc(PyDataFormat* self)
@@ -185,7 +229,6 @@ static int PyIntegerFormat_init(PyIntegerFormat* self, PyObject* args, PyObject*
             }
             Py_DECREF(value);
         }
-        Py_DECREF(signednessObj);
     }
 
     fuse::Endianness endianness{fuse::Endianness::Little};
@@ -200,7 +243,6 @@ static int PyIntegerFormat_init(PyIntegerFormat* self, PyObject* args, PyObject*
             }
             Py_DECREF(value);
         }
-        Py_DECREF(endiannessObj);
     }
 
     self->dataFormat.format = new IntegerFormat{static_cast<size_t>(size), signedness, endianness};

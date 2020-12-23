@@ -38,6 +38,13 @@ static bool registerAddressFormat(PyObject* module)
 
 static PyMethodDef PyAddressLayout_methods[] = {{NULL}};
 
+auto PyAddressLayout_New(std::unique_ptr<AddressStorageFormat>&& layout) -> PyObject*
+{
+    PyAddressLayout* pyLayout = PyObject_New(PyAddressLayout, &PyAddressLayoutType);
+    pyLayout->layout = layout.release();
+    return (PyObject*)pyLayout;
+}
+
 static void PyAddressLayout_dealloc(PyAddressLayout* self)
 {
     delete self->layout;

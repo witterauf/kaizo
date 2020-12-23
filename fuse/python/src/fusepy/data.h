@@ -16,6 +16,8 @@ auto toNativePython(const fuse::binary::StringData& data) -> PyObject*;
 auto toNativePython(const fuse::binary::ArrayData& array) -> PyObject*;
 auto toNativePython(const fuse::binary::RecordData& record) -> PyObject*;
 
+auto fromNativePython(PyObject* data) -> std::unique_ptr<fuse::binary::Data>;
+
 /*
 
 

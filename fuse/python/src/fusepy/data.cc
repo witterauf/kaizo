@@ -66,6 +66,117 @@ auto toNativePython(const fuse::binary::RecordData& record) -> PyObject*
     return pyDict;
 }
 
+auto fromPyUnicode(PyObject* data) -> std::unique_ptr<StringData>
+{
+    const char* szData = PyUnicode_AsUTF8(data);
+    if (!szData)
+    {
+        return NULL;
+    }
+    return std::make_unique<StringData>(szData);
+}
+
+auto fromPyLong(PyObject* data) -> std::unique_ptr<IntegerData>
+{
+    int overflow;
+    auto const number = PyLong_AsLongLongAndOverflow(data, &overflow);
+    if (overflow == 1)
+    {
+        auto const unsignedNumber = PyLong_AsUnsignedLongLong(data);
+        if (unsignedNumber == static_cast<decltype(unsignedNumber)>(-1) && PyErr_Occurred())
+        {
+            return NULL;
+        }
+        return std::make_unique<IntegerData>(unsignedNumber);
+    }
+    else if (overflow == -1)
+    {
+        PyErr_SetString(PyExc_ValueError,
+                        "number too low (only signed 64 bit supported at the moment)");
+        return nullptr;
+    }
+    else
+    {
+        if (number == -1 && PyErr_Occurred())
+        {
+            return NULL;
+        }
+        return std::make_unique<IntegerData>(number);
+    }
+}
+
+auto fromPyMapping(PyObject* data) -> std::unique_ptr<RecordData>
+{
+    auto record = std::make_unique<RecordData>();
+    PyObject* items = PyMapping_Items(data);
+    for (Py_ssize_t i = 0; i < PyList_Size(items); ++i)
+    {
+        PyObject* item = PyList_GetItem(items, i);
+        PyObject* key = PyTuple_GetItem(items, 0);
+        PyObject* value = PyTuple_GetItem(items, 1);
+
+        const char* szKey = PyUnicode_AsUTF8(key);
+        if (!szKey)
+        {
+            Py_DECREF(items);
+            return NULL;
+        }
+
+        auto valueData = fromNativePython(value);
+        if (!valueData)
+        {
+            Py_DECREF(items);
+            return NULL;
+        }
+
+        record->set(szKey, std::move(valueData));
+    }
+    Py_DECREF(items);
+    return record;
+}
+
+auto fromPySequence(PyObject* data) -> std::unique_ptr<ArrayData>
+{
+    auto array = std::make_unique<ArrayData>(static_cast<size_t>(PySequence_Length(data)));
+    for (Py_ssize_t i = 0; i < PySequence_Length(data); ++i)
+    {
+        PyObject* item = PySequence_GetItem(data, i);
+        auto itemData = fromNativePython(item);
+        if (!itemData)
+        {
+            return NULL;
+        }
+
+        array->set(static_cast<size_t>(i), std::move(itemData));
+    }
+    return array;
+}
+
+auto fromNativePython(PyObject* data) -> std::unique_ptr<Data>
+{
+    if (PyUnicode_Check(data))
+    {
+        return fromPyUnicode(data);
+    }
+    else if (PyLong_Check(data))
+    {
+        return fromPyLong(data);
+    }
+    else if (PySequence_Check(data))
+    {
+        return fromPySequence(data);
+    }
+    else if (PyMapping_Check(data))
+    {
+        return fromPyMapping(data);
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "could not convert into Data");
+        return nullptr;
+    }
+}
+
 /*
 
 //##[ Data ]#################################################################################

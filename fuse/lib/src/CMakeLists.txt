@@ -150,6 +150,28 @@ set(FUSE_TEXT_SOURCES
     text/AsciiEncoding.cc
 )
 
+set(FUSE_LINKING_SOURCES
+  ${FUSE_INCLUDE_DIRECTORY}/linking/LinkObject.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/Constraint.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/FreeSpace.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/FreeBlock.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/Packer.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/ConstraintDirectory.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/Linker.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/Target.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/TargetMap.h
+  linking/LinkObject.cc
+  linking/Constraint.cc
+  linking/FreeSpace.cc
+  linking/FreeBlock.cc
+  linking/ConstraintDirectory.cc
+  linking/Linker.cc
+  linking/Target.cc
+  linking/TargetMap.cc
+  linking/BackTracker.h
+  linking/BackTracker.cc
+)
+
 set(FUSE_UTILITIES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/utilities/StringAlgorithms.h
     ${FUSE_INCLUDE_DIRECTORY}/utilities/StringCollection.h
@@ -187,7 +209,7 @@ set(FUSE_SOURCES
     ${FUSE_TEXT_SOURCES}
     ${FUSE_UTILITIES_SOURCES}
     ${FUSE_LUA_SOURCES}
-    ${FUSE_ELF_SOURCES}
+    #${FUSE_LINKING_SOURCES}
 )
 
 source_group("Addresses" FILES ${FUSE_ADDRESSES_SOURCES})
@@ -202,6 +224,7 @@ source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
 source_group("Lua" FILES ${FUSE_LUA_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
+source_group("Linking" FILES ${FUSE_LINKING_SOURCES})
 source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
 
 ###[ Lua sources ]#################################################################################

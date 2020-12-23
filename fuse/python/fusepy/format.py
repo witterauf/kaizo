@@ -18,6 +18,9 @@ class DataFormat:
     def decode(self, reader):
         return self._format.decode(reader._reader)
 
+    def encode(self, writer, data, path):
+        return self._format.encode(writer._writer, data, path)
+
 class IntegerFormat(DataFormat):
     def __init__(self, size, unsignedness=Signedness.UNSIGNED, endianness=Endianness.LITTLE, **kwargs):
         self._format = _IntegerFormat(size, unsignedness, endianness)

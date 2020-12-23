@@ -18,8 +18,9 @@ public:
     void finishData();
     auto assemble() -> AnnotatedBinary;
 
-    // DataFormat interface
     auto binary() -> Binary&;
+
+    // Manage object hierarchy
     void startNewObject();
     void enter(const DataPathElement& element);
     void reenter(const DataPathElement& element);
@@ -30,6 +31,7 @@ public:
     void leaveLevel();
     void leave();
 
+    // Called by PointerFormat
     void addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
                                 const DataPath& destination);
 
