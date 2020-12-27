@@ -150,8 +150,17 @@ static auto PyDataFormat_encode(PyDataFormat* self, PyObject* const* args, const
     }
 
     writer.startData(*maybePath);
-    self->format->encode(writer, *data);
-    writer.finishData();
+    try
+    {
+        self->format->encode(writer, *data);
+        writer.finishData();
+    }
+    catch (std::exception& e)
+    {
+        writer.abortData();
+        PyErr_SetString(PyExc_ValueError, e.what());
+        return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;

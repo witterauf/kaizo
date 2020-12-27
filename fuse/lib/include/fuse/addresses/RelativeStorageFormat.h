@@ -35,8 +35,21 @@ public:
     static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<RelativeStorageFormat>;
 
     void setBaseAddress(const Address base);
-    void setNullPointer(const Address null, AddressFormat::offset_t offset);
+    auto baseAddress() const -> Address;
     void setOffsetFormat(const IntegerLayout& layout);
+    auto offsetLayout() const -> IntegerLayout;
+
+    struct NullPointer
+    {
+        // Offset that is considered NULL
+        AddressFormat::offset_t offset;
+        // Address this is translated to
+        Address address;
+    };
+
+    void setNullPointer(const Address null, AddressFormat::offset_t offset);
+    bool hasNullPointer() const;
+    auto nullPointer() const -> NullPointer;
 
     auto getName() const -> std::string override;
     bool isCompatible(const Address address) const override;
@@ -48,11 +61,6 @@ public:
     auto copy() const -> std::unique_ptr<AddressStorageFormat> override;
 
 private:
-    struct NullPointer
-    {
-        AddressFormat::offset_t offset;
-        Address address;
-    };
     std::optional<NullPointer> m_nullPointer;
     Address m_baseAddress;
     IntegerLayout m_layout;

@@ -5,6 +5,8 @@ from fusepy._fusepy import _AsciiEncoding
 from fusepy.format import *
 from fusepy.binary import *
 from fusepy.objects import *
+from fusepy.data import read_hierarchical_csv
+from fusepy._fusepy import Reference
 import fusepy.addresses
 
 class TextEncoding(ABC):

@@ -16,6 +16,10 @@ void DataWriter::startData(const DataPath& root)
     section().annotated.startObject(m_path);
 }
 
+void DataWriter::abortData()
+{
+}
+
 void DataWriter::finishData()
 {
     Expects(m_sectionIndex == 1);

@@ -2,12 +2,30 @@ from fusepy._fusepy import *
 from fusepy._fusepy import _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _AddressMap, _RegionedAddressMap, _MipsEmbeddedLayout
 
 class AddressLayout:
+    @staticmethod
+    def _make(layout):
+        if isinstance(layout, _RelativeAddressLayout):
+            return RelativeAddressLayout._make(layout)
+        elif isinstance(layout, _MipsEmbeddedLayout):
+            return MipsEmbeddedLayout._make(layout)
+        elif isinstance(layout, _AddressLayout):
+            return AddressLayout(layout)
+        else:
+            raise TypeError("expected an _AddressLayout or subclass")
+
     def __init__(self, layout):
-        if not isinstance(format, _AddressLayout):
-            raise TypeError("expected an _AddressLayout")
         self._layout = layout
 
+    def to_dict(self):
+        return self._layout.to_dict()
+
 class RelativeAddressLayout(AddressLayout):
+    @staticmethod
+    def _make(_layout):
+        layout = RelativeAddressLayout.__new__(RelativeAddressLayout)
+        layout._layout = _layout
+        return layout
+
     def __init__(self, base, size, null_pointer=None, signedness=Signedness.UNSIGNED, endianness=Endianness.LITTLE):
         self._layout = _RelativeAddressLayout()
         self._layout.set_layout(size, signedness.value, endianness.value)
@@ -19,6 +37,12 @@ class RelativeAddressLayout(AddressLayout):
             self._layout.set_null_pointer(null_pointer[0], null_pointer[1])
 
 class MipsEmbeddedLayout(AddressLayout):
+    @staticmethod
+    def _make(_layout):
+        layout = MipsEmbeddedLayout.__new__(MipsEmbeddedLayout)
+        layout._layout = _layout
+        return layout
+
     def __init__(self, base, lo16, hi16):
         self._layout = _MipsEmbeddedLayout()
         self._layout.set_offsets(hi16, lo16)

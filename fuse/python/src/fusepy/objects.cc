@@ -79,7 +79,7 @@ auto toPython(const UnresolvedReference& ref) -> PyObject*
     PyDict_SetItemString(pyRef, "offset", pyOffset);
     PyObject* pyPath = PyUnicode_FromStringAndSize(ref.referencedPath().toString().c_str(),
                                                    ref.referencedPath().toString().length());
-    PyDict_SetItemString(pyRef, "referenced", pyPath);
+    PyDict_SetItemString(pyRef, "path", pyPath);
 
     PyObject* pyLayout = PyAddressLayout_New(ref.addressLayout().copy());
     PyDict_SetItemString(pyRef, "layout", pyLayout);

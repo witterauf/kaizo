@@ -6,6 +6,7 @@
 #include <fuse/binary/data/PointerData.h>
 #include <fuse/binary/data/RecordData.h>
 #include <fuse/binary/data/StringData.h>
+#include <fuse/binary/data/ReferenceData.h>
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -18,40 +19,13 @@ auto toNativePython(const fuse::binary::RecordData& record) -> PyObject*;
 
 auto fromNativePython(PyObject* data) -> std::unique_ptr<fuse::binary::Data>;
 
-/*
-
-
-struct PyData
+struct PyFuseReference
 {
     PyObject_HEAD;
     bool ownsData;
-    fuse::binary::Data* data;
+    fuse::binary::ReferenceData* data;
 };
 
-struct PyIntegerData
-{
-    PyData base;
-};
+extern PyTypeObject PyFuseReferenceType;
 
-struct PyStringData
-{
-    PyData base;
-};
-
-struct PyRecordData
-{
-    PyData base;
-};
-
-struct PyArrayData
-{
-    PyData base;
-};
-
-struct PyPointerData
-{
-    PyData base;
-};
-
-bool registerFuseData(PyObject* module);
-*/
+bool registerFuseDataTypes(PyObject* m);

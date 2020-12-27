@@ -40,7 +40,19 @@ static PyMethodDef PyAddressLayout_methods[] = {{NULL}};
 
 auto PyAddressLayout_New(std::unique_ptr<AddressStorageFormat>&& layout) -> PyObject*
 {
-    PyAddressLayout* pyLayout = PyObject_New(PyAddressLayout, &PyAddressLayoutType);
+    PyAddressLayout* pyLayout;
+    if (layout->getName() == "relative")
+    {
+        pyLayout = PyObject_New(PyAddressLayout, &PyRelativeAddressLayoutType);
+    }
+    else if (layout->getName() == "mips")
+    {
+        pyLayout = PyObject_New(PyAddressLayout, &PyMipsEmbeddedLayoutType);
+    }
+    else
+    {
+        pyLayout = PyObject_New(PyAddressLayout, &PyAddressLayoutType);
+    }
     pyLayout->layout = layout.release();
     return (PyObject*)pyLayout;
 }
@@ -57,7 +69,7 @@ static bool registerAddressLayout(PyObject* module)
 {
     PyAddressLayoutType.tp_basicsize = sizeof(PyAddressLayout);
     PyAddressLayoutType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    PyAddressLayoutType.tp_doc = "Describes the format of an address";
+    PyAddressLayoutType.tp_doc = "Describes the storage layout of an address";
     PyAddressLayoutType.tp_methods = PyAddressLayout_methods;
     PyAddressLayoutType.tp_dealloc = (destructor)&PyAddressLayout_dealloc;
     if (PyType_Ready(&PyAddressLayoutType) < 0)
@@ -164,6 +176,53 @@ static auto PyRelativeAddressLayout_set_fixed_base_address(PyRelativeAddressLayo
     return Py_None;
 }
 
+static auto PyRelativeAddressLayout_to_dict(PyRelativeAddressLayout* self) -> PyObject*
+{
+    PyObject* dict = PyDict_New();
+    PyDict_SetItemString(dict, "kind", Py_BuildValue("s", "relative"));
+
+    auto const& layout = static_cast<const RelativeStorageFormat&>(*self->base.layout);
+    if (layout.hasNullPointer())
+    {
+        auto const np = layout.nullPointer();
+        PyObject* pyNullPointer = PyDict_New();
+        PyDict_SetItemString(pyNullPointer, "offset",
+                             Py_BuildValue("K", static_cast<unsigned long long>(np.offset)));
+        PyDict_SetItemString(
+            pyNullPointer, "address",
+            Py_BuildValue("K", static_cast<unsigned long long>(np.address.toInteger())));
+        PyDict_SetItemString(dict, "null_pointer", pyNullPointer);
+    }
+
+    PyDict_SetItemString(
+        dict, "base",
+        Py_BuildValue("K", static_cast<unsigned long long>(layout.baseAddress().toInteger())));
+
+    PyObject* pyLayout = PyDict_New();
+    PyDict_SetItemString(
+        pyLayout, "size",
+        Py_BuildValue("K", static_cast<unsigned long long>(layout.offsetLayout().sizeInBytes)));
+    if (layout.offsetLayout().endianness == Endianness::Little)
+    {
+        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "LITTLE"));
+    }
+    else
+    {
+        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "BIG"));
+    }
+    if (layout.offsetLayout().signedness == Signedness::Unsigned)
+    {
+        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "UNSIGNED"));
+    }
+    else
+    {
+        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "SIGNED"));
+    }
+    PyDict_SetItemString(dict, "layout", pyLayout);
+
+    return dict;
+}
+
 static PyMethodDef PyRelativeAddressLayout_methods[] = {
     {"set_layout", (PyCFunction)PyRelativeAddressLayout_set_layout, METH_FASTCALL,
      "append an element format to the Record"},
@@ -171,6 +230,8 @@ static PyMethodDef PyRelativeAddressLayout_methods[] = {
      "sets the base of the RelativeAddressLayout to a fixed address"},
     {"set_null_pointer", (PyCFunction)PyRelativeAddressLayout_set_null_pointer, METH_FASTCALL,
      "sets the offsets which is considered the null pointer"},
+    {"to_dict", (PyCFunction)PyRelativeAddressLayout_to_dict, METH_NOARGS,
+     "serialize the AddressLayout into a dict"},
     {NULL}};
 
 PyTypeObject PyRelativeAddressLayoutType = {

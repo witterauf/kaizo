@@ -12,6 +12,7 @@ class UnresolvedReference:
         return {
             'offset': self.offset,
             'path': self.path,
+            'layout': self.layout.to_dict()
         }
 
 class ObjectSection:

@@ -9,8 +9,6 @@
 
 namespace fuse::binary {
 
-class ReferenceFormat;
-
 class PointerFormat : public DataFormat
 {
 public:

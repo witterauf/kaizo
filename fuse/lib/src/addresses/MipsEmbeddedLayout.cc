@@ -116,7 +116,7 @@ auto MipsEmbeddedLayout::copy() const -> std::unique_ptr<AddressStorageFormat>
 
 auto MipsEmbeddedLayout::getName() const -> std::string
 {
-    return "MipsEmbeddedLayout";
+    return "mips";
 }
 
 } // namespace fuse

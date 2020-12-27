@@ -1,5 +1,6 @@
 from fusepy._fusepy import _DataReader, _DataWriter
 from fusepy.objects import PackedObjects, PackedObject, UnresolvedReference, ObjectSection
+from fusepy.addresses import AddressLayout
 
 class DataReader:
     def __init__(self, binary):
@@ -16,7 +17,8 @@ def _make_ObjectSection(as_dict):
                          int(as_dict['size']))
 
 def _make_UnresolvedReference(as_dict):
-    return UnresolvedReference(int(as_dict['offset']), as_dict['path'], as_dict['layout'])
+    layout = AddressLayout._make(as_dict['layout'])
+    return UnresolvedReference(int(as_dict['offset']), as_dict['path'], layout)
 
 def _make_PackedObject(as_dict):
     sections = []

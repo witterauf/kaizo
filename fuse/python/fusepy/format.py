@@ -28,7 +28,7 @@ class IntegerFormat(DataFormat):
 
 class StringFormat(DataFormat):
     def __init__(self, encoding, **kwargs):
-        self._format = _StringFormat(encoding)
+        self._format = _StringFormat(encoding._encoding)
         self._setup(**kwargs)
 
 class RecordFormat(DataFormat):

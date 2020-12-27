@@ -55,14 +55,34 @@ void RelativeStorageFormat::setBaseAddress(const Address base)
     m_baseAddress = base;
 }
 
+auto RelativeStorageFormat::baseAddress() const -> Address
+{
+    return m_baseAddress;
+}
+
 void RelativeStorageFormat::setNullPointer(const Address null, AddressFormat::offset_t offset)
 {
     m_nullPointer = NullPointer{offset, null};
 }
 
+bool RelativeStorageFormat::hasNullPointer() const
+{
+    return m_nullPointer.has_value();
+}
+
+auto RelativeStorageFormat::nullPointer() const -> NullPointer
+{
+    return *m_nullPointer;
+}
+
 void RelativeStorageFormat::setOffsetFormat(const IntegerLayout& layout)
 {
     m_layout = layout;
+}
+
+auto RelativeStorageFormat::offsetLayout() const -> IntegerLayout
+{
+    return m_layout;
 }
 
 bool RelativeStorageFormat::isCompatible(const Address address) const
@@ -136,7 +156,7 @@ auto RelativeStorageFormat::copy() const -> std::unique_ptr<AddressStorageFormat
 
 auto RelativeStorageFormat::getName() const -> std::string
 {
-    return "RelativeAddressLayout";
+    return "relative";
 }
 
 } // namespace fuse

@@ -1,6 +1,7 @@
 #include "fusepy.h"
 #include "addresses.h"
 #include "binary.h"
+#include "data.h"
 #include "dataformat.h"
 #include "text.h"
 
@@ -41,6 +42,10 @@ PyMODINIT_FUNC PyInit__fusepy(void)
         return NULL;
     }
     if (!registerFuseBinary(m))
+    {
+        return NULL;
+    }
+    if (!registerFuseDataTypes(m))
     {
         return NULL;
     }

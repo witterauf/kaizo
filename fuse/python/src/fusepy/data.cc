@@ -112,8 +112,8 @@ auto fromPyMapping(PyObject* data) -> std::unique_ptr<RecordData>
     for (Py_ssize_t i = 0; i < PyList_Size(items); ++i)
     {
         PyObject* item = PyList_GetItem(items, i);
-        PyObject* key = PyTuple_GetItem(items, 0);
-        PyObject* value = PyTuple_GetItem(items, 1);
+        PyObject* key = PyTuple_GetItem(item, 0);
+        PyObject* value = PyTuple_GetItem(item, 1);
 
         const char* szKey = PyUnicode_AsUTF8(key);
         if (!szKey)
@@ -144,7 +144,7 @@ auto fromPySequence(PyObject* data) -> std::unique_ptr<ArrayData>
         auto itemData = fromNativePython(item);
         if (!itemData)
         {
-            return NULL;
+            return nullptr;
         }
 
         array->set(static_cast<size_t>(i), std::move(itemData));
@@ -170,6 +170,10 @@ auto fromNativePython(PyObject* data) -> std::unique_ptr<Data>
     {
         return fromPyMapping(data);
     }
+    else if (PyObject_IsInstance(data, (PyObject*)&PyFuseReferenceType))
+    {
+        return reinterpret_cast<PyFuseReference*>(data)->data->copy();
+    }
     else
     {
         PyErr_SetString(PyExc_TypeError, "could not convert into Data");
@@ -177,13 +181,33 @@ auto fromNativePython(PyObject* data) -> std::unique_ptr<Data>
     }
 }
 
-/*
-
 //##[ Data ]#################################################################################
 
-static PyMethodDef PyData_methods[] = {{NULL}};
+static int PyFuseReference_init(PyFuseReference* self, PyObject* args, PyObject*)
+{
+    const char* szPath{nullptr};
+    if (PyArg_ParseTuple(args, "s", &szPath) < 0)
+    {
+        return -1;
+    }
+    if (!szPath)
+    {
+        return -1;
+    }
 
-static void PyData_dealloc(PyData* self)
+    auto const maybePath = DataPath::fromString(szPath);
+    if (!maybePath)
+    {
+        PyErr_SetString(PyExc_ValueError, "not a valid DataPath");
+        return -1;
+    }
+
+    self->ownsData = true;
+    self->data = new ReferenceData{*maybePath};
+    return 0;
+}
+
+static void PyFuseReference_dealloc(PyFuseReference* self)
 {
     if (self->ownsData)
     {
@@ -192,51 +216,43 @@ static void PyData_dealloc(PyData* self)
     Py_TYPE(self)->tp_free(self);
 }
 
-PyTypeObject PyDataType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._Data"};
+static auto PyFuseReference_repr(PyFuseReference* self) -> PyObject*
+{
+    auto const asString = "Reference('" + self->data->path().toString() + "')";
+    return Py_BuildValue("s#", asString.c_str(), asString.size());
+}
+
+static PyMethodDef PyFuseReference_methods[] = {{NULL}};
+
+PyTypeObject PyFuseReferenceType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy.Reference"};
 
 static bool registerData(PyObject* module)
 {
-    PyDataType.tp_basicsize = sizeof(PyData);
-    PyDataType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    PyDataType.tp_doc = "Describes decoded binary data";
-    PyDataType.tp_methods = PyData_methods;
-    PyDataType.tp_dealloc = (destructor)&PyData_dealloc;
-    if (PyType_Ready(&PyDataType) < 0)
+    PyFuseReferenceType.tp_new = PyType_GenericNew;
+    PyFuseReferenceType.tp_basicsize = sizeof(PyFuseReference);
+    PyFuseReferenceType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyFuseReferenceType.tp_doc = "Described a reference to another data item";
+    PyFuseReferenceType.tp_methods = PyFuseReference_methods;
+    PyFuseReferenceType.tp_init = (initproc)&PyFuseReference_init;
+    PyFuseReferenceType.tp_dealloc = (destructor)&PyFuseReference_dealloc;
+    PyFuseReferenceType.tp_repr = (reprfunc)&PyFuseReference_repr;
+
+    if (PyType_Ready(&PyFuseReferenceType) < 0)
     {
         return false;
     }
-    Py_INCREF(&PyDataType);
-    PyModule_AddObject(module, "_Data", (PyObject*)&PyDataType);
-    return true;
-}
-
-//##[ IntegerData ]################################################################################
-
-static PyMethodDef PyIntegerData_methods[] = {{NULL}};
-
-PyTypeObject PyIntegerDataType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._IntegerData"};
-
-static bool registerIntegerData(PyObject* module)
-{
-    PyIntegerDataType.tp_new = PyType_GenericNew;
-    PyIntegerDataType.tp_base = &PyDataType;
-    PyIntegerDataType.tp_basicsize = sizeof(PyIntegerData);
-    PyIntegerDataType.tp_flags = Py_TPFLAGS_DEFAULT;
-    PyIntegerDataType.tp_doc = "Describes an integer decoded from binary data";
-    PyIntegerDataType.tp_methods = PyIntegerData_methods;
-    if (PyType_Ready(&PyIntegerDataType) < 0)
-    {
-        return false;
-    }
-    Py_INCREF(&PyIntegerDataType);
-    PyModule_AddObject(module, "_IntegerData", (PyObject*)&PyIntegerDataType);
+    Py_INCREF(&PyFuseReferenceType);
+    PyModule_AddObject(module, "Reference", (PyObject*)&PyFuseReferenceType);
     return true;
 }
 
 //#################################################################################################
 
-bool registerFuseData(PyObject* module)
+bool registerFuseDataTypes(PyObject* module)
 {
+    if (!registerData(module))
+    {
+        return false;
+    }
     return true;
 }
-*/

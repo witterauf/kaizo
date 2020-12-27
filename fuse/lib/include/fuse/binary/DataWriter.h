@@ -16,6 +16,7 @@ public:
 
     void startData(const DataPath& root);
     void finishData();
+    void abortData();
     auto assemble() -> AnnotatedBinary;
 
     auto binary() -> Binary&;
