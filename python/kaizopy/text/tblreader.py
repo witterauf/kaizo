@@ -73,6 +73,6 @@ def read_tbl(tbl_contents):
     return table
 
 def read_tbl_file(tbl_file):
-    with open(tbl_file, 'r') as tbl:
+    with open(tbl_file, 'r', encoding='utf-8') as tbl:
         lines = tbl.read()
         return read_tbl(lines)

@@ -2,6 +2,7 @@
 #include "TableControlParser.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
+#include <set>
 
 using namespace fuse;
 
@@ -98,8 +99,31 @@ auto TableEncoder::encode(const std::string& text) -> Binary
     return std::move(m_binary);
 }
 
+static auto escape(const std::string& string) -> std::string
+{
+    std::string escaped;
+    for (auto const c : string)
+    {
+        switch (c)
+        {
+        case '\a': escaped += "\\a"; continue;
+        case '\b': escaped += "\\b"; continue;
+        case '\f': escaped += "\\f"; continue;
+        case '\v': escaped += "\\v"; continue;
+        case '\t': escaped += "\\t"; continue;
+        case '\n': escaped += "\\n"; continue;
+        case '\r': escaped += "\\r"; continue;
+        case '\0': escaped += "\\0"; continue;
+        default: escaped += c; continue;
+        }
+    }
+    return escaped;
+}
+
 void TableEncoder::tryEncodeCharacters(size_t begin, size_t end)
 {
+    m_missingEntries.clear();
+
     if (auto maybeBinary = encodeCharacters(begin, end))
     {
         m_binary.append(maybeBinary->second);
@@ -107,18 +131,23 @@ void TableEncoder::tryEncodeCharacters(size_t begin, size_t end)
     }
     else
     {
+        if (m_missingEntries.size() == 1)
+        {
+            begin = m_missingEntries.front();
+        }
+
         std::string textSnippet;
         if (begin > 0)
         {
-            textSnippet += "... ";
+            textSnippet += "{...}";
         }
         textSnippet += m_text->substr(begin, end - begin);
         if (end < m_text->length())
         {
-            textSnippet += " ...";
+            textSnippet += "{...}";
         }
 
-        throw std::runtime_error{"could not encode '" + textSnippet + "'"};
+        throw std::runtime_error{ "could not encode '" + escape(textSnippet) + "'" };
     }
 }
 
@@ -142,6 +171,10 @@ auto TableEncoder::encodeCharacters(size_t begin, size_t end)
                                       entry.binary() + maybeBinary->second);
             }
         }
+    }
+    else
+    {
+        m_missingEntries.push_back(begin);
     }
     return {};
 }

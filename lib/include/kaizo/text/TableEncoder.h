@@ -43,6 +43,9 @@ private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
+
+    // For diagnostic messages
+    std::vector<size_t> m_missingEntries;
 };
 
 } // namespace kaizo::text
