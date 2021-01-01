@@ -5,21 +5,20 @@ using namespace fuse;
 
 auto toPython(const AnnotatedBinary& binary) -> PyObject*
 {
-    PyObject* pyAnnotated = PyDict_New();
-
-    PyObject* pyBinary = Py_BuildValue("y#", binary.binary().data(), binary.binary().size());
-    PyDict_SetItemString(pyAnnotated, "binary", pyBinary);
-
     PyObject* pyObjectList = PyList_New(binary.objectCount());
     for (size_t i = 0; i < binary.objectCount(); ++i)
     {
         auto const& object = *binary.object(i);
         PyObject* pyObject = toPython(object);
+
+        auto const offset = static_cast<const PackedObject&>(object).offset();
+        PyObject* pyBinary = PyByteArray_FromStringAndSize(
+            reinterpret_cast<const char*>(binary.binary().data() + offset), object.size());
+        PyDict_SetItemString(pyObject, "binary", pyBinary);
+
         PyList_SetItem(pyObjectList, i, pyObject);
     }
-    PyDict_SetItemString(pyAnnotated, "objects", pyObjectList);
-
-    return pyAnnotated;
+    return pyObjectList;
 }
 
 auto toPython(const Object::Section& section) -> PyObject*
@@ -43,15 +42,22 @@ auto toPython(const Object& object) -> PyObject*
                                                    object.path().toString().length());
     PyDict_SetItemString(pyObject, "path", pyPath);
 
-    PyObject* pySize = Py_BuildValue("K", static_cast<unsigned long long>(object.size()));
-    PyDict_SetItemString(pyObject, "size", pySize);
+    if (object.hasFixedOffset())
+    {
+        PyDict_SetItemString(
+            pyObject, "fixed_offset",
+            Py_BuildValue("K", static_cast<unsigned long long>(object.fixedOffset())));
+    }
+
+    if (object.alignment() != 1)
+    {
+        PyDict_SetItemString(
+            pyObject, "alignment",
+            Py_BuildValue("K", static_cast<unsigned long long>(object.alignment())));
+    }
+
     PyObject* pyActualSize = Py_BuildValue("K", static_cast<unsigned long long>(object.realSize()));
     PyDict_SetItemString(pyObject, "actual_size", pyActualSize);
-    // TODO: check for PackedObject or abstract away serialization
-    // Maybe Object does not need to be an abstract base class...
-    PyObject* pyOffset = Py_BuildValue(
-        "K", static_cast<unsigned long long>(static_cast<const PackedObject&>(object).offset()));
-    PyDict_SetItemString(pyObject, "offset", pyOffset);
 
     PyObject* pyRefList = PyList_New(object.unresolvedReferenceCount());
     for (size_t i = 0; i < object.unresolvedReferenceCount(); ++i)

@@ -28,6 +28,7 @@ public:
     void skip(size_t size);
     void addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
                                 const binary::DataPath& destination);
+    void setFixedOffset(const size_t offset);
     void endObject();
 
     void serialize(LuaWriter& writer) const;

@@ -34,6 +34,12 @@ void DataWriter::startNewObject()
     section().annotated.startObject(m_path);
 }
 
+void DataWriter::startNewObject(const size_t fixedOffset)
+{
+    startNewObject();
+    section().annotated.setFixedOffset(fixedOffset);
+}
+
 void DataWriter::mergeSections()
 {
     for (auto i = 1U; i < m_sections.size(); ++i)

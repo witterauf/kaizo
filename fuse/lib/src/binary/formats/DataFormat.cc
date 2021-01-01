@@ -47,8 +47,9 @@ void DataFormat::encode(DataWriter& writer, const Data& data)
 {
     if (m_offset)
     {
-        writer.startNewObject();
+        writer.startNewObject(*m_offset);
     }
+    // TODO: alignment
     writer.skip(m_skipBefore);
     doEncode(writer, data);
     writer.skip(m_skipAfter);

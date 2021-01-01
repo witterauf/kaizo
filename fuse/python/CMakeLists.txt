@@ -26,6 +26,8 @@ if (Python_FOUND)
     src/fusepy/binary.cc
     src/fusepy/objects.h
     src/fusepy/objects.cc
+    src/fusepy/linking.h
+    src/fusepy/linking.cc
     src/fusepy/python_helpers.h
     src/fusepy/python_helpers.cc
   )

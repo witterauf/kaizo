@@ -36,7 +36,12 @@ BinaryPatch::BinaryPatch(const Binary& data, int64_t relativeOffset)
     m_size = data.size();
 }
 
-void BinaryPatch::apply(Binary& binary, size_t offset) const
+auto BinaryPatch::data() const -> const uint8_t*
+{
+    return m_data;
+}
+
+void BinaryPatch::apply(MutableBinaryView& binary, size_t offset) const
 {
     for (auto i = 0U; i < size(); ++i)
     {

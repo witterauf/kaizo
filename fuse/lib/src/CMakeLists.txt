@@ -156,19 +156,19 @@ set(FUSE_LINKING_SOURCES
   ${FUSE_INCLUDE_DIRECTORY}/linking/FreeSpace.h
   ${FUSE_INCLUDE_DIRECTORY}/linking/FreeBlock.h
   ${FUSE_INCLUDE_DIRECTORY}/linking/Packer.h
-  ${FUSE_INCLUDE_DIRECTORY}/linking/ConstraintDirectory.h
-  ${FUSE_INCLUDE_DIRECTORY}/linking/Linker.h
-  ${FUSE_INCLUDE_DIRECTORY}/linking/Target.h
-  ${FUSE_INCLUDE_DIRECTORY}/linking/TargetMap.h
+  ${FUSE_INCLUDE_DIRECTORY}/linking/Backtracker.h
+  #${FUSE_INCLUDE_DIRECTORY}/linking/ConstraintDirectory.h
+  #${FUSE_INCLUDE_DIRECTORY}/linking/Linker.h
+  #${FUSE_INCLUDE_DIRECTORY}/linking/Target.h
+  #${FUSE_INCLUDE_DIRECTORY}/linking/TargetMap.h
   linking/LinkObject.cc
   linking/Constraint.cc
   linking/FreeSpace.cc
   linking/FreeBlock.cc
-  linking/ConstraintDirectory.cc
-  linking/Linker.cc
-  linking/Target.cc
-  linking/TargetMap.cc
-  linking/BackTracker.h
+  #linking/ConstraintDirectory.cc
+  #linking/Linker.cc
+  #linking/Target.cc
+  #linking/TargetMap.cc
   linking/BackTracker.cc
 )
 
@@ -209,7 +209,7 @@ set(FUSE_SOURCES
     ${FUSE_TEXT_SOURCES}
     ${FUSE_UTILITIES_SOURCES}
     ${FUSE_LUA_SOURCES}
-    #${FUSE_LINKING_SOURCES}
+    ${FUSE_LINKING_SOURCES}
 )
 
 source_group("Addresses" FILES ${FUSE_ADDRESSES_SOURCES})

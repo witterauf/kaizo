@@ -1,4 +1,4 @@
-#include "FreeSpace.h"
+#include "fuse/linking/FreeSpace.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <numeric>

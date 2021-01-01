@@ -1,55 +1,45 @@
-#include "LinkObject.h"
-#include "FreeSpace.h"
+#include "fuse/linking/LinkObject.h"
+#include "fuse/linking/FreeSpace.h"
 #include <diagnostics/Contracts.h>
-#include <fuse/binary/objects/Object.h>
 
 namespace fuse {
 
-LinkObject::LinkObject(const Object* object)
-    : m_object{object}
+LinkObject::LinkObject(const std::string& id, const size_t size)
+    : m_id{id}
+    , m_size{size}
 {
-    Expects(m_object);
-    Expects(m_object->size() > 0);
-    Expects(!m_object->path().isEmpty());
+    Expects(!id.empty());
+}
+
+auto LinkObject::id() const -> const std::string&
+{
+    return m_id;
 }
 
 auto LinkObject::size() const -> size_t
 {
-    Expects(m_object);
-    return m_object->size();
+    return m_size;
 }
 
-auto LinkObject::path() const -> const binary::DataPath&
+void LinkObject::setAllocation(const Allocation& allocation)
 {
-    Expects(m_object);
-    return m_object->path();
+    Expects(!m_allocation);
+    m_allocation = allocation;
 }
 
-auto LinkObject::object() const -> const Object&
+void LinkObject::unsetAllocation()
 {
-    Expects(m_object);
-    return *m_object;
+    m_allocation.reset();
 }
 
-void LinkObject::setAddress(const Address address)
+bool LinkObject::hasAllocation() const
 {
-    Expects(!m_address);
-    m_address = address;
+    return m_allocation.has_value();
 }
 
-void LinkObject::unsetAddress()
+void LinkObject::setFixedAddress(const Address)
 {
-    m_address = {};
-}
-
-bool LinkObject::hasAddress() const
-{
-    return m_address.has_value();
-}
-
-void LinkObject::setFixedAddress(const Address address)
-{
-    m_address = address;
+    // m_address = address;
     m_hasFixedAddress = true;
 }
 
@@ -58,13 +48,13 @@ bool LinkObject::hasFixedAddress() const
     return m_hasFixedAddress;
 }
 
-auto LinkObject::address() const -> const Address&
+auto LinkObject::allocation() const -> const Allocation&
 {
-    Expects(hasAddress());
-    return *m_address;
+    Expects(hasAllocation());
+    return *m_allocation;
 }
 
-auto LinkObject::findAllocations(const FreeSpace& space) const -> std::vector<AllocationCandidate>
+auto LinkObject::findAllocations(const FreeSpace& space) const -> std::vector<Allocation>
 {
     if (m_constraint)
     {
@@ -73,11 +63,12 @@ auto LinkObject::findAllocations(const FreeSpace& space) const -> std::vector<Al
     else
     {
         auto const blocks = space.findBlocksThatFit(size());
-        std::vector<AllocationCandidate> allocations(blocks.size());
+        std::vector<Allocation> allocations(blocks.size());
         for (auto i = 0U; i < blocks.size(); ++i)
         {
-            allocations[i].start = space.block(blocks[i]).address();
+            allocations[i].address = space.block(blocks[i]).address();
             allocations[i].size = space.block(blocks[i]).size() - size();
+            allocations[i].offset = space.block(blocks[i]).offset();
             allocations[i].block = blocks[i];
         }
         return std::move(allocations);
@@ -102,7 +93,7 @@ auto LinkObject::measureSlack(const FreeSpace& space) const -> size_t
     auto const allocations = findAllocations(space);
     for (auto const& allocation : allocations)
     {
-        slack += allocation.size;
+        slack += allocation.size - size();
     }
     return slack;
 }

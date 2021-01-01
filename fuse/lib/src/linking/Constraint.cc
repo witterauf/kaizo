@@ -1,4 +1,4 @@
-#include "Constraint.h"
+#include "fuse/linking/Constraint.h"
 
 namespace fuse {
 
@@ -8,7 +8,7 @@ FixedAddressConstraint::FixedAddressConstraint(Address address)
 }
 
 auto FixedAddressConstraint::findAllocations(const FreeSpace&, size_t) const
-    -> std::vector<AllocationCandidate>
+    -> std::vector<Allocation>
 {
     return {};
 }
@@ -43,8 +43,7 @@ AndConstraint::AndConstraint(std::vector<std::unique_ptr<Constraint>>&& constrai
 {
 }
 
-auto AndConstraint::findAllocations(const FreeSpace&, size_t) const
-    -> std::vector<AllocationCandidate>
+auto AndConstraint::findAllocations(const FreeSpace&, size_t) const -> std::vector<Allocation>
 {
     return {};
 }

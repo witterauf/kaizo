@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Binary.h"
+#include "BinaryView.h"
 
 namespace fuse {
 
@@ -10,9 +11,12 @@ public:
     static constexpr size_t MaximumSize = 8;
 
     explicit BinaryPatch(uint64_t data, uint64_t mask, size_t size, ptrdiff_t relativeOffset = 0);
+    explicit BinaryPatch(const uint8_t* data, const uint8_t* mask, size_t size,
+                         ptrdiff_t relativeOffset = 0);
     explicit BinaryPatch(const Binary& data, int64_t relativeOffset = 0);
-    void apply(Binary& binary, size_t offset) const;
+    void apply(MutableBinaryView& binary, size_t offset) const;
 
+    auto data() const -> const uint8_t*;
     bool usesOnlyFullBytes() const;
     auto size() const -> size_t;
     void setRelativeOffset(ptrdiff_t offset);

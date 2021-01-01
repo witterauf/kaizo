@@ -1,4 +1,4 @@
-#include "Backtracker.h"
+#include "fuse/linking/Backtracker.h"
 #include <algorithm>
 #include <diagnostics/Contracts.h>
 #include <iostream>
@@ -44,14 +44,14 @@ auto PriorityObjectList::mapNext()
 {
     m_mapped.push_back(m_unmapped.back());
     m_unmapped.pop_back();
-    // TODO: resort?
+    // TODO: sort again? expensive, but better results?
 }
 
 auto PriorityObjectList::unmapLast()
 {
     m_unmapped.push_back(m_mapped.back());
     m_mapped.pop_back();
-    // TODO: resort?
+    // TODO: sort again?
 }
 
 auto PriorityObjectList::nextUnmapped() const -> LinkObject*
@@ -103,26 +103,41 @@ void BacktrackingPacker::addFreeBlock(const FreeBlock& block)
     m_freeSpace.addBlock(block);
 }
 
-void BacktrackingPacker::addObject(LinkObject* object)
+void BacktrackingPacker::addObject(std::unique_ptr<LinkObject>&& object)
 {
     if (object->hasFixedAddress())
     {
+        throw std::runtime_error{"TODO: reimplement"};
         // No need to pack objects that have a fixed address anyway.
         // However, block other objects from using its address range.
-        m_freeSpace.allocateRange(object->address(), object->size());
+        // m_freeSpace.allocateRange(object->allocation().address, object->size());
     }
     else
     {
-        m_objects.addObject(object);
+        m_objects.addObject(object.get());
         m_objectSize += object->size();
+        m_linkObjects.push_back(std::move(object));
     }
+}
+
+auto BacktrackingPacker::object(const size_t index) const -> LinkObject*
+{
+    return m_linkObjects[index].get();
+}
+
+auto BacktrackingPacker::objectCount() const -> size_t
+{
+    return m_linkObjects.size();
 }
 
 bool BacktrackingPacker::pack()
 {
+    initializeLogging();
+    log_StartPacking();
+
     if (m_objectSize > m_freeSpace.capacity())
     {
-        std::cout << m_objectSize << "\n";
+        log_InstantFail();
         return false;
     }
 
@@ -133,16 +148,18 @@ bool BacktrackingPacker::pack()
         {
             if (m_objects.canBeSatisfied())
             {
-                auto const address = m_state.top().allocation();
+                auto const allocation = m_state.top().allocation();
                 auto const size = m_objects.nextUnmapped()->size();
-                //std::cout << "trying '" << m_objects.nextUnmapped()->path().toString() << " @ "
-                          //<< address.toString() << "\n";
-                m_objects.nextUnmapped()->setAddress(address);
+                // std::cout << "trying '" << m_objects.nextUnmapped()->path().toString() << " @ "
+                //<< address.toString() << "\n";
+                m_objects.nextUnmapped()->setAllocation(allocation);
                 // TODO: use method that ensures the range exists
-                m_freeSpace.allocateRange(address, size);
+                m_freeSpace.allocateRange(allocation.address, size);
+                log_Allocated(*m_objects.nextUnmapped());
                 m_objects.mapNext();
                 if (!m_objects.hasUnmapped())
                 {
+                    log_Success();
                     return true;
                 }
                 m_state.push(
@@ -161,14 +178,21 @@ bool BacktrackingPacker::pack()
             std::cout << "Backtracking...\n";
             m_freeSpace.deallocateLast();
             m_objects.unmapLast();
-            m_objects.nextUnmapped()->unsetAddress();
+            log_Deallocated(*m_objects.nextUnmapped());
+            m_objects.nextUnmapped()->unsetAllocation();
         }
     }
+
+    log_Fail();
     return false;
 }
 
-BacktrackingPacker::BacktrackingState::BacktrackingState(
-    std::vector<AllocationCandidate>&& allocations)
+void BacktrackingPacker::setLogFile(const std::filesystem::path& log)
+{
+    m_logFile = log;
+}
+
+BacktrackingPacker::BacktrackingState::BacktrackingState(std::vector<Allocation>&& allocations)
     : m_allocations{std::move(allocations)}
 {
     m_isAtEnd = m_allocations.empty();
@@ -206,14 +230,83 @@ bool BacktrackingPacker::BacktrackingState::next()
     return true;
 }
 
-auto BacktrackingPacker::BacktrackingState::allocation() const -> Address
+auto BacktrackingPacker::BacktrackingState::allocation() const -> Allocation
 {
-    return m_allocations[m_allocationIndex].start.applyOffset(m_allocationOffset);
+    Allocation shiftedAllocation;
+    shiftedAllocation.size = m_allocations[m_allocationIndex].size;
+    shiftedAllocation.block = m_allocations[m_allocationIndex].block;
+    shiftedAllocation.offset = m_allocations[m_allocationIndex].offset + m_allocationOffset;
+    shiftedAllocation.address =
+        m_allocations[m_allocationIndex].address.applyOffset(m_allocationOffset);
+    return shiftedAllocation;
 }
 
 bool BacktrackingPacker::BacktrackingState::hasMore() const
 {
     return !m_isAtEnd;
+}
+
+void BacktrackingPacker::initializeLogging()
+{
+    if (m_logFile)
+    {
+        m_log.open(*m_logFile);
+    }
+}
+
+void BacktrackingPacker::log_StartPacking()
+{
+    if (m_log.is_open())
+    {
+        m_log << "Start packing...\n";
+        m_log << "Objects:\n";
+        for (size_t i = 0; i < m_linkObjects.size(); ++i)
+        {
+            m_log << " [" << i << "] " << m_linkObjects[i]->id() << ": " << m_linkObjects[i]->size()
+                  << "\n";
+        }
+    }
+}
+
+void BacktrackingPacker::log_InstantFail()
+{
+    if (m_log.is_open())
+    {
+        m_log << "Failed instantly due to not enough free space.\n";
+    }
+}
+
+void BacktrackingPacker::log_Allocated(const LinkObject& object)
+{
+    if (m_log.is_open())
+    {
+        m_log << "  allocated object " << object.id() << " at offset " << object.allocation().offset
+              << ", corresponding to address " << object.allocation().address.toString() << "\n";
+    }
+}
+
+void BacktrackingPacker::log_Deallocated(const LinkObject& object)
+{
+    if (m_log.is_open())
+    {
+        m_log << "  deallocated object " << object.id() << "\n";
+    }
+}
+
+void BacktrackingPacker::log_Success()
+{
+    if (m_log.is_open())
+    {
+        m_log << "Success!";
+    }
+}
+
+void BacktrackingPacker::log_Fail()
+{
+    if (m_log.is_open())
+    {
+        m_log << "Fail.";
+    }
 }
 
 } // namespace fuse

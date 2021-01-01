@@ -23,6 +23,7 @@ public:
 
     // Manage object hierarchy
     void startNewObject();
+    void startNewObject(const size_t fixedOffset);
     void enter(const DataPathElement& element);
     void reenter(const DataPathElement& element);
     auto path() const -> const DataPath&;

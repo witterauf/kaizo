@@ -12,9 +12,10 @@ class FreeBlock
 {
 public:
     FreeBlock() = default;
-    explicit FreeBlock(const Address address, size_t size);
+    explicit FreeBlock(const size_t offset, const Address address, size_t size);
 
     bool isValid() const;
+    auto offset() const -> size_t;
     auto address() const -> Address;
     auto size() const -> size_t;
     bool contains(const Address address) const;
@@ -25,6 +26,7 @@ public:
     auto endAddress() const -> Address;
 
 private:
+    size_t m_offset{0};
     Address m_address;
     size_t m_size{0};
 };

@@ -102,6 +102,11 @@ void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorag
     m_currentObject->addUnresolvedReference(std::move(reference));
 }
 
+void AnnotatedBinary::setFixedOffset(const size_t offset)
+{
+    m_currentObject->setFixedOffset(offset);
+}
+
 auto AnnotatedBinary::relativeOffset() const -> size_t
 {
     return m_binary.size() - m_currentObject->size();

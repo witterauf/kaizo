@@ -1,14 +1,20 @@
-#include "FreeBlock.h"
+#include "fuse/linking/FreeBlock.h"
 #include <diagnostics/Contracts.h>
 
 namespace fuse {
 
-FreeBlock::FreeBlock(const Address address, size_t size)
-    : m_address{address}
+FreeBlock::FreeBlock(const size_t offset, const Address address, size_t size)
+    : m_offset{offset}
+    , m_address{address}
     , m_size{size}
 {
     Expects(address.isValid());
     Expects(size > 0);
+}
+
+auto FreeBlock::offset() const -> size_t
+{
+    return m_offset;
 }
 
 bool FreeBlock::contains(const Address address) const
@@ -54,18 +60,19 @@ auto FreeBlock::allocate(const Address address, size_t length) const -> SplitFre
     }
     else if (address == m_address)
     {
-        return SplitFreeBlocks{FreeBlock{m_address.applyOffset(length), m_size - length}};
+        return SplitFreeBlocks{
+            FreeBlock{m_offset + length, m_address.applyOffset(length), m_size - length}};
     }
     else if (m_address.applyOffset(m_size) == address.applyOffset(length))
     {
-        return SplitFreeBlocks{FreeBlock{m_address, m_size - length}};
+        return SplitFreeBlocks{FreeBlock{m_offset, m_address, m_size - length}};
     }
     else
     {
-        FreeBlock left{m_address, static_cast<size_t>(address.subtract(m_address))};
+        FreeBlock left{m_offset, m_address, static_cast<size_t>(address.subtract(m_address))};
         auto const allocatedEndAddress = address.applyOffset(length);
         auto const rightSize = endAddress().subtract(allocatedEndAddress);
-        FreeBlock right{allocatedEndAddress, static_cast<size_t>(rightSize)};
+        FreeBlock right{m_offset + length, allocatedEndAddress, static_cast<size_t>(rightSize)};
         return SplitFreeBlocks{left, right};
     }
 }

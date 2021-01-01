@@ -1,10 +1,13 @@
 #pragma once
 
-#include "Constraint.h"
-#include "FreeSpace.h"
-#include "LinkObject.h"
-#include "Packer.h"
+#include "fuse/linking/Constraint.h"
+#include "fuse/linking/FreeSpace.h"
+#include "fuse/linking/LinkObject.h"
+#include <filesystem>
+#include <fstream>
 #include <functional>
+#include <memory>
+#include <vector>
 
 namespace fuse {
 
@@ -39,36 +42,41 @@ private:
     ScoreObjectStrategy m_scoreObject;
 };
 
-class BacktrackingPacker : public Packer
+class BacktrackingPacker
 {
 public:
     using ScoringStrategy = PriorityObjectList::ScoreObjectStrategy;
 
     BacktrackingPacker();
 
+    void setLogFile(const std::filesystem::path& log);
+
     void setScoringStrategy(ScoringStrategy strategy);
     void setFreeBlocks(std::vector<FreeBlock>&& blocks);
-    void addFreeBlock(const FreeBlock& block) override;
-    void addObject(LinkObject* object) override;
+    void addFreeBlock(const FreeBlock& block);
+    void addObject(std::unique_ptr<LinkObject>&& object);
+    auto object(const size_t index) const -> LinkObject*;
+    auto objectCount() const -> size_t;
 
-    bool pack() override;
+    bool pack();
 
 private:
     FreeSpace m_freeSpace;
     PriorityObjectList m_objects;
+    std::vector<std::unique_ptr<LinkObject>> m_linkObjects;
     size_t m_objectSize{0};
 
     struct BacktrackingState
     {
     public:
-        BacktrackingState(std::vector<AllocationCandidate>&& allocations);
+        BacktrackingState(std::vector<Allocation>&& allocations);
 
         bool hasMore() const;
         bool next();
-        auto allocation() const -> Address;
+        auto allocation() const -> Allocation;
 
     private:
-        std::vector<AllocationCandidate> m_allocations;
+        std::vector<Allocation> m_allocations;
         size_t m_allocationIndex{0};
         size_t m_allocationOffset{0};
         size_t m_shift{0};
@@ -76,6 +84,17 @@ private:
     };
 
     std::stack<BacktrackingState> m_state;
+
+    void initializeLogging();
+    void log_StartPacking();
+    void log_InstantFail();
+    void log_Allocated(const LinkObject&);
+    void log_Deallocated(const LinkObject&);
+    void log_Success();
+    void log_Fail();
+
+    std::optional<std::filesystem::path> m_logFile;
+    std::ofstream m_log;
 };
 
 } // namespace fuse

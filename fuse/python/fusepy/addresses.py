@@ -19,6 +19,14 @@ class AddressLayout:
     def to_dict(self):
         return self._layout.to_dict()
 
+    def encode(self, address):
+        return self._layout.encode(address)
+
+    def write(self, target, offset, address):
+        patches = self._layout.encode(address)
+        for patch in patches:
+            patch.apply(target, offset)
+
 class RelativeAddressLayout(AddressLayout):
     @staticmethod
     def _make(_layout):
@@ -26,7 +34,8 @@ class RelativeAddressLayout(AddressLayout):
         layout._layout = _layout
         return layout
 
-    def __init__(self, base, size, null_pointer=None, signedness=Signedness.UNSIGNED, endianness=Endianness.LITTLE):
+    def __init__(self, base, size, null_pointer=None, signedness=Signedness.UNSIGNED,
+                 endianness=Endianness.LITTLE):
         self._layout = _RelativeAddressLayout()
         self._layout.set_layout(size, signedness.value, endianness.value)
         if isinstance(base, int):
@@ -54,6 +63,10 @@ class AddressFormat:
             raise TypeError("expected an _AddressFormat")
         self._format = format
 
+    def from_int(self, value):
+        as_int = int(value)
+        return self._format.from_int(as_int)
+
 FileOffset = AddressFormat(_FileOffset)
 
 class AddressMap:
@@ -61,6 +74,20 @@ class AddressMap:
         if not isinstance(map, _AddressMap):
             raise TypeError("expected an _AddressMap")
         self._map = map
+
+    def map_to_sources(self, target):
+        return self._map.map_to_sources(target)
+
+    def map_to_source(self, target):
+        sources = self.map_to_sources(target)
+        if len(sources) > 1:
+            raise ValueError('target address maps to more than one source')
+        elif len(sources) == 0:
+            raise ValueError('target address maps to no source')
+        return sources[0]
+
+    def map_to_target(self, source):
+        return self._map.map_to_target(source)
 
 class RegionedAddressMap(AddressMap):
     def __init__(self, source_format, target_format):

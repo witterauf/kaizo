@@ -21,6 +21,32 @@ static auto deserializeSection(LuaDomReader& reader) -> Object::Section
     return section;
 }
 
+void Object::setAlignment(const size_t alignment)
+{
+    Expects(alignment >= 1);
+    m_alignment = alignment;
+}
+
+auto Object::alignment() const -> size_t
+{
+    return m_alignment;
+}
+
+void Object::setFixedOffset(const size_t offset)
+{
+    m_fixedOffset = offset;
+}
+
+bool Object::hasFixedOffset() const
+{
+    return m_fixedOffset.has_value();
+}
+
+auto Object::fixedOffset() const -> size_t
+{
+    return *m_fixedOffset;
+}
+
 auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
     -> std::unique_ptr<PackedObject>
 {
@@ -80,6 +106,11 @@ PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent
     , m_parent{parent}
     , m_offset{offset}
 {
+}
+
+auto PackedObject::binary() const -> fuse::Binary
+{
+    return m_parent->binary().read(m_offset, size());
 }
 
 void PackedObject::addSection(size_t realOffset, size_t sectionSize)

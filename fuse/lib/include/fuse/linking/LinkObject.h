@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Constraint.h"
-#include <fuse/binary/DataPath.h>
+#include <fuse/addresses/Address.h>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -14,33 +14,32 @@ class Object;
 class LinkObject
 {
 public:
-    explicit LinkObject(const Object* object);
+    explicit LinkObject(const std::string& id, const size_t size);
 
+    auto id() const -> const std::string&;
     auto size() const -> size_t;
-    auto path() const -> const binary::DataPath&;
-    auto object() const -> const Object&;
 
-    void setAddress(const Address address);
-    void unsetAddress();
-    bool hasAddress() const;
-    auto address() const -> const Address&;
+    void setAllocation(const Allocation& allocation);
+    void unsetAllocation();
+    bool hasAllocation() const;
+    auto allocation() const -> const Allocation&;
 
     void setFixedAddress(const Address address);
     bool hasFixedAddress() const;
-
-    auto findAllocations(const FreeSpace& space) const -> std::vector<AllocationCandidate>;
-    bool hasAllocations(const FreeSpace& space) const;
-    auto measureSlack(const FreeSpace& space) const -> size_t;
-
     void constrain(std::unique_ptr<Constraint>&& constraint);
     bool isConstrained() const;
     bool isUnconstrained() const;
 
+    auto findAllocations(const FreeSpace& space) const -> std::vector<Allocation>;
+    bool hasAllocations(const FreeSpace& space) const;
+    auto measureSlack(const FreeSpace& space) const -> size_t;
+
 private:
-    const Object* m_object;
-    std::unique_ptr<Constraint> m_constraint;
+    std::string m_id;
+    const size_t m_size;
     bool m_hasFixedAddress{false};
-    std::optional<Address> m_address;
+    std::optional<Allocation> m_allocation;
+    std::unique_ptr<Constraint> m_constraint;
 };
 
 } // namespace fuse

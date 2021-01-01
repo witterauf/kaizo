@@ -1,8 +1,12 @@
 from fusepy._fusepy import _DataReader, _DataWriter
-from fusepy.objects import PackedObjects, PackedObject, UnresolvedReference, ObjectSection
+from fusepy.objects import BinaryObject, UnresolvedReference, ObjectSection
 from fusepy.addresses import AddressLayout
 
 class DataReader:
+    """
+    Reads binary data into a structured representation according to a given DataFormat.
+    """
+
     def __init__(self, binary):
         self._reader = _DataReader(binary)
 
@@ -20,26 +24,30 @@ def _make_UnresolvedReference(as_dict):
     layout = AddressLayout._make(as_dict['layout'])
     return UnresolvedReference(int(as_dict['offset']), as_dict['path'], layout)
 
-def _make_PackedObject(as_dict):
+def _make_object(o):
     sections = []
-    for section in as_dict['sections']:
+    for section in o['sections']:
         sections.append(_make_ObjectSection(section))        
     unresolved = []
-    for ref in as_dict['unresolved']:
+    for ref in o['unresolved']:
         unresolved.append(_make_UnresolvedReference(ref))
-    return PackedObject(as_dict['path'], int(as_dict['offset']), int(as_dict['size']),
-                        int(as_dict['actual_size']), sections, unresolved)
 
-def _make_PackedObjects(as_dict):
-    objects = []
-    for object in as_dict['objects']:
-        objects.append(_make_PackedObject(object))
-    return PackedObjects(as_dict['binary'], objects)
+    fixed_offset = None
+    if 'fixed_offset' in o:
+        fixed_offset = int(o['fixed_offset'])
+    alignment = 1
+    if 'alignment' in o:
+        alignment = int(o['alignment'])
+    return BinaryObject(o['path'], o['binary'], int(o['actual_size']), sections,
+                        unresolved, fixed_offset=fixed_offset, alignment=alignment)
+
+def _make_objects(object_dicts):
+    return [_make_object(o) for o in object_dicts]
 
 class DataWriter:
     def __init__(self):
         self._writer = _DataWriter()
     
     def assemble(self):
-        as_dict = self._writer.assemble()
-        return _make_PackedObjects(as_dict)
+        object_dicts = self._writer.assemble()
+        return _make_objects(object_dicts)

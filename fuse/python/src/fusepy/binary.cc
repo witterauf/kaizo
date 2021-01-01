@@ -6,7 +6,7 @@
 using namespace fuse;
 using namespace fuse::binary;
 
-//##[ DataReader ]######################################################################
+//##[ DataReader ]#################################################################################
 
 static int PyDataReader_init(PyDataReader* self, PyObject* args, PyObject*)
 {
@@ -83,7 +83,7 @@ static bool registerDataReader(PyObject* module)
     return true;
 }
 
-//##[ DataWriter ]######################################################################
+//##[ DataWriter ]#################################################################################
 
 static int PyDataWriter_init(PyDataWriter* self, PyObject*, PyObject*)
 {
@@ -129,6 +129,163 @@ static bool registerDataWriter(PyObject* module)
     return true;
 }
 
+//##[ BinaryPatch ]################################################################################
+
+auto PyFuseBinaryPatch_New(const uint64_t data, const uint64_t mask, const size_t size,
+                           const ptrdiff_t offset) -> PyObject*
+{
+    auto* pyPatch = PyObject_New(PyFuseBinaryPatch, &PyFuseBinaryPatchType);
+    new (&pyPatch->patch) BinaryPatch{data, mask, size, offset};
+    return (PyObject*)pyPatch;
+}
+
+auto PyFuseBinaryPatch_New(const BinaryPatch& patch) -> PyObject*
+{
+    auto* pyPatch = PyObject_New(PyFuseBinaryPatch, &PyFuseBinaryPatchType);
+    new (&pyPatch->patch) BinaryPatch{patch};
+    return (PyObject*)pyPatch;
+}
+
+/*
+static int PyFuseBinaryPatch_init(PyFuseBinaryPatch* self, PyObject* args, PyObject*)
+{
+    const uint8_t* byData;
+    int dataSize{-1};
+    const uint8_t* byMask;
+    int maskSize{-1};
+    long long offset;
+    if (PyArg_ParseTuple(args, "y#y#K", &byData, &dataSize, byMask, &maskSize, &offset) < 0)
+    {
+        return -1;
+    }
+
+    new (&self->patch) BinaryPatch{data, mask, size, offset};
+    return 0;
+}
+*/
+
+static void PyFuseBinaryPatch_dealloc(PyFuseBinaryPatch* self)
+{
+    self->patch.~BinaryPatch();
+    Py_TYPE(self)->tp_free(self);
+}
+
+static auto PyFuseBinaryPatch_apply(PyFuseBinaryPatch* self, PyObject* const* args,
+                                    const Py_ssize_t nargs) -> PyObject*
+{
+    if (nargs != 2)
+    {
+        PyErr_SetString(PyExc_TypeError, "expected 2 arguments (target, offset)");
+        return NULL;
+    }
+
+    auto const offset = PyLong_AsUnsignedLongLong(args[1]);
+    if (offset == static_cast<decltype(offset)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    Py_buffer buffer;
+    if (PyObject_GetBuffer(args[0], &buffer, PyBUF_C_CONTIGUOUS | PyBUF_SIMPLE | PyBUF_WRITEABLE) <
+        0)
+    {
+        return NULL;
+    }
+
+    MutableBinaryView binary{reinterpret_cast<uint8_t*>(buffer.buf),
+                             static_cast<size_t>(buffer.len)};
+
+    auto const effectiveOffset = offset + self->patch.relativeOffset();
+    if (effectiveOffset + self->patch.size() > binary.size())
+    {
+        PyErr_SetString(PyExc_IndexError,
+                        ("patch (offsets " + std::to_string(effectiveOffset) + " - " +
+                         std::to_string(effectiveOffset + self->patch.size()) +
+                         ") spills out of binary (size " + std::to_string(binary.size()) + ")")
+                            .c_str());
+        PyBuffer_Release(&buffer);
+        return NULL;
+    }
+
+    self->patch.apply(binary, offset);
+
+    PyBuffer_Release(&buffer);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyFuseBinaryPatch_effective_offset(PyFuseBinaryPatch* self, PyObject* pyOffset)
+    -> PyObject*
+{
+    auto const offset = PyLong_AsUnsignedLongLong(pyOffset);
+    if (offset == static_cast<decltype(offset)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    return Py_BuildValue("K",
+                         static_cast<unsigned long long>(offset + self->patch.relativeOffset()));
+}
+
+static auto PyFuseBinaryPatch_is_partial(PyFuseBinaryPatch* self, void*) -> PyObject*
+{
+    if (self->patch.usesOnlyFullBytes())
+    {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+    else
+    {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+}
+
+static auto PyFuseBinaryPatch_len(PyFuseBinaryPatch* self) -> Py_ssize_t
+{
+    return static_cast<Py_ssize_t>(self->patch.size());
+}
+
+static PyMethodDef PyFuseBinaryPatch_methods[] = {
+    {"apply", (PyCFunction)PyFuseBinaryPatch_apply, METH_FASTCALL,
+     "applies the BinaryPatch to an object supporting the buffer protocols"},
+    {"effective_offset", (PyCFunction)PyFuseBinaryPatch_effective_offset, METH_O,
+     "compute the effective offset of the patch"},
+    {NULL}};
+
+PyGetSetDef PyFuseBinaryPatch_getsets[] = {
+    {"is_partial", (getter)PyFuseBinaryPatch_is_partial, NULL,
+     "get whether the BinaryPatch modifies partial bytes", NULL},
+    {NULL}};
+
+static PySequenceMethods PyFuseBinaryPatch_seqmethods;
+
+PyTypeObject PyFuseBinaryPatchType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy.BinaryPatch"};
+
+static bool registerBinaryPatch(PyObject* module)
+{
+    memset(&PyFuseBinaryPatch_seqmethods, 0, sizeof(PySequenceMethods));
+    PyFuseBinaryPatch_seqmethods.sq_length = (lenfunc)&PyFuseBinaryPatch_len;
+
+    PyFuseBinaryPatchType.tp_new = PyType_GenericNew;
+    PyFuseBinaryPatchType.tp_basicsize = sizeof(PyFuseBinaryPatch);
+    PyFuseBinaryPatchType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyFuseBinaryPatchType.tp_doc = "Represents a lightweight patch to binary data";
+    PyFuseBinaryPatchType.tp_methods = PyFuseBinaryPatch_methods;
+    PyFuseBinaryPatchType.tp_as_sequence = &PyFuseBinaryPatch_seqmethods;
+    PyFuseBinaryPatchType.tp_getset = PyFuseBinaryPatch_getsets;
+    // PyFuseBinaryPatchType.tp_init = (initproc)&PyFuseBinaryPatch_init;
+    PyFuseBinaryPatchType.tp_dealloc = (destructor)&PyFuseBinaryPatch_dealloc;
+
+    if (PyType_Ready(&PyFuseBinaryPatchType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyFuseBinaryPatchType);
+    PyModule_AddObject(module, "BinaryPatch", (PyObject*)&PyFuseBinaryPatchType);
+    return true;
+}
+
 //#################################################################################################
 
 bool registerFuseBinary(PyObject* module)
@@ -138,6 +295,10 @@ bool registerFuseBinary(PyObject* module)
         return false;
     }
     if (!registerDataWriter(module))
+    {
+        return false;
+    }
+    if (!registerBinaryPatch(module))
     {
         return false;
     }

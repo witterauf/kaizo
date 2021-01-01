@@ -40,12 +40,19 @@ struct PyRegionedAddressMap
     PyAddressMap base;
 };
 
+struct PyFuseAddress
+{
+    PyObject_HEAD;
+    fuse::Address address;
+};
+
 extern PyTypeObject PyAddressFormatType;
 extern PyTypeObject PyAddressLayoutType;
 extern PyTypeObject PyRelativeAddressLayoutType;
 extern PyTypeObject PyMipsEmbeddedLayoutType;
 extern PyTypeObject PyAddressMapType;
 extern PyTypeObject PyRegionedAddressMapType;
+extern PyTypeObject PyFuseAddressType;
 
 bool registerFuseAddresses(PyObject* module);
 

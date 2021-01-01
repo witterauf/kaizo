@@ -3,6 +3,7 @@
 #include "binary.h"
 #include "data.h"
 #include "dataformat.h"
+#include "linking.h"
 #include "text.h"
 
 #define PY_SSIZE_T_CLEAN
@@ -46,6 +47,10 @@ PyMODINIT_FUNC PyInit__fusepy(void)
         return NULL;
     }
     if (!registerFuseDataTypes(m))
+    {
+        return NULL;
+    }
+    if (!registerLinkingTypes(m))
     {
         return NULL;
     }

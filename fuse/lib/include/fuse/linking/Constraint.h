@@ -12,20 +12,23 @@ class FreeSpace;
 /// Describes a range where a LinkObject can be allocated while
 /// not violating the constraint
 /// -> Intersection
-struct AllocationCandidate
+struct Allocation
 {
     size_t block;
-    Address start;
+    size_t offset;
+    Address address;
     size_t size;
 };
 
 class Constraint
 {
 public:
+    virtual ~Constraint() = default;
+
     /// Finds all viable allocations for this constraint with the given size.
     /// Also used for computing the slack?
     virtual auto findAllocations(const FreeSpace& space, size_t) const
-        -> std::vector<AllocationCandidate> = 0;
+        -> std::vector<Allocation> = 0;
 
     /// Checks whether the FreeSpace can still satisfy this constraint.
     virtual bool hasAllocations(const FreeSpace& space, size_t) const = 0;
@@ -47,7 +50,7 @@ public:
     explicit FixedAddressConstraint(Address address);
 
     auto findAllocations(const FreeSpace& space, size_t) const
-        -> std::vector<AllocationCandidate> override;
+        -> std::vector<Allocation> override;
     bool hasAllocations(const FreeSpace& space, size_t) const override;
     auto yieldsFixedAddress() const -> std::optional<Address> override;
     auto strength() const -> unsigned override;
@@ -64,7 +67,7 @@ public:
     explicit AndConstraint(std::vector<std::unique_ptr<Constraint>>&& constraints);
 
     auto findAllocations(const FreeSpace& space, size_t) const
-        -> std::vector<AllocationCandidate> override;
+        -> std::vector<Allocation> override;
     bool hasAllocations(const FreeSpace& space, size_t) const override;
     auto yieldsFixedAddress() const -> std::optional<Address> override;
     auto strength() const -> unsigned override;

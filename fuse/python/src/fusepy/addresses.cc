@@ -1,4 +1,5 @@
 #include "addresses.h"
+#include "binary.h"
 #include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/MipsEmbeddedLayout.h>
 #include <fuse/addresses/RegionAddressMap.h>
@@ -8,13 +9,36 @@ using namespace fuse;
 
 //##[ AddressFormat ]##############################################################################
 
-static PyMethodDef PyAddressFormat_methods[] = {{NULL}};
+static auto PyAddressFormat_from_int(PyAddressFormat* self, PyObject* pyInt) -> PyObject*
+{
+    auto const integer = PyLong_AsUnsignedLongLong(pyInt);
+    if (integer == static_cast<decltype(integer)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    auto const maybeAddress = self->format->fromInteger(integer);
+    if (!maybeAddress)
+    {
+        PyErr_SetString(PyExc_ValueError, "invalid integer for given AddressFormat");
+        return NULL;
+    }
+
+    PyFuseAddress* pyAddress = PyObject_New(PyFuseAddress, &PyFuseAddressType);
+    new (&pyAddress->address) Address{*maybeAddress};
+    return (PyObject*)pyAddress;
+}
 
 static void PyAddressFormat_dealloc(PyAddressFormat* self)
 {
     // delete self->format;
     Py_TYPE(self)->tp_free(self);
 }
+
+static PyMethodDef PyAddressFormat_methods[] = {{"from_int", (PyCFunction)PyAddressFormat_from_int,
+                                                 METH_O,
+                                                 "construct an Address from the given integer"},
+                                                {NULL}};
 
 PyTypeObject PyAddressFormatType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._AddressFormat"};
 
@@ -35,8 +59,6 @@ static bool registerAddressFormat(PyObject* module)
 }
 
 //##[ AddressLayout ]##############################################################################
-
-static PyMethodDef PyAddressLayout_methods[] = {{NULL}};
 
 auto PyAddressLayout_New(std::unique_ptr<AddressStorageFormat>&& layout) -> PyObject*
 {
@@ -62,6 +84,31 @@ static void PyAddressLayout_dealloc(PyAddressLayout* self)
     delete self->layout;
     Py_TYPE(self)->tp_free(self);
 }
+
+static auto PyAddressLayout_encode(PyAddressLayout* self, PyObject* pyAddress) -> PyObject*
+{
+    if (!PyObject_IsInstance(pyAddress, (PyObject*)&PyFuseAddressType))
+    {
+        PyErr_SetString(PyExc_TypeError, "requires an instance of type Address");
+        return NULL;
+    }
+    auto const& address = reinterpret_cast<PyFuseAddress*>(pyAddress)->address;
+    auto const patches = self->layout->writeAddress(address);
+
+    PyObject* list = PyList_New(patches.size());
+    for (size_t i = 0; i < patches.size(); ++i)
+    {
+        auto const& patch = patches[i];
+        PyObject* pyPatch = PyFuseBinaryPatch_New(patch);
+        PyList_SetItem(list, static_cast<Py_ssize_t>(i), pyPatch);
+    }
+    return list;
+}
+
+static PyMethodDef PyAddressLayout_methods[] = {
+    {"encode", (PyCFunction)PyAddressLayout_encode, METH_O,
+     "encode the given Address into a list of BinaryPatches"},
+    {NULL}};
 
 PyTypeObject PyAddressLayoutType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._AddressLayout"};
 
@@ -212,11 +259,11 @@ static auto PyRelativeAddressLayout_to_dict(PyRelativeAddressLayout* self) -> Py
     }
     if (layout.offsetLayout().signedness == Signedness::Unsigned)
     {
-        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "UNSIGNED"));
+        PyDict_SetItemString(pyLayout, "signedness", Py_BuildValue("s", "UNSIGNED"));
     }
     else
     {
-        PyDict_SetItemString(pyLayout, "endianness", Py_BuildValue("s", "SIGNED"));
+        PyDict_SetItemString(pyLayout, "signedness", Py_BuildValue("s", "SIGNED"));
     }
     PyDict_SetItemString(dict, "layout", pyLayout);
 
@@ -283,7 +330,8 @@ static auto PyMipsEmbeddedLayout_set_offsets(PyMipsEmbeddedLayout* self, PyObjec
         return NULL;
     }
 
-    static_cast<MipsEmbeddedLayout*>(self->base.layout)->setOffsets(hi16, lo16);
+    static_cast<MipsEmbeddedLayout*>(self->base.layout)
+        ->setOffsets(static_cast<int>(hi16), static_cast<int>(lo16));
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -338,13 +386,59 @@ static bool registerMipsEmbeddedLayout(PyObject* module)
 
 //##[ AddressMap ]#################################################################################
 
-static PyMethodDef PyAddressMap_methods[] = {{NULL}};
-
 static void PyAddressMap_dealloc(PyAddressMap* self)
 {
     delete self->map;
     Py_TYPE(self)->tp_free(self);
 }
+
+static auto PyAddressMap_map_to_sources(PyAddressMap* self, PyObject* pyTarget) -> PyObject*
+{
+    if (!PyObject_IsInstance(pyTarget, (PyObject*)&PyFuseAddressType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an instance of type Address");
+        return NULL;
+    }
+    auto const address = reinterpret_cast<PyFuseAddress*>(pyTarget)->address;
+    auto const sources = self->map->toSourceAddresses(address);
+    PyObject* list = PyList_New(sources.size());
+    for (size_t i = 0; i < sources.size(); ++i)
+    {
+        PyFuseAddress* pySource = PyObject_New(PyFuseAddress, &PyFuseAddressType);
+        new (&pySource->address) Address{sources[i]};
+        PyList_SetItem(list, static_cast<Py_ssize_t>(i), (PyObject*)pySource);
+    }
+    return list;
+}
+
+static auto PyAddressMap_map_to_target(PyAddressMap* self, PyObject* pySource) -> PyObject*
+{
+    if (!PyObject_IsInstance(pySource, (PyObject*)&PyFuseAddressType))
+    {
+        PyErr_SetString(PyExc_TypeError, "expected an instance of type Address");
+        return NULL;
+    }
+    auto const address = reinterpret_cast<PyFuseAddress*>(pySource)->address;
+
+    if (auto const maybeSource = self->map->toTargetAddress(address))
+    {
+        PyFuseAddress* pyTarget = PyObject_New(PyFuseAddress, &PyFuseAddressType);
+        new (&pyTarget->address) Address{*maybeSource};
+        return (PyObject*)pyTarget;
+    }
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
+static PyMethodDef PyAddressMap_methods[] = {
+    {"map_to_sources", (PyCFunction)PyAddressMap_map_to_sources, METH_O,
+     "map a target address to its source addresses"},
+    {"map_to_target", (PyCFunction)PyAddressMap_map_to_target, METH_O,
+     "map a source address to its target address"},
+    {NULL}};
 
 PyTypeObject PyAddressMapType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy._AddressMap"};
 
@@ -477,8 +571,63 @@ static bool registerRegionedAddressMap(PyObject* module)
 
 //#################################################################################################
 
+static void PyFuseAddress_dealloc(PyFuseAddress* self)
+{
+    self->address.~Address();
+    Py_TYPE(self)->tp_free(self);
+}
+
+static auto PyFuseAddress_str(PyFuseAddress* self) -> PyObject*
+{
+    auto const string = self->address.toString();
+    return Py_BuildValue("s#", string.c_str(), string.length());
+}
+
+static auto PyFuseAddress_offset(PyFuseAddress* self, PyObject* pyOffset) -> PyObject*
+{
+    auto const offset = PyLong_AsLongLong(pyOffset);
+    if (offset == static_cast<decltype(offset)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    auto* pyAddress = PyObject_New(PyFuseAddress, &PyFuseAddressType);
+    new (&pyAddress->address) Address{self->address.applyOffset(offset)};
+    return (PyObject*)pyAddress;
+}
+
+static PyMethodDef PyFuseAddress_methods[] = {{"offset", (PyCFunction)PyFuseAddress_offset, METH_O,
+                                               "return a new Address offset by the given value"},
+                                              {NULL}};
+
+PyTypeObject PyFuseAddressType = {PyVarObject_HEAD_INIT(NULL, 0) "_fusepy.Address"};
+
+static bool registerFuseAddress(PyObject* module)
+{
+    PyFuseAddressType.tp_new = PyType_GenericNew;
+    PyFuseAddressType.tp_basicsize = sizeof(PyFuseAddress);
+    PyFuseAddressType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyFuseAddressType.tp_doc = "Represents an Address of a given format";
+    PyFuseAddressType.tp_methods = PyFuseAddress_methods;
+    PyFuseAddressType.tp_dealloc = (destructor)&PyFuseAddress_dealloc;
+    PyFuseAddressType.tp_str = (reprfunc)&PyFuseAddress_str;
+    if (PyType_Ready(&PyFuseAddressType) < 0)
+    {
+        return false;
+    }
+    Py_INCREF(&PyFuseAddressType);
+    PyModule_AddObject(module, "_RegionedAddressMap", (PyObject*)&PyFuseAddressType);
+    return true;
+}
+
+//#################################################################################################
+
 bool registerFuseAddresses(PyObject* module)
 {
+    if (!registerFuseAddress(module))
+    {
+        return false;
+    }
     if (!registerAddressFormat(module))
     {
         return false;

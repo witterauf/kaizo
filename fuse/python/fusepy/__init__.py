@@ -8,6 +8,7 @@ from fusepy.objects import *
 from fusepy.data import read_hierarchical_csv
 from fusepy._fusepy import Reference
 import fusepy.addresses
+from fusepy.linking import *
 
 class TextEncoding(ABC):
 

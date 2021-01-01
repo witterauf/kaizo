@@ -2,6 +2,7 @@
 
 #include "UnresolvedReference.h"
 #include <fuse/binary/DataPath.h>
+#include <optional>
 #include <vector>
 
 namespace fuse {
@@ -19,6 +20,15 @@ public:
         size_t size{0};
     };
 
+    virtual ~Object() = default;
+
+    void setAlignment(const size_t alignment);
+    auto alignment() const -> size_t;
+    void setFixedOffset(const size_t offset);
+    bool hasFixedOffset() const;
+    auto fixedOffset() const -> size_t;
+
+    virtual auto binary() const -> fuse::Binary = 0;
     virtual auto path() const -> const binary::DataPath& = 0;
     virtual auto realSize() const -> size_t = 0;
     virtual auto size() const -> size_t = 0;
@@ -32,6 +42,10 @@ public:
     virtual auto solveReference(size_t index, const Address address) const
         -> std::vector<BinaryPatch> = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
+
+private:
+    size_t m_alignment{1};
+    std::optional<size_t> m_fixedOffset;
 };
 
 class LuaDomReader;
@@ -47,6 +61,7 @@ public:
     PackedObject() = default;
     explicit PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset = 0);
 
+    auto binary() const -> fuse::Binary override;
     void changeOffset(size_t offset);
     void addSection(size_t realOffset, size_t sectionSize);
     void addUnresolvedReference(const UnresolvedReference& reference);
