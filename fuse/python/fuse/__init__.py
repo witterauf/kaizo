@@ -1,16 +1,18 @@
+from fuse.fusepy import *
+import fuse.addresses
+from fuse.binary import *
+from fuse.objects import *
+
 from abc import ABC, abstractmethod
-from fusepy._fusepy import *
-from fusepy._fusepy import _TextEncoding
-from fusepy._fusepy import _AsciiEncoding
-from fusepy.format import *
-from fusepy.binary import *
-from fusepy.objects import *
-from fusepy.data import read_hierarchical_csv
-from fusepy._fusepy import Reference
-import fusepy.addresses
-from fusepy.linking import *
+from fuse.fusepy import _TextEncoding, _AsciiEncoding
 
 class TextEncoding(ABC):
+    @staticmethod
+    def from_name(name):
+        if name == "ascii":
+            return AsciiEncoding
+        else:
+            raise ValueError('unsupported encoding')
 
     @property
     @abstractmethod
@@ -51,3 +53,19 @@ class ExtensionTextEncoding(TextEncoding):
         return self._encoding.decode(buffer, offset)
 
 AsciiEncoding = ExtensionTextEncoding(_AsciiEncoding)
+
+from fuse.format import *
+
+"""
+from fusepy._fusepy import *
+from fusepy._fusepy import _TextEncoding
+from fusepy._fusepy import _AsciiEncoding
+from fusepy.format import *
+from fusepy.binary import *
+from fusepy.objects import *
+from fusepy.data import read_hierarchical_csv
+from fusepy._fusepy import Reference
+import fusepy.addresses
+from fusepy.linking import *
+
+"""

@@ -1,6 +1,6 @@
-from fusepy._fusepy import _DataReader, _DataWriter
-from fusepy.objects import BinaryObject, UnresolvedReference, ObjectSection
-from fusepy.addresses import AddressLayout
+from fuse.fusepy import _DataReader, _DataWriter
+from fuse.objects import BinaryObject, UnresolvedReference, ObjectSection
+from fuse.addresses import AddressLayout
 
 class DataReader:
     """

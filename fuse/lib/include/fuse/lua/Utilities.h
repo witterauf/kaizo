@@ -1,5 +1,6 @@
 #include "FuseLuaException.h"
-#include <sol_forward.hpp>
+#include <sol.hpp>
+#include <string>
 
 namespace fuse {
 

@@ -2,7 +2,7 @@
 
 #include <map>
 #include <optional>
-#include <sol_forward.hpp>
+#include <sol.hpp>
 #include <string>
 #include <vector>
 

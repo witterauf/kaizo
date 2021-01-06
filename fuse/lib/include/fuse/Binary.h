@@ -7,11 +7,14 @@
 
 namespace fuse {
 
+class BinaryView;
+
 class Binary
 {
 public:
     static auto load(const std::filesystem::path& filename) -> Binary;
     static auto fromArray(const uint8_t* data, size_t size) -> Binary;
+    static auto from(const BinaryView& view) -> Binary;
 
     Binary() = default;
     explicit Binary(size_t size);

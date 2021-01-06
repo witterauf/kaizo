@@ -1,6 +1,6 @@
-from fusepy._fusepy import *
-from fusepy._fusepy import _FileOffset, _DataFormat, _StringFormat, _IntegerFormat, _RecordFormat, _ArrayFormat, _PointerFormat
-#from fusepy.addresses import AddressLayout, AddressFormat
+from fuse.fusepy import *
+from fuse.fusepy import _FileOffset, _DataFormat, _IntegerFormat, _StringFormat, _RecordFormat, _ArrayFormat, _PointerFormat
+from fuse import TextEncoding
 
 class DataFormat:
     def _setup(self, **kwargs):
@@ -28,6 +28,8 @@ class IntegerFormat(DataFormat):
 
 class StringFormat(DataFormat):
     def __init__(self, encoding, **kwargs):
+        if isinstance(encoding, str):
+            encoding = TextEncoding.from_name(encoding)
         self._format = _StringFormat(encoding._encoding)
         self._setup(**kwargs)
 

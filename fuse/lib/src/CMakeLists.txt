@@ -256,7 +256,6 @@ target_include_directories(FuseLibrary
 target_link_libraries(FuseLibrary
     PRIVATE
         Diagnostics::Diagnostics
-        LodePNG::LodePNG
         sol2
         Lua::FileSystem
         FuseLuaRuntime

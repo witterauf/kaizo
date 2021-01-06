@@ -1,5 +1,5 @@
-from fusepy._fusepy import *
-from fusepy._fusepy import _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _AddressMap, _RegionedAddressMap, _MipsEmbeddedLayout
+from fuse.fusepy import Signedness, Endianness
+from fuse.fusepy import Address, _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _MipsEmbeddedLayout, _AddressMap, _RegionedAddressMap
 
 class AddressLayout:
     @staticmethod
@@ -19,6 +19,9 @@ class AddressLayout:
     def to_dict(self):
         return self._layout.to_dict()
 
+    def id(self):
+        return self._layout.id()
+
     def encode(self, address):
         return self._layout.encode(address)
 
@@ -28,6 +31,8 @@ class AddressLayout:
             patch.apply(target, offset)
 
 class RelativeAddressLayout(AddressLayout):
+    ID = 'relative'
+
     @staticmethod
     def _make(_layout):
         layout = RelativeAddressLayout.__new__(RelativeAddressLayout)
@@ -37,15 +42,17 @@ class RelativeAddressLayout(AddressLayout):
     def __init__(self, base, size, null_pointer=None, signedness=Signedness.UNSIGNED,
                  endianness=Endianness.LITTLE):
         self._layout = _RelativeAddressLayout()
-        self._layout.set_layout(size, signedness.value, endianness.value)
-        if isinstance(base, int):
-            self._layout.set_fixed_base_address(int(base))
+        self._layout.set_layout(size, signedness, endianness)
+        if isinstance(base, Address):
+            self._layout.set_fixed_base_address(base)
         else:
-            raise TypeError("expected an integer as base")
+            self._layout.set_fixed_base_address(FileOffset.from_int(int(base)))
         if null_pointer is not None:
             self._layout.set_null_pointer(null_pointer[0], null_pointer[1])
 
 class MipsEmbeddedLayout(AddressLayout):
+    ID = 'mips'
+
     @staticmethod
     def _make(_layout):
         layout = MipsEmbeddedLayout.__new__(MipsEmbeddedLayout)
@@ -66,6 +73,9 @@ class AddressFormat:
     def from_int(self, value):
         as_int = int(value)
         return self._format.from_int(as_int)
+
+    def __call__(self, value):
+        return self.from_int(value)
 
 FileOffset = AddressFormat(_FileOffset)
 
