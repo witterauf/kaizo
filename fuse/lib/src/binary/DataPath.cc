@@ -1,5 +1,5 @@
 #include "DataPathParser.h"
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/DataPath.h>
 
 namespace fuse::binary {

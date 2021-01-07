@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/DataWriter.h>
 
 namespace fuse::binary {
@@ -108,7 +108,7 @@ auto DataWriter::section(int relative) const -> const Section&
     return m_sections[m_sectionIndex - relative - 1];
 }
 
-void DataWriter::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+void DataWriter::addUnresolvedReference(const std::shared_ptr<AddressLayout>& format,
                                         const DataPath& destination)
 {
     section().annotated.addUnresolvedReference(format, destination);

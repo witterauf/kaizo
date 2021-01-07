@@ -34,7 +34,7 @@ public:
     void leave();
 
     // Called by PointerFormat
-    void addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+    void addUnresolvedReference(const std::shared_ptr<AddressLayout>& format,
                                 const DataPath& destination);
 
 private:

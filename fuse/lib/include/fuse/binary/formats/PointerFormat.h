@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressStorageFormat.h>
+#include <fuse/addresses/AddressLayout.h>
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/formats/DataFormat.h>
 #include <fuse/binary/formats/IntegerFormat.h>
@@ -18,7 +18,7 @@ public:
     void setNullPointer(const Address& null);
     void setAddressFormat(AddressFormat* format);
     void setPointedFormat(std::unique_ptr<DataFormat>&& format);
-    void setLayout(std::unique_ptr<AddressStorageFormat>&& layout);
+    void setLayout(std::unique_ptr<AddressLayout>&& layout);
 
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
@@ -34,14 +34,14 @@ protected:
 
     virtual auto readAddress(DataReader& reader) -> std::optional<Address>;
     virtual void writeAddressPlaceHolder(DataWriter& writer);
-    virtual auto makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>;
+    virtual auto makeStorageFormat() -> std::shared_ptr<AddressLayout>;
 
 private:
     AddressFormat* m_addressFormat{nullptr};
     std::unique_ptr<DataFormat> m_pointedFormat;
     bool m_useAddressMap{false};
     std::optional<Address> m_nullPointer;
-    std::shared_ptr<AddressStorageFormat> m_layout;
+    std::shared_ptr<AddressLayout> m_layout;
 };
 
 } // namespace fuse::binary

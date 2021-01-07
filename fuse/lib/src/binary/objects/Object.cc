@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <functional>
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/binary/objects/Object.h>

@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fstream>
 #include <fuse/text/StringSet.h>
 

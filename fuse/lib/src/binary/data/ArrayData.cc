@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/data/ArrayData.h>
 
 namespace fuse::binary {

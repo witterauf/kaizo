@@ -1,5 +1,5 @@
 #include "fuse/linking/FreeBlock.h"
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 
 namespace fuse {
 

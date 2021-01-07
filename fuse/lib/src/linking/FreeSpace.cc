@@ -1,6 +1,6 @@
 #include "fuse/linking/FreeSpace.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <numeric>
 
 namespace fuse {

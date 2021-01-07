@@ -24,19 +24,18 @@ set(FUSE_ADDRESSES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/addresses/IdempotentAddressMap.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/RegionAddressMap.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteOffset.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/AddressStorageFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/RelativeStorageFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteStorageFormat.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/MipsEmbeddedLayout.h
+    ${FUSE_INCLUDE_DIRECTORY}/addresses/AddressLayout.h
+    ${FUSE_INCLUDE_DIRECTORY}/addresses/RelativeOffsetLayout.h
+    ${FUSE_INCLUDE_DIRECTORY}/addresses/MipsLayout.h
     addresses/Address.cc
     addresses/AddressFormat.cc
     addresses/AddressMap.cc
     addresses/IdempotentAddressMap.cc
     addresses/RegionAddressMap.cc
     addresses/AbsoluteOffset.cc
-    addresses/RelativeStorageFormat.cc
-    addresses/AddressStorageFormat.cc
-    addresses/MipsEmbeddedLayout.cc
+    addresses/AddressLayout.cc
+    addresses/RelativeOffsetLayout.cc
+    addresses/MipsLayout.cc
 )
 
 set(FUSE_BINARY_DATA_SOURCES
@@ -185,7 +184,7 @@ target_include_directories(FuseLibrary
 )
 target_link_libraries(FuseLibrary
     PRIVATE
-        Diagnostics::Diagnostics
+        Contracts::Library
 )
 target_compile_features(FuseLibrary PUBLIC cxx_std_20)
 target_all_warnings(FuseLibrary)

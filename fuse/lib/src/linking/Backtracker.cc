@@ -1,6 +1,6 @@
 #include "fuse/linking/Backtracker.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <iostream>
 #include <type_traits>
 

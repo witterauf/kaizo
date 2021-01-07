@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/addresses/Address.h>
 #include <fuse/addresses/AddressFormat.h>
 

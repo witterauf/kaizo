@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/Integers.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 

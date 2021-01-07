@@ -2,7 +2,7 @@
 
 #include <fuse/Binary.h>
 #include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressStorageFormat.h>
+#include <fuse/addresses/AddressLayout.h>
 #include <fuse/binary/DataPath.h>
 #include <memory>
 #include <optional>
@@ -20,16 +20,16 @@ public:
     auto originPath() const -> const binary::DataPath&;
     auto referencedPath() const -> const binary::DataPath&;
     auto relativeOffset() const -> size_t;
-    auto addressLayout() const -> const AddressStorageFormat&;
+    auto addressLayout() const -> const AddressLayout&;
 
     void setDestination(const binary::DataPath& path);
-    void setFormat(const std::shared_ptr<AddressStorageFormat>& format);
+    void setFormat(const std::shared_ptr<AddressLayout>& format);
 
 private:
     binary::DataPath m_sourcePath;
     size_t m_relativeOffset;
     binary::DataPath m_destinationPath;
-    std::shared_ptr<AddressStorageFormat> m_format;
+    std::shared_ptr<AddressLayout> m_format;
 };
 
 } // namespace fuse

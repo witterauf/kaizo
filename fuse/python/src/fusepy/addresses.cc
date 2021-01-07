@@ -1,15 +1,15 @@
 #include "addresses.h"
 #include "binary.h"
 #include <fuse/addresses/AbsoluteOffset.h>
-#include <fuse/addresses/MipsEmbeddedLayout.h>
+#include <fuse/addresses/MipsLayout.h>
 #include <fuse/addresses/RegionAddressMap.h>
-#include <fuse/addresses/RelativeStorageFormat.h>
+#include <fuse/addresses/RelativeOffsetLayout.h>
 #include <pybind11/stl.h>
 
 using namespace fuse;
 namespace py = pybind11;
 
-auto AddressLayout_encode(const AddressStorageFormat& layout, const Address& address) -> py::list
+auto AddressLayout_encode(const AddressLayout& layout, const Address& address) -> py::list
 {
     auto patches = layout.writeAddress(address);
     py::list list(patches.size());
@@ -20,7 +20,7 @@ auto AddressLayout_encode(const AddressStorageFormat& layout, const Address& add
     return list;
 }
 
-void RelativeAddressLayout_set_layout(RelativeStorageFormat& layout, const size_t size,
+void RelativeAddressLayout_set_layout(RelativeOffsetLayout& layout, const size_t size,
                                       const Signedness signedness, const Endianness endianness)
 {
     IntegerLayout integerLayout;
@@ -30,7 +30,7 @@ void RelativeAddressLayout_set_layout(RelativeStorageFormat& layout, const size_
     layout.setOffsetFormat(integerLayout);
 }
 
-auto RelativeAddressLayout_to_dict(const RelativeStorageFormat& layout) -> py::dict
+auto RelativeAddressLayout_to_dict(const RelativeOffsetLayout& layout) -> py::dict
 {
     py::dict dict;
     if (layout.hasNullPointer())
@@ -82,17 +82,17 @@ void registerFuseAddresses(py::module_& m)
         .def(py::init<const AddressFormat*, const AddressFormat*>())
         .def("add_region", &RegionAddressMap::map);
 
-    py::class_<AddressStorageFormat>(m, "_AddressLayout")
+    py::class_<AddressLayout>(m, "_AddressLayout")
         .def("encode", &AddressLayout_encode)
-        .def_property_readonly("id", &AddressStorageFormat::getName);
-    py::class_<RelativeStorageFormat, AddressStorageFormat>(m, "_RelativeAddressLayout")
+        .def_property_readonly("id", &AddressLayout::getName);
+    py::class_<RelativeOffsetLayout, AddressLayout>(m, "_RelativeAddressLayout")
         .def(py::init())
         .def("set_layout", &RelativeAddressLayout_set_layout)
-        .def("set_null_pointer", &RelativeStorageFormat::setNullPointer)
-        .def("set_fixed_base_address", &RelativeStorageFormat::setBaseAddress)
+        .def("set_null_pointer", &RelativeOffsetLayout::setNullPointer)
+        .def("set_fixed_base_address", &RelativeOffsetLayout::setBaseAddress)
         .def("to_dict", &RelativeAddressLayout_to_dict);
-    py::class_<MipsEmbeddedLayout, AddressStorageFormat>(m, "_MipsEmbeddedLayout")
+    py::class_<MipsLayout, AddressLayout>(m, "_MipsEmbeddedLayout")
         .def(py::init())
-        .def("set_base_address", &MipsEmbeddedLayout::setBaseAddress)
-        .def("set_offsets", &MipsEmbeddedLayout::setOffsets);
+        .def("set_base_address", &MipsLayout::setBaseAddress)
+        .def("set_offsets", &MipsLayout::setOffsets);
 }

@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/IdempotentAddressMap.h>
 #include <fuse/binary/DataReader.h>

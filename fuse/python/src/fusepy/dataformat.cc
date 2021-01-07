@@ -222,7 +222,7 @@ void registerDataFormatTypes(py::module_& m)
         .def("set_null_pointer", &PointerFormat::setNullPointer)
         .def("set_address_format", &PointerFormat::setAddressFormat)
         .def("use_address_map", &PointerFormat::useAddressMap)
-        .def("set_address_layout", [](PointerFormat& format, const AddressStorageFormat& layout) {
+        .def("set_address_layout", [](PointerFormat& format, const AddressLayout& layout) {
             format.setLayout(layout.copy());
         });
 }

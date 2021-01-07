@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/data/BinaryData.h>
 #include <fuse/binary/formats/BinaryFormat.h>
 #include <fuse/binary/DataReader.h>

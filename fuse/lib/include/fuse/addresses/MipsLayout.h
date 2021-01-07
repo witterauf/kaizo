@@ -1,13 +1,13 @@
 #pragma once
 
 #include "AddressFormat.h"
-#include "AddressStorageFormat.h"
+#include "AddressLayout.h"
 #include <memory>
 #include <optional>
 
 namespace fuse {
 
-class MipsEmbeddedLayout : public AddressStorageFormat
+class MipsLayout : public AddressLayout
 {
 public:
     void setBaseAddress(const Address base);
@@ -19,7 +19,7 @@ public:
     auto writePlaceHolder() const -> std::vector<BinaryPatch> override;
     auto readAddress(const Binary& binary, size_t offset) const
         -> std::optional<std::pair<size_t, Address>> override;
-    auto copy() const -> std::unique_ptr<AddressStorageFormat> override;
+    auto copy() const -> std::unique_ptr<AddressLayout> override;
 
 private:
     signed m_offsetHi16{0}, m_offsetLo16{4};

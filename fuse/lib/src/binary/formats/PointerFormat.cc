@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
@@ -56,9 +56,9 @@ auto PointerFormat::copy() const -> std::unique_ptr<DataFormat>
     return std::unique_ptr<PointerFormat>{new PointerFormat{*this}};
 }
 
-void PointerFormat::setLayout(std::unique_ptr<AddressStorageFormat>&& layout)
+void PointerFormat::setLayout(std::unique_ptr<AddressLayout>&& layout)
 {
-    m_layout = std::shared_ptr<AddressStorageFormat>(layout.release());
+    m_layout = std::shared_ptr<AddressLayout>(layout.release());
 }
 
 auto PointerFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
@@ -198,7 +198,7 @@ void PointerFormat::writeAddressPlaceHolder(DataWriter& writer)
     }
 }
 
-auto PointerFormat::makeStorageFormat() -> std::shared_ptr<AddressStorageFormat>
+auto PointerFormat::makeStorageFormat() -> std::shared_ptr<AddressLayout>
 {
     Expects(m_layout);
     return m_layout;

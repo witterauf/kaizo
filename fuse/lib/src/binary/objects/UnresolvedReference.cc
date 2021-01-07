@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/objects/UnresolvedReference.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
@@ -27,7 +27,7 @@ void UnresolvedReference::setDestination(const DataPath& path)
     m_destinationPath = path;
 }
 
-void UnresolvedReference::setFormat(const std::shared_ptr<AddressStorageFormat>& format)
+void UnresolvedReference::setFormat(const std::shared_ptr<AddressLayout>& format)
 {
     m_format = format;
 }
@@ -47,7 +47,7 @@ auto UnresolvedReference::relativeOffset() const -> size_t
     return m_relativeOffset;
 }
 
-auto UnresolvedReference::addressLayout() const -> const AddressStorageFormat&
+auto UnresolvedReference::addressLayout() const -> const AddressLayout&
 {
     Expects(m_format);
     return *m_format;

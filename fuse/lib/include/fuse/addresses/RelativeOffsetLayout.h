@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AddressFormat.h"
-#include "AddressStorageFormat.h"
+#include "AddressLayout.h"
 #include <fuse/Integers.h>
 #include <memory>
 #include <optional>
@@ -27,11 +27,9 @@ private:
     Address m_address;
 };
 
-class RelativeStorageFormat : public AddressStorageFormat
+class RelativeOffsetLayout: public AddressLayout
 {
 public:
-    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<RelativeStorageFormat>;
-
     void setBaseAddress(const Address base);
     auto baseAddress() const -> Address;
     void setOffsetFormat(const IntegerLayout& layout);
@@ -55,7 +53,7 @@ public:
     auto writePlaceHolder() const -> std::vector<BinaryPatch> override;
     auto readAddress(const Binary& binary, size_t offset) const
         -> std::optional<std::pair<size_t, Address>> override;
-    auto copy() const -> std::unique_ptr<AddressStorageFormat> override;
+    auto copy() const -> std::unique_ptr<AddressLayout> override;
 
 private:
     std::optional<NullPointer> m_nullPointer;

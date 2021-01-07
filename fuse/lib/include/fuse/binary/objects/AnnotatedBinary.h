@@ -21,7 +21,7 @@ public:
     auto binary() -> Binary&;
     auto binary() const -> const Binary&;
     void skip(size_t size);
-    void addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+    void addUnresolvedReference(const std::shared_ptr<AddressLayout>& format,
                                 const binary::DataPath& destination);
     void setFixedOffset(const size_t offset);
     void endObject();

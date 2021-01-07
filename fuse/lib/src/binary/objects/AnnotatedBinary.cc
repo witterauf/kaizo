@@ -1,4 +1,4 @@
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fstream>
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/utilities/DomReaderHelpers.h>
@@ -68,7 +68,7 @@ auto AnnotatedBinary::objectCount() const -> size_t
     return m_objects.size();
 }
 
-void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressStorageFormat>& format,
+void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressLayout>& format,
                                              const binary::DataPath& destination)
 {
     UnresolvedReference reference{m_currentObject->path(),

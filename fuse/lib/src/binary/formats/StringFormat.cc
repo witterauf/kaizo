@@ -1,5 +1,5 @@
 #include "FormatHelpers.h"
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
 #include <fuse/binary/data/StringData.h>
