@@ -1,8 +1,4 @@
 add_subdirectory(catch)
 add_subdirectory(contracts)
 add_subdirectory(diagnostics)
-add_subdirectory(lincoln)
-add_subdirectory(lua)
-add_subdirectory(sol2)
-add_subdirectory(lfs)
 add_subdirectory(pybind11)

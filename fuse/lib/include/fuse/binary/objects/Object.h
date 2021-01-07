@@ -7,7 +7,6 @@
 
 namespace fuse {
 
-class LuaWriter;
 class AnnotatedBinary;
 
 class Object
@@ -41,7 +40,6 @@ public:
     virtual auto unresolvedReference(size_t index) const -> const UnresolvedReference& = 0;
     virtual auto solveReference(size_t index, const Address address) const
         -> std::vector<BinaryPatch> = 0;
-    virtual void serialize(LuaWriter& writer) const = 0;
 
 private:
     size_t m_alignment{1};
@@ -79,13 +77,7 @@ public:
     auto solveReference(size_t index, const Address address) const
         -> std::vector<BinaryPatch> override;
 
-    void serialize(LuaWriter& writer) const override;
-
 private:
-    void serializeAttributes(LuaWriter& writer) const;
-    void serializeSections(LuaWriter& writer) const;
-    void serializeReferences(LuaWriter& writer) const;
-
     AnnotatedBinary* m_parent{nullptr};
     binary::DataPath m_path;
     size_t m_offset{0};

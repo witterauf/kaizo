@@ -2,6 +2,7 @@
 
 #include "DomReader.h"
 #include <optional>
+#include <stdexcept>
 
 namespace fuse {
 
@@ -20,7 +21,7 @@ template <class Key> void require(DomReader& reader, const Key& key)
 {
     if (!reader.has(key))
     {
-        throw FuseException{"field '" + details::display(key) + "' does not exist"};
+        throw std::runtime_error{"field '" + details::display(key) + "' does not exist"};
     }
 }
 
@@ -30,7 +31,7 @@ template <class Key> auto requireString(DomReader& reader, const Key& key) -> st
     reader.enter(key);
     if (!reader.isString())
     {
-        throw FuseException{"the given field is not a string"};
+        throw std::runtime_error{"the given field is not a string"};
     }
     auto string = reader.asString();
     reader.leave();
@@ -45,7 +46,7 @@ auto readString(DomReader& reader, const Key& key) -> std::optional<std::string>
         reader.enter(key);
         if (!reader.isString())
         {
-            throw FuseException{"the given field is not a string"};
+            throw std::runtime_error{"the given field is not a string"};
         }
         auto string = reader.asString();
         reader.leave();
@@ -62,12 +63,12 @@ auto readUnsignedInteger(DomReader& reader, const Key& key) -> std::optional<uin
         reader.enter(key);
         if (!reader.isInteger())
         {
-            throw FuseException{"the given field is not a string"};
+            throw std::runtime_error{"the given field is not a string"};
         }
         auto integer = reader.asInteger();
         if (integer < 0)
         {
-            throw FuseException{"the given field is not unsigned"};
+            throw std::runtime_error{"the given field is not unsigned"};
         }
         reader.leave();
         return static_cast<uint64_t>(integer);
@@ -81,12 +82,12 @@ template <class Key> auto requireUnsignedInteger(DomReader& reader, const Key& k
     reader.enter(key);
     if (!reader.isInteger())
     {
-        throw FuseException{"the given field is not an integer"};
+        throw std::runtime_error{"the given field is not an integer"};
     }
     auto integer = reader.asInteger();
     if (integer < 0)
     {
-        throw FuseException{"the given field is not unsigned"};
+        throw std::runtime_error{"the given field is not unsigned"};
     }
     reader.leave();
     return static_cast<uint64_t>(integer);
@@ -98,7 +99,7 @@ template <class Key> auto requireSignedInteger(DomReader& reader, const Key& key
     reader.enter(key);
     if (!reader.isInteger())
     {
-        throw FuseException{ "the given field is not an integer" };
+        throw std::runtime_error{ "the given field is not an integer" };
     }
     auto integer = reader.asInteger();
     reader.leave();
@@ -111,7 +112,7 @@ template <class Key> void enterRecord(DomReader& reader, const Key& key)
     reader.enter(key);
     if (!reader.isRecord())
     {
-        throw FuseException{"the given field is not a record"};
+        throw std::runtime_error{"the given field is not a record"};
     }
 }
 
@@ -121,7 +122,7 @@ template <class Key> void enterArray(DomReader& reader, const Key& key)
     reader.enter(key);
     if (!reader.isArray())
     {
-        throw FuseException{"the given field is not an array"};
+        throw std::runtime_error{"the given field is not an array"};
     }
 }
 

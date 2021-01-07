@@ -1,5 +1,4 @@
 #include <fuse/binary/DataRangeTracker.h>
-#include <fuse/lua/LuaWriter.h>
 
 namespace fuse {
 
@@ -20,6 +19,7 @@ void TagOnlyRangeTracker::track(const binary::DataPath&, const Range& range,
     }
 }
 
+/*
 void TagOnlyRangeTracker::serialize(LuaWriter& writer) const
 {
     writer.start();
@@ -37,5 +37,6 @@ void TagOnlyRangeTracker::serialize(LuaWriter& writer) const
     }
     writer.finish();
 }
+*/
 
 } // namespace fuse

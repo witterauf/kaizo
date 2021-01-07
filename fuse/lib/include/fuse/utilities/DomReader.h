@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fuse/FuseException.h>
 #include <string>
 
 namespace fuse {

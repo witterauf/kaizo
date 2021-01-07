@@ -10,14 +10,11 @@ namespace fuse {
 class MipsEmbeddedLayout : public AddressStorageFormat
 {
 public:
-    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<MipsEmbeddedLayout>;
-
     void setBaseAddress(const Address base);
     void setOffsets(signed hi16, signed lo16);
 
     auto getName() const -> std::string override;
     bool isCompatible(const Address address) const override;
-    void serialize(LuaWriter& writer) const override;
     auto writeAddress(const Address address) const -> std::vector<BinaryPatch> override;
     auto writePlaceHolder() const -> std::vector<BinaryPatch> override;
     auto readAddress(const Binary& binary, size_t offset) const

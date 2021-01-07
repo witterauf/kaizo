@@ -9,14 +9,9 @@
 
 namespace fuse {
 
-class LuaWriter;
-class LuaDomReader;
-
 class UnresolvedReference
 {
 public:
-    static auto deserialize(LuaDomReader& reader) -> UnresolvedReference;
-
     UnresolvedReference() = default;
     explicit UnresolvedReference(size_t offset);
     explicit UnresolvedReference(const binary::DataPath& path, size_t offset);
@@ -29,8 +24,6 @@ public:
 
     void setDestination(const binary::DataPath& path);
     void setFormat(const std::shared_ptr<AddressStorageFormat>& format);
-
-    void serialize(LuaWriter& writer) const;
 
 private:
     binary::DataPath m_sourcePath;

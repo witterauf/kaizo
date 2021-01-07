@@ -2,11 +2,11 @@
 #include <fuse/addresses/AddressStorageFormat.h>
 #include <fuse/addresses/MipsEmbeddedLayout.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
-#include <fuse/lua/LuaReader.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
 namespace fuse {
 
+/*
 auto AddressStorageFormat::deserialize(LuaDomReader& reader)
     -> std::unique_ptr<AddressStorageFormat>
 {
@@ -25,5 +25,7 @@ auto AddressStorageFormat::deserialize(LuaDomReader& reader)
         throw FuseException{"'" + cls + "' is not a known address storage class"};
     }
 }
+
+*/
 
 } // namespace fuse

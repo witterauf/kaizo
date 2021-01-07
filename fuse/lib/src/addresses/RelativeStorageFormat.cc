@@ -2,8 +2,6 @@
 #include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/RelativeStorageFormat.h>
-#include <fuse/lua/LuaReader.h>
-#include <fuse/lua/LuaWriter.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
 namespace fuse {
@@ -23,6 +21,7 @@ auto FixedBaseAddressProvider::copy() const -> std::unique_ptr<BaseAddressProvid
     return std::make_unique<FixedBaseAddressProvider>(m_address);
 }
 
+/*
 void FixedBaseAddressProvider::serialize(LuaWriter& writer) const
 {
     writer.writeInteger(m_address.toInteger());
@@ -48,6 +47,29 @@ auto RelativeStorageFormat::deserialize(LuaDomReader& reader)
     }
     return format;
 }
+
+void RelativeStorageFormat::serialize(LuaWriter& writer) const
+{
+    writer.startTable();
+    writer.startField("class").writeString("RelativeOffset").finishField();
+    if (m_baseAddress.toInteger() != 0)
+    {
+        writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();
+    }
+    if (m_nullPointer)
+    {
+        writer.startField("null_pointer").startTable();
+        writer.startField("offset").writeInteger(m_nullPointer->offset).finishField();
+        writer.startField("address").writeInteger(m_nullPointer->address.toInteger()).finishField();
+        writer.finishTable().finishField();
+    }
+    writer.startField("layout");
+    fuse::serialize(writer, m_layout);
+    writer.finishField();
+    writer.finishTable();
+}
+
+*/
 
 void RelativeStorageFormat::setBaseAddress(const Address base)
 {
@@ -88,27 +110,6 @@ auto RelativeStorageFormat::offsetLayout() const -> IntegerLayout
 bool RelativeStorageFormat::isCompatible(const Address address) const
 {
     return m_baseAddress.isCompatible(address);
-}
-
-void RelativeStorageFormat::serialize(LuaWriter& writer) const
-{
-    writer.startTable();
-    writer.startField("class").writeString("RelativeOffset").finishField();
-    if (m_baseAddress.toInteger() != 0)
-    {
-        writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();
-    }
-    if (m_nullPointer)
-    {
-        writer.startField("null_pointer").startTable();
-        writer.startField("offset").writeInteger(m_nullPointer->offset).finishField();
-        writer.startField("address").writeInteger(m_nullPointer->address.toInteger()).finishField();
-        writer.finishTable().finishField();
-    }
-    writer.startField("layout");
-    fuse::serialize(writer, m_layout);
-    writer.finishField();
-    writer.finishTable();
 }
 
 auto RelativeStorageFormat::writeAddress(const Address address) const -> std::vector<BinaryPatch>

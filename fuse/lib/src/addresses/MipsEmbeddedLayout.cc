@@ -2,13 +2,11 @@
 #include <fuse/addresses/AbsoluteOffset.h>
 #include <fuse/addresses/AddressFormat.h>
 #include <fuse/addresses/MipsEmbeddedLayout.h>
-#include <fuse/lua/LuaReader.h>
-#include <fuse/lua/LuaWriter.h>
-#include <fuse/utilities/DomReaderHelpers.h>
 #include <fuse/utilities/NarrowCast.h>
 
 namespace fuse {
 
+/*
 auto MipsEmbeddedLayout::deserialize(LuaDomReader& reader) -> std::unique_ptr<MipsEmbeddedLayout>
 {
     Expects(reader.isRecord());
@@ -27,6 +25,21 @@ auto MipsEmbeddedLayout::deserialize(LuaDomReader& reader) -> std::unique_ptr<Mi
     return std::move(format);
 }
 
+void MipsEmbeddedLayout::serialize(LuaWriter& writer) const
+{
+    writer.startTable();
+    writer.startField("class").writeString("MipsEmbeddedHiLo").finishField();
+    if (m_baseAddress.toInteger() != 0)
+    {
+        writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();
+    }
+    writer.startField("offset_hi16").writeInteger(static_cast<int64_t>(m_offsetHi16)).finishField();
+    writer.startField("offset_lo16").writeInteger(static_cast<int64_t>(m_offsetLo16)).finishField();
+    writer.finishTable();
+}
+
+*/
+
 void MipsEmbeddedLayout::setBaseAddress(const Address base)
 {
     Expects(base.isValid());
@@ -44,19 +57,6 @@ void MipsEmbeddedLayout::setOffsets(signed hi16, signed lo16)
 bool MipsEmbeddedLayout::isCompatible(const Address address) const
 {
     return m_baseAddress.isCompatible(address);
-}
-
-void MipsEmbeddedLayout::serialize(LuaWriter& writer) const
-{
-    writer.startTable();
-    writer.startField("class").writeString("MipsEmbeddedHiLo").finishField();
-    if (m_baseAddress.toInteger() != 0)
-    {
-        writer.startField("base").writeInteger(m_baseAddress.toInteger()).finishField();
-    }
-    writer.startField("offset_hi16").writeInteger(static_cast<int64_t>(m_offsetHi16)).finishField();
-    writer.startField("offset_lo16").writeInteger(static_cast<int64_t>(m_offsetLo16)).finishField();
-    writer.finishTable();
 }
 
 auto MipsEmbeddedLayout::writeAddress(const Address address) const -> std::vector<BinaryPatch>

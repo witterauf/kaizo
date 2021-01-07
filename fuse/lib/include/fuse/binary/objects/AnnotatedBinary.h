@@ -9,16 +9,11 @@
 
 namespace fuse {
 
-class LuaWriter;
-class LuaDomReader;
-
 class AnnotatedBinary
 {
     friend class AnnotatedBinaryDeserializer;
 
 public:
-    static auto deserialize(LuaDomReader& reader) -> std::unique_ptr<AnnotatedBinary>;
-
     // in-flight object construction
     void startObject(const binary::DataPath& path);
     void enter(const binary::DataPathElement& child);
@@ -31,8 +26,6 @@ public:
     void setFixedOffset(const size_t offset);
     void endObject();
 
-    void serialize(LuaWriter& writer) const;
-    void save(const std::filesystem::path& metaFile, const std::filesystem::path& binaryFile) const;
     void append(AnnotatedBinary&& other);
 
     auto objectCount() const -> size_t;

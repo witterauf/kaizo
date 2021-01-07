@@ -1,35 +1,11 @@
 #include <diagnostics/Contracts.h>
 #include <fstream>
-#include <fuse/FuseException.h>
 #include <fuse/binary/objects/AnnotatedBinary.h>
-#include <fuse/lua/LuaReader.h>
-#include <fuse/lua/LuaWriter.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
 using namespace fuse::binary;
 
 namespace fuse {
-
-auto AnnotatedBinary::deserialize(LuaDomReader& reader) -> std::unique_ptr<AnnotatedBinary>
-{
-    Expects(reader.isRecord());
-    auto* binary = new AnnotatedBinary;
-
-    auto const binaryFileName = requireString(reader, "binary");
-    binary->m_binary = Binary::load(binaryFileName);
-
-    enterArray(reader, "objects");
-    auto const size = reader.size();
-    for (auto i = 0U; i < size; ++i)
-    {
-        reader.enter(i);
-        auto object = PackedObject::deserialize(reader, binary);
-        binary->m_objects.push_back(std::move(object));
-        reader.leave();
-    }
-    reader.leave();
-    return std::unique_ptr<AnnotatedBinary>(binary);
-}
 
 void AnnotatedBinary::startObject(const binary::DataPath& path)
 {
@@ -120,43 +96,6 @@ void AnnotatedBinary::enter(const binary::DataPathElement& child)
 void AnnotatedBinary::leave()
 {
     m_currentPath.goUp();
-}
-
-void AnnotatedBinary::save(const std::filesystem::path& metaFile,
-                           const std::filesystem::path& binaryFile) const
-{
-    m_binary.save(binaryFile);
-    m_binaryPath = binaryFile;
-
-    std::ofstream metaOutput{metaFile};
-    if (metaOutput.good())
-    {
-        LuaWriter writer;
-        writer.start();
-        serialize(writer);
-        writer.finish();
-        metaOutput << "return " << writer.lua();
-    }
-    else
-    {
-        throw FuseException{"could not open meta output file '" + metaFile.string() + "'"};
-    }
-}
-
-void AnnotatedBinary::serialize(LuaWriter& writer) const
-{
-    if (m_binaryPath)
-    {
-        writer.startField("binary").writePath(*m_binaryPath).finishField();
-    }
-    writer.startField("objects").startTable();
-    for (auto const& object : m_objects)
-    {
-        writer.startField();
-        object->serialize(writer);
-        writer.finishField();
-    }
-    writer.finishTable().finishField();
 }
 
 auto AnnotatedBinary::object(size_t index) const -> const Object*

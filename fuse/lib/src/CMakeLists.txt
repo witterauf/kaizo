@@ -5,24 +5,15 @@ set(FUSE_INCLUDE_DIRECTORY "${FUSE_BASE_INCLUDE_DIRECTORY}/fuse")
 
 set(FUSE_BASE_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/Binary.h
-    ${FUSE_INCLUDE_DIRECTORY}/BinaryStream.h
     ${FUSE_INCLUDE_DIRECTORY}/BinaryView.h
     ${FUSE_INCLUDE_DIRECTORY}/BinaryPatch.h
     ${FUSE_INCLUDE_DIRECTORY}/Rectangle.h
     ${FUSE_INCLUDE_DIRECTORY}/UsageMap.h
-    ${FUSE_INCLUDE_DIRECTORY}/LuaBaseLibrary.h
-    ${FUSE_INCLUDE_DIRECTORY}/LuaFuseLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/Integers.h
-    ${FUSE_INCLUDE_DIRECTORY}/FuseException.h
     Binary.cc
-    BinaryStream.cc
     BinaryView.cc
     BinaryPatch.cc
     UsageMap.cc
-    LuaBaseLibrary.cc
-    LuaFuseLibrary.cc
-    LuaIntegerLayoutLoader.h
-    LuaIntegerLayoutLoader.cc
     Integers.cc
 )
 
@@ -37,13 +28,11 @@ set(FUSE_ADDRESSES_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/addresses/RelativeStorageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/AbsoluteStorageFormat.h
     ${FUSE_INCLUDE_DIRECTORY}/addresses/MipsEmbeddedLayout.h
-    ${FUSE_INCLUDE_DIRECTORY}/addresses/LuaAddressLibrary.h
     addresses/Address.cc
     addresses/AddressFormat.cc
     addresses/AddressMap.cc
     addresses/IdempotentAddressMap.cc
     addresses/RegionAddressMap.cc
-    addresses/LuaAddressLibrary.cc
     addresses/AbsoluteOffset.cc
     addresses/RelativeStorageFormat.cc
     addresses/AddressStorageFormat.cc
@@ -94,9 +83,7 @@ set(FUSE_BINARY_FORMATS_SOURCES
 set(FUSE_BINARY_SERIALIZATION_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/Serialization.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/CsvSerialization.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/serialization/LuaSerialization.h
     binary/serialization/CsvSerialization.cc
-    binary/serialization/LuaSerialization.cc
 )
 
 set(FUSE_BINARY_OBJECTS_SOURCES
@@ -112,31 +99,14 @@ set(FUSE_BINARY_SOURCES
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataReader.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataPath.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataAnnotation.h
-    ${FUSE_INCLUDE_DIRECTORY}/binary/LuaBinaryLibrary.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataWriter.h
     ${FUSE_INCLUDE_DIRECTORY}/binary/DataRangeTracker.h
     binary/DataReader.cc
     binary/DataPath.cc
     binary/DataPathParser.h
     binary/DataPathParser.cc
-    binary/LuaBinaryLibrary.cc
     binary/DataWriter.cc
     binary/DataRangeTracker.cc
-)
-
-set(FUSE_BINARY_LOADERS_SOURCES
-    binary/loaders/LuaDataFormatLoader.h
-    binary/loaders/LuaDataFormatLoader.cc
-    binary/loaders/LuaIntegerFormatLoader.h
-    binary/loaders/LuaIntegerFormatLoader.cc
-    binary/loaders/LuaArrayFormatLoader.h
-    binary/loaders/LuaArrayFormatLoader.cc
-    binary/loaders/LuaStringFormatLoader.h
-    binary/loaders/LuaStringFormatLoader.cc
-    binary/loaders/LuaRelativeOffsetFormatLoader.h
-    binary/loaders/LuaRelativeOffsetFormatLoader.cc
-    binary/loaders/LuaRecordFormatLoader.h
-    binary/loaders/LuaRecordFormatLoader.cc
 )
 
 set(FUSE_TEXT_SOURCES
@@ -157,18 +127,10 @@ set(FUSE_LINKING_SOURCES
   ${FUSE_INCLUDE_DIRECTORY}/linking/FreeBlock.h
   ${FUSE_INCLUDE_DIRECTORY}/linking/Packer.h
   ${FUSE_INCLUDE_DIRECTORY}/linking/Backtracker.h
-  #${FUSE_INCLUDE_DIRECTORY}/linking/ConstraintDirectory.h
-  #${FUSE_INCLUDE_DIRECTORY}/linking/Linker.h
-  #${FUSE_INCLUDE_DIRECTORY}/linking/Target.h
-  #${FUSE_INCLUDE_DIRECTORY}/linking/TargetMap.h
   linking/LinkObject.cc
   linking/Constraint.cc
   linking/FreeSpace.cc
   linking/FreeBlock.cc
-  #linking/ConstraintDirectory.cc
-  #linking/Linker.cc
-  #linking/Target.cc
-  #linking/TargetMap.cc
   linking/BackTracker.cc
 )
 
@@ -185,63 +147,31 @@ set(FUSE_UTILITIES_SOURCES
     utilities/StringCollection.cc
 )
 
-set(FUSE_LUA_SOURCES
-    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaLoader.h
-    ${FUSE_INCLUDE_DIRECTORY}/lua/Utilities.h
-    ${FUSE_INCLUDE_DIRECTORY}/lua/FuseLuaException.h
-    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaWriter.h
-    ${FUSE_INCLUDE_DIRECTORY}/lua/LuaReader.h
-    lua/LuaLoader.cc
-    lua/LuaWriter.cc
-    lua/LuaReader.cc
-    lua/Utilities.cc
-)
-
 set(FUSE_SOURCES
     ${FUSE_BASE_SOURCES}
     ${FUSE_BINARY_SOURCES}
     ${FUSE_ADDRESSES_SOURCES}
     ${FUSE_BINARY_FORMATS_SOURCES}
     ${FUSE_BINARY_DATA_SOURCES}
-    ${FUSE_BINARY_LOADERS_SOURCES}
     ${FUSE_BINARY_SERIALIZATION_SOURCES}
     ${FUSE_BINARY_OBJECTS_SOURCES}
     ${FUSE_TEXT_SOURCES}
     ${FUSE_UTILITIES_SOURCES}
-    ${FUSE_LUA_SOURCES}
     ${FUSE_LINKING_SOURCES}
 )
 
 source_group("Addresses" FILES ${FUSE_ADDRESSES_SOURCES})
 source_group("Base" FILES ${FUSE_BASE_SOURCES})
 source_group("Binary" FILES ${FUSE_BINARY_SOURCES})
-source_group("Binary\\Loaders" FILES ${FUSE_BINARY_LOADERS_SOURCES})
 source_group("Binary\\Data" FILES ${FUSE_BINARY_DATA_SOURCES})
 source_group("Binary\\Formats" FILES ${FUSE_BINARY_FORMATS_SOURCES})
 source_group("Binary\\Objects" FILES ${FUSE_BINARY_OBJECTS_SOURCES})
 source_group("Binary\\Serialization" FILES ${FUSE_BINARY_SERIALIZATION_SOURCES})
 source_group("Graphics" FILES ${FUSE_GRAPHICS_SOURCES})
-source_group("Lua" FILES ${FUSE_LUA_SOURCES})
 source_group("Systems" FILES ${FUSE_SYSTEMS_SOURCES})
 source_group("Text" FILES ${FUSE_TEXT_SOURCES})
 source_group("Linking" FILES ${FUSE_LINKING_SOURCES})
 source_group("Utilities" FILES ${FUSE_UTILITIES_SOURCES})
-
-###[ Lua sources ]#################################################################################
-
-compile_lua_bytecode(PrettyPrint SOURCES PrettyPrint.lua)
-
-add_collection_library(FuseLuaRuntime
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/PrettyPrint.lua"
-  WORKING_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}"
-  NAMESPACE
-    lua::fuse
-  OUTPUT_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}"
-)
-target_sources(FuseLuaRuntime PRIVATE PrettyPrint.lua)
 
 ###[ library ]#####################################################################################
 
@@ -256,9 +186,6 @@ target_include_directories(FuseLibrary
 target_link_libraries(FuseLibrary
     PRIVATE
         Diagnostics::Diagnostics
-        sol2
-        Lua::FileSystem
-        FuseLuaRuntime
 )
 target_compile_features(FuseLibrary PUBLIC cxx_std_20)
 target_all_warnings(FuseLibrary)

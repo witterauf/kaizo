@@ -1,25 +1,12 @@
 #include <diagnostics/Contracts.h>
 #include <functional>
-#include <fuse/FuseException.h>
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/binary/objects/Object.h>
-#include <fuse/lua/LuaReader.h>
-#include <fuse/lua/LuaWriter.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
 using namespace fuse::binary;
 
 namespace fuse {
-
-static auto deserializeSection(LuaDomReader& reader) -> Object::Section
-{
-    Expects(reader.isRecord());
-    Object::Section section;
-    section.offset = requireUnsignedInteger(reader, "offset");
-    section.size = requireUnsignedInteger(reader, "size");
-    section.realOffset = requireUnsignedInteger(reader, "actual_offset");
-    return section;
-}
 
 void Object::setAlignment(const size_t alignment)
 {
@@ -47,6 +34,7 @@ auto Object::fixedOffset() const -> size_t
     return *m_fixedOffset;
 }
 
+/*
 auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
     -> std::unique_ptr<PackedObject>
 {
@@ -100,6 +88,7 @@ auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
 
     return std::unique_ptr<PackedObject>(object);
 }
+*/
 
 PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset)
     : m_path{path}
@@ -235,60 +224,6 @@ auto PackedObject::sectionBinary(size_t index) const -> Binary
 {
     Expects(index < sectionCount());
     return m_parent->binary().read(m_offset + section(index).offset, section(index).size);
-}
-
-void PackedObject::serialize(LuaWriter& writer) const
-{
-    writer.startTable();
-    serializeAttributes(writer);
-    serializeSections(writer);
-    serializeReferences(writer);
-    writer.finishTable();
-}
-
-void PackedObject::serializeAttributes(LuaWriter& writer) const
-{
-    writer.startField("path").writeString(m_path.toString()).finishField();
-    writer.startField("offset").writeInteger(m_offset).finishField();
-    writer.startField("size").writeInteger(size()).finishField();
-    writer.startField("actual_size").writeInteger(realSize()).finishField();
-}
-
-void PackedObject::serializeSections(LuaWriter& writer) const
-{
-    if (sectionCount() == 1 && section(0).realOffset == 0)
-    {
-        return;
-    }
-
-    writer.startField("sections").startTable();
-    for (auto i = 0U; i < sectionCount(); ++i)
-    {
-        auto const& section = m_sections[i];
-        writer.startField().startTable();
-        writer.startField("offset").writeInteger(section.offset).finishField();
-        writer.startField("actual_offset").writeInteger(section.realOffset).finishField();
-        writer.startField("size").writeInteger(section.size).finishField();
-        writer.finishTable().finishField();
-    }
-    writer.finishTable().finishField();
-}
-
-void PackedObject::serializeReferences(LuaWriter& writer) const
-{
-    if (unresolvedReferenceCount() == 0)
-    {
-        return;
-    }
-
-    writer.startField("unresolved_references").startTable();
-    for (auto i = 0U; i < unresolvedReferenceCount(); ++i)
-    {
-        writer.startField();
-        unresolvedReference(i).serialize(writer);
-        writer.finishField();
-    }
-    writer.finishTable().finishField();
 }
 
 } // namespace fuse
