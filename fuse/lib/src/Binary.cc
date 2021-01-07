@@ -1,7 +1,7 @@
 #include "fuse/Binary.h"
 #include <fstream>
 
-namespace fuse {
+namespace kaizo::data {
 
 namespace fs = std::filesystem;
 
@@ -131,4 +131,4 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary
     return lhs += rhs;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

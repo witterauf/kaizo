@@ -1,6 +1,6 @@
 #include <fuse/binary/DataRangeTracker.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 void TagOnlyRangeTracker::track(const binary::DataPath&, const Range& range,
                                 const std::optional<std::string>& tag)
@@ -39,4 +39,4 @@ void TagOnlyRangeTracker::serialize(LuaWriter& writer) const
 }
 */
 
-} // namespace fuse
+} // namespace kaizo::data

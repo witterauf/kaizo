@@ -1,6 +1,6 @@
 #include <fuse/addresses/AddressMap.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 bool AddressMap::coversSourceAddress(const Address address) const
 {
@@ -12,4 +12,4 @@ bool AddressMap::coversTargetAddress(const Address address) const
     return !toSourceAddresses(address).empty();
 }
 
-} // namespace fuse
+} // namespace kaizo::data

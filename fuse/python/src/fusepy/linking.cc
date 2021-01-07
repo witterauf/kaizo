@@ -2,7 +2,7 @@
 #include <fuse/addresses/Address.h>
 #include <fuse/linking/Backtracker.h>
 
-using namespace fuse;
+using namespace kaizo::data;
 namespace py = pybind11;
 
 static auto BacktrackingPacker_get_link_offset(const BacktrackingPacker& packer, const size_t index)

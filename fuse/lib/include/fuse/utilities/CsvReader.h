@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class CsvReader
 {
@@ -35,4 +35,4 @@ private:
     std::vector<std::optional<std::string>> m_columnNames;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -3,8 +3,8 @@
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
 
-using namespace fuse;
-using namespace fuse::binary;
+using namespace kaizo::data;
+using namespace kaizo::data::binary;
 namespace py = pybind11;
 
 static auto convert(const UnresolvedReference& ref) -> py::dict

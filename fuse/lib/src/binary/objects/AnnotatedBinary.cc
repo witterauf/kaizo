@@ -3,9 +3,9 @@
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
-using namespace fuse::binary;
+using namespace kaizo::data::binary;
 
-namespace fuse {
+namespace kaizo::data {
 
 void AnnotatedBinary::startObject(const binary::DataPath& path)
 {
@@ -110,4 +110,4 @@ auto AnnotatedBinary::object(size_t index) -> Object*
     return m_objects[index].get();
 }
 
-} // namespace fuse
+} // namespace kaizo::data

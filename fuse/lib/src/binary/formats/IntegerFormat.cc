@@ -4,7 +4,7 @@
 #include <fuse/binary/data/IntegerData.h>
 #include <fuse/binary/formats/IntegerFormat.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 IntegerFormat::IntegerFormat(size_t size, Signedness signedness, Endianness endianness)
 {
@@ -128,4 +128,4 @@ auto IntegerFormat::copy() const -> std::unique_ptr<DataFormat>
     return std::unique_ptr<IntegerFormat>{new IntegerFormat{*this}};
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

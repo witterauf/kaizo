@@ -5,7 +5,7 @@
 #include <fuse/binary/data/ArrayData.h>
 #include <fuse/binary/formats/ArrayFormat.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 void ArrayFormat::setSizeProvider(std::unique_ptr<ArraySizeProvider>&& sizeProvider)
 {
@@ -71,4 +71,4 @@ auto ArrayFormat::copy() const -> std::unique_ptr<DataFormat>
     return std::unique_ptr<ArrayFormat>{new ArrayFormat{*this}};
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

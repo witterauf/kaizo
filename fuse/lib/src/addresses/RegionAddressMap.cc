@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/addresses/RegionAddressMap.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 RegionAddressMap::RegionAddressMap(const AddressFormat* sourceFormat,
                                    const AddressFormat* targetFormat)
@@ -92,4 +92,4 @@ auto RegionAddressMap::copy() const -> std::unique_ptr<AddressMap>
     return std::move(copied);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

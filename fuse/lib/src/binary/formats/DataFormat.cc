@@ -4,7 +4,7 @@
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/formats/DataFormat.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 void DataFormat::setFixedOffset(size_t offset)
 {
@@ -79,4 +79,4 @@ auto DataFormat::tag() const -> const std::string&
     return *m_trackTag;
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

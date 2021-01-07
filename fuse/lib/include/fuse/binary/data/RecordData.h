@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class RecordData final : public Data
 {
@@ -29,4 +29,4 @@ private:
     std::map<std::string, std::unique_ptr<Data>> m_elements;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

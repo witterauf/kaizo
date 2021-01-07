@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class StringSet
 {

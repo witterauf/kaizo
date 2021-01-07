@@ -5,7 +5,7 @@
 #include <fuse/binary/data/StringData.h>
 #include <fuse/binary/formats/StringFormat.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 StringFormat::StringFormat(const std::shared_ptr<text::TextEncoding>& encoding)
     : m_encoding{encoding}
@@ -66,4 +66,4 @@ auto StringFormat::copy() const -> std::unique_ptr<DataFormat>
     return std::unique_ptr<StringFormat>{new StringFormat{*this}};
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

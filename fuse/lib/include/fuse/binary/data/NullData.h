@@ -2,7 +2,7 @@
 
 #include "Data.h"
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class NullData final : public Data
 {
@@ -12,4 +12,4 @@ public:
     auto copy() const -> std::unique_ptr<Data> override;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

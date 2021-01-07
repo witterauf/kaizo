@@ -4,7 +4,7 @@
 #include "fuse/utilities/NarrowCast.h"
 #include <contracts/Contracts.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 void MipsLayout::setBaseAddress(const Address base)
 {
@@ -85,4 +85,4 @@ auto MipsLayout::getName() const -> std::string
     return "mips";
 }
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class StringCollection
 {
@@ -17,4 +17,4 @@ private:
     std::map<std::string, size_t> m_strings;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

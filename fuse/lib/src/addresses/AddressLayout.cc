@@ -1,5 +1,5 @@
 #include "fuse/addresses/AddressLayout.h"
 
-namespace fuse {
+namespace kaizo::data {
 
-} // namespace fuse
+} // namespace kaizo::data

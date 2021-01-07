@@ -1,7 +1,7 @@
 #include "DataPathParser.h"
 #include <cctype>
 
-namespace fuse {
+namespace kaizo::data {
 
 auto DataPathParser::parse(const std::string& string) -> std::optional<binary::DataPath>
 {
@@ -129,4 +129,4 @@ bool DataPathParser::isFirst() const
     return m_index == 0;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

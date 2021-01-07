@@ -3,7 +3,7 @@
 #include "Data.h"
 #include <vector>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class ArrayData : public Data
 {
@@ -26,4 +26,4 @@ private:
     std::vector<std::unique_ptr<Data>> m_elements;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

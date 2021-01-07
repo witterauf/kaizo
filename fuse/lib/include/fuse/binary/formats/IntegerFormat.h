@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <fuse/Integers.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class IntegerFormat final : public DataFormat
 {
@@ -34,4 +34,4 @@ private:
     IntegerLayout m_layout;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

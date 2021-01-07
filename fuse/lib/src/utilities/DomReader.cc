@@ -1,6 +1,6 @@
 #include <fuse/utilities/DomReader.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 bool DomReader::has(size_t index) const
 {
@@ -27,4 +27,4 @@ bool DomReader::isString() const
     return type() == NodeType::String;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

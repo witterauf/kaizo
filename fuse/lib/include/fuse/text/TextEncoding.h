@@ -3,7 +3,7 @@
 #include <fuse/BinaryView.h>
 #include <memory>
 
-namespace fuse::text {
+namespace kaizo::data::text {
 
 class TextEncoding
 {
@@ -19,4 +19,4 @@ public:
     virtual auto copy() const -> std::unique_ptr<TextEncoding> = 0;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::data::text

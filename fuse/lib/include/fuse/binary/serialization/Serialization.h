@@ -4,7 +4,7 @@
 #include <fuse/binary/data/Data.h>
 #include <memory>
 
-namespace fuse {
+namespace kaizo::data {
 
 class DataSerialization
 {
@@ -14,4 +14,4 @@ public:
         -> std::unique_ptr<binary::Data> = 0;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <string>
 
-namespace fuse::utilities {
+namespace kaizo::data::utilities {
 
 template <class T> static auto toString(T value, unsigned base, size_t digits = 0) -> std::string
 {
@@ -42,4 +42,4 @@ template <class T> static auto toString(T value, unsigned base, size_t digits = 
     return reversed;
 }
 
-} // namespace fuse::utilities
+} // namespace kaizo::data::utilities

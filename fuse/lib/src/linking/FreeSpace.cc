@@ -3,7 +3,7 @@
 #include <contracts/Contracts.h>
 #include <numeric>
 
-namespace fuse {
+namespace kaizo::data {
 
 static bool operator<(const FreeBlock& lhs, const FreeBlock& rhs)
 {
@@ -147,4 +147,4 @@ void FreeSpace::addBlock(const FreeBlock& block)
     m_blocks.insert(std::upper_bound(m_blocks.begin(), m_blocks.end(), block), block);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace fuse::text {
+namespace kaizo::data::text {
 
 class ShiftJis
 {
@@ -12,4 +12,4 @@ public:
     static auto toUtf8(uint16_t sjis) -> std::optional<std::string>;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::data::text

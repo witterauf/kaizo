@@ -7,7 +7,7 @@
 #include <memory>
 #include <optional>
 
-namespace fuse {
+namespace kaizo::data {
 
 class UnresolvedReference
 {
@@ -32,4 +32,4 @@ private:
     std::shared_ptr<AddressLayout> m_format;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

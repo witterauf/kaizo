@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace fuse {
+namespace kaizo::data {
 
 class DomReader
 {
@@ -38,4 +38,4 @@ public:
     bool isString() const;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

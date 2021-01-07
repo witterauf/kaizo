@@ -1,6 +1,6 @@
 #include <fuse/binary/data/NullData.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 NullData::NullData()
     : Data{DataType::Null}
@@ -17,4 +17,4 @@ auto NullData::copy() const -> std::unique_ptr<Data>
     return std::make_unique<NullData>();
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

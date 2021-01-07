@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/addresses/IdempotentAddressMap.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 IdempotentAddressMap::IdempotentAddressMap(const AddressFormat* format)
     : m_format{format}
@@ -36,4 +36,4 @@ auto IdempotentAddressMap::copy() const -> std::unique_ptr<AddressMap>
     return std::make_unique<IdempotentAddressMap>(m_format);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

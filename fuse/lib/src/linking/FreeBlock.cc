@@ -1,7 +1,7 @@
 #include "fuse/linking/FreeBlock.h"
 #include <contracts/Contracts.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 FreeBlock::FreeBlock(const size_t offset, const Address address, size_t size)
     : m_offset{offset}
@@ -125,4 +125,4 @@ auto SplitFreeBlocks::operator[](size_t index) const -> const FreeBlock&
     }
 }
 
-} // namespace fuse
+} // namespace kaizo::data

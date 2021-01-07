@@ -6,7 +6,7 @@
 #include <fuse/binary/data/RecordData.h>
 #include <fuse/binary/formats/RecordFormat.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 void RecordFormat::append(const std::string& name, std::unique_ptr<DataFormat>&& data)
 {
@@ -90,4 +90,4 @@ auto RecordFormat::copy() const -> std::unique_ptr<DataFormat>
     return std::unique_ptr<RecordFormat>{new RecordFormat{*this}};
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

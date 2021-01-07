@@ -4,7 +4,7 @@
 #include <fuse/addresses/Address.h>
 #include <string>
 
-namespace fuse {
+namespace kaizo::data {
 
 class SplitFreeBlocks;
 
@@ -46,4 +46,4 @@ private:
     FreeBlock m_second;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class DataWriter
 {
@@ -58,4 +58,4 @@ private:
     size_t m_lastPlacedOffset{0};
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

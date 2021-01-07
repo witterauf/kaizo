@@ -8,7 +8,7 @@
 #include <fuse/Integers.h>
 
 namespace py = pybind11;
-using namespace fuse;
+using namespace kaizo::data;
 
 auto requestReadOnly(py::buffer& b) -> BinaryView
 {

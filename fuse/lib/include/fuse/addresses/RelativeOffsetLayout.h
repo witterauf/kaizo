@@ -6,7 +6,7 @@
 #include <memory>
 #include <optional>
 
-namespace fuse {
+namespace kaizo::data {
 
 class BaseAddressProvider
 {
@@ -61,4 +61,4 @@ private:
     IntegerLayout m_layout;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

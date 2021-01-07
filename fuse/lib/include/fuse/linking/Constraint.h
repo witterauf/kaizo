@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class FreeSpace;
 
@@ -123,4 +123,4 @@ private:
 // => need for Constraint "algebra"?
 //
 
-} // namespace fuse
+} // namespace kaizo::data

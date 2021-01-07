@@ -2,6 +2,6 @@
 #include <fuse/Integers.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
-namespace fuse {
+namespace kaizo::data {
 
-} // namespace fuse
+} // namespace kaizo::data

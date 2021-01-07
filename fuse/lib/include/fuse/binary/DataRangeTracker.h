@@ -6,7 +6,7 @@
 #include <map>
 #include <optional>
 
-namespace fuse {
+namespace kaizo::data {
 
 class LuaWriter;
 
@@ -38,4 +38,4 @@ private:
     std::map<std::string, UsageMap> m_maps;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

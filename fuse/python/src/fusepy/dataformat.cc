@@ -1,6 +1,6 @@
 #include "dataformat.h"
 #include <fuse/addresses/AddressFormat.h>
-#include <fuse/addresses/AddressStorageFormat.h>
+#include <fuse/addresses/AddressLayout.h>
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/DataWriter.h>
 #include <fuse/binary/data/ArrayData.h>
@@ -18,8 +18,8 @@
 #include <fuse/text/TextEncoding.h>
 
 namespace py = pybind11;
-using namespace fuse;
-using namespace fuse::binary;
+using namespace kaizo::data;
+using namespace kaizo::data::binary;
 
 static auto convert(const Data& data) -> py::object;
 

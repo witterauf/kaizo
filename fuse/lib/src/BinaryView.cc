@@ -1,6 +1,6 @@
 #include "fuse/BinaryView.h"
 
-namespace fuse {
+namespace kaizo::data {
 
 BinaryView::BinaryView(const Binary& binary)
     : m_buffer{binary.data()}
@@ -96,4 +96,4 @@ auto MutableBinaryView::operator[](const size_t offset) -> uint8_t&
     return m_buffer[offset];
 }
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -1,7 +1,7 @@
 #include <fuse/text/ShiftJis.h>
 #include "ShiftJisToUnicode.h"
 
-namespace fuse::text {
+namespace kaizo::data::text {
 
 static auto toUnicode(uint16_t sjis) -> std::optional<uint32_t>
 {
@@ -63,4 +63,4 @@ auto ShiftJis::toUtf8(uint16_t sjis) -> std::optional<std::string>
     }
 }
 
-} // namespace fuse::text
+} // namespace kaizo::data::text

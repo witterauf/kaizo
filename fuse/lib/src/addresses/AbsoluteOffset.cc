@@ -2,7 +2,7 @@
 #include <fuse/addresses/Address.h>
 #include <fuse/utilities/StringAlgorithms.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 auto AbsoluteOffset::applyOffset(const Address& address, offset_t offset) const -> Address
 {
@@ -40,4 +40,4 @@ auto fileOffsetFormat() -> const AbsoluteOffset*
     return fileOffset.get();
 }
 
-} // namespace fuse
+} // namespace kaizo::data

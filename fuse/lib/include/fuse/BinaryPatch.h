@@ -3,7 +3,7 @@
 #include "Binary.h"
 #include "BinaryView.h"
 
-namespace fuse {
+namespace kaizo::data {
 
 class BinaryPatch
 {
@@ -29,4 +29,4 @@ private:
     size_t m_size;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

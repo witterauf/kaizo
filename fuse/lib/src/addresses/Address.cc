@@ -2,7 +2,7 @@
 #include <fuse/addresses/Address.h>
 #include <fuse/addresses/AddressFormat.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 Address::Address(size_t address, const AddressFormat* format)
     : m_address{address}
@@ -83,4 +83,4 @@ bool Address::operator<=(const Address& rhs) const
     return isEqual(rhs) || isLessThan(rhs);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

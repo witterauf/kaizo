@@ -2,7 +2,7 @@
 
 #include "DataFormat.h"
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class BinarySizeProvider
 {
@@ -42,4 +42,4 @@ private:
     std::unique_ptr<BinarySizeProvider> m_sizeProvider;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

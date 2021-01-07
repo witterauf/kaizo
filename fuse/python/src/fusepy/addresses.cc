@@ -6,7 +6,7 @@
 #include <fuse/addresses/RelativeOffsetLayout.h>
 #include <pybind11/stl.h>
 
-using namespace fuse;
+using namespace kaizo::data;
 namespace py = pybind11;
 
 auto AddressLayout_encode(const AddressLayout& layout, const Address& address) -> py::list

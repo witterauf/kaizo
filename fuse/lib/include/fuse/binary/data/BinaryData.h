@@ -5,7 +5,7 @@
 #include <fuse/Binary.h>
 #include <vector>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class BinaryData : public Data
 {
@@ -24,4 +24,4 @@ private:
     Binary m_data;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class Data;
 class DataReader;
@@ -52,4 +52,4 @@ template <class T> auto DataFormat::copyAs() -> std::unique_ptr<T>
     return std::unique_ptr<T>(static_cast<T*>(copied.release()));
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

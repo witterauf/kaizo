@@ -5,7 +5,7 @@
 #include <fuse/Integers.h>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class BinaryView;
 
@@ -178,4 +178,4 @@ template <size_t N, class T> void Binary::writeBig(size_t offset, T value)
     }
 }
 
-} // namespace fuse
+} // namespace kaizo::data

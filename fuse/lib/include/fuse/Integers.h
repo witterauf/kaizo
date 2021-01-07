@@ -1,6 +1,6 @@
 #pragma once
 
-namespace fuse {
+namespace kaizo::data {
 
 enum class Signedness
 {
@@ -29,4 +29,4 @@ class LuaWriter;
 
 //void serialize(LuaWriter& writer, const IntegerLayout& layout);
 
-} // namespace fuse
+} // namespace kaizo::data

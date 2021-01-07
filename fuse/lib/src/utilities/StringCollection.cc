@@ -1,6 +1,6 @@
 #include <fuse/utilities/StringCollection.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 auto StringCollection::insert(const std::string& string) -> size_t
 {
@@ -26,4 +26,4 @@ auto StringCollection::strings() const -> std::vector<std::string>
     return result;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class DataPathElement
 {
@@ -69,4 +69,4 @@ private:
     std::vector<DataPathElement> m_elements;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

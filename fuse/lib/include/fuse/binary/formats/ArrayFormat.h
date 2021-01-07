@@ -3,7 +3,7 @@
 #include "DataFormat.h"
 #include <memory>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class ArraySizeProvider
 {
@@ -55,4 +55,4 @@ private:
     std::unique_ptr<DataFormat> m_elementFormat;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

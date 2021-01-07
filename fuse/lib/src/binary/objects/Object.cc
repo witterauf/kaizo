@@ -1,12 +1,11 @@
+#include "fuse/binary/objects/Object.h"
+#include "fuse/binary/objects/AnnotatedBinary.h"
 #include <contracts/Contracts.h>
 #include <functional>
-#include <fuse/binary/objects/AnnotatedBinary.h>
-#include <fuse/binary/objects/Object.h>
-#include <fuse/utilities/DomReaderHelpers.h>
 
-using namespace fuse::binary;
+using namespace kaizo::data::binary;
 
-namespace fuse {
+namespace kaizo::data {
 
 void Object::setAlignment(const size_t alignment)
 {
@@ -97,7 +96,7 @@ PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent
 {
 }
 
-auto PackedObject::binary() const -> fuse::Binary
+auto PackedObject::binary() const -> Binary
 {
     return m_parent->binary().read(m_offset, size());
 }
@@ -226,4 +225,4 @@ auto PackedObject::sectionBinary(size_t index) const -> Binary
     return m_parent->binary().read(m_offset + section(index).offset, section(index).size);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

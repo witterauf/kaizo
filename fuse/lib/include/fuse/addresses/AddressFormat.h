@@ -5,7 +5,7 @@
 #include <optional>
 #include <string>
 
-namespace fuse {
+namespace kaizo::data {
 
 class Address;
 class Binary;
@@ -31,4 +31,4 @@ protected:
     auto makeAddress(address_t address) const -> Address;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

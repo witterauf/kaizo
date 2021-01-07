@@ -4,7 +4,7 @@
 #include <iostream>
 #include <type_traits>
 
-namespace fuse {
+namespace kaizo::data {
 
 static auto defaultScoringStrategy(const FreeSpace& space, const LinkObject& object) -> long long
 {
@@ -309,4 +309,4 @@ void BacktrackingPacker::log_Fail()
     }
 }
 
-} // namespace fuse
+} // namespace kaizo::data

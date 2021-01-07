@@ -2,7 +2,7 @@
 #include <fuse/binary/data/Data.h>
 #include <map>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 Data::Data(const DataType type)
     : m_type{type}
@@ -50,4 +50,4 @@ auto toString(DataType type) -> std::string
     }
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

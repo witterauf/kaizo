@@ -2,7 +2,7 @@
 
 #include "TextEncoding.h"
 
-namespace fuse::text {
+namespace kaizo::data::text {
 
 class AsciiEncoding : public TextEncoding
 {
@@ -14,4 +14,4 @@ public:
     auto copy() const -> std::unique_ptr<TextEncoding> override;
 };
 
-} // namespace fuse::text
+} // namespace kaizo::data::text

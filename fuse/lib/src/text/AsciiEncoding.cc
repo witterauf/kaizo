@@ -1,6 +1,6 @@
 #include <fuse/text/AsciiEncoding.h>
 
-namespace fuse::text {
+namespace kaizo::data::text {
 
 bool AsciiEncoding::canEncode() const
 {
@@ -43,4 +43,4 @@ auto AsciiEncoding::copy() const -> std::unique_ptr<TextEncoding>
     return std::make_unique<AsciiEncoding>();
 }
 
-} // namespace fuse::text
+} // namespace kaizo::data::text

@@ -2,7 +2,7 @@
 
 #include "Binary.h"
 
-namespace fuse {
+namespace kaizo::data {
 
 class MutableBinaryView
 {
@@ -57,4 +57,4 @@ template <size_t N, class T, class B> auto readLittle(const B& binary, const siz
     return result;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

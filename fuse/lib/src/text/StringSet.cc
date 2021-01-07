@@ -2,7 +2,7 @@
 #include <fstream>
 #include <fuse/text/StringSet.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 auto StringSet::insert(const std::string& string) -> size_t
 {

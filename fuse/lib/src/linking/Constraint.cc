@@ -1,6 +1,6 @@
 #include "fuse/linking/Constraint.h"
 
-namespace fuse {
+namespace kaizo::data {
 
 FixedAddressConstraint::FixedAddressConstraint(Address address)
     : m_address{address}
@@ -95,4 +95,4 @@ auto AndConstraint::toString() const -> std::string
     return repr;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

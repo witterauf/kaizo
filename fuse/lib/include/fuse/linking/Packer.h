@@ -3,7 +3,7 @@
 #include "Target.h"
 #include <filesystem>
 
-namespace fuse {
+namespace kaizo::data {
 
 class FreeBlock;
 class LinkObject;
@@ -16,4 +16,4 @@ public:
     virtual bool pack() = 0;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

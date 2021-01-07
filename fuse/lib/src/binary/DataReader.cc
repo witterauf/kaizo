@@ -4,7 +4,7 @@
 #include <fuse/binary/DataReader.h>
 #include <fuse/binary/data/Data.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 DataReader::DataReader(const BinaryView& binary)
 {
@@ -91,4 +91,4 @@ void DataReader::setTracker(DataRangeTracker* tracker)
     m_dataRangeConsumer = tracker;
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

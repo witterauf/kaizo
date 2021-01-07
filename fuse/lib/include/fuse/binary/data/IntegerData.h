@@ -3,7 +3,7 @@
 #include "Data.h"
 #include <variant>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class IntegerData final : public Data
 {
@@ -28,4 +28,4 @@ private:
     std::variant<int64_t, uint64_t> m_value;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

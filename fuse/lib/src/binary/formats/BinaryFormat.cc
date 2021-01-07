@@ -3,7 +3,7 @@
 #include <fuse/binary/formats/BinaryFormat.h>
 #include <fuse/binary/DataReader.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 void BinaryFormat::setSizeProvider(std::unique_ptr<BinarySizeProvider>&& sizeProvider)
 {
@@ -28,4 +28,4 @@ auto BinaryFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
     }
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

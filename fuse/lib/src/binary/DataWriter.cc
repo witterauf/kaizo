@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/binary/DataWriter.h>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 DataWriter::DataWriter()
     : m_sections(1)
@@ -119,4 +119,4 @@ auto DataWriter::path() const -> const DataPath&
     return m_path;
 }
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

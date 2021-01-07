@@ -3,8 +3,8 @@
 #include <fuse/text/AsciiEncoding.h>
 #include <fuse/text/TextEncoding.h>
 
-using namespace fuse;
-using namespace fuse::text;
+using namespace kaizo::data;
+using namespace kaizo::data::text;
 namespace py = pybind11;
 
 auto TextEncoding_decode(TextEncoding& encoding, py::buffer b, const size_t offset)

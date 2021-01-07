@@ -3,7 +3,7 @@
 #include "Data.h"
 #include <string>
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class StringData : public Data
 {
@@ -23,4 +23,4 @@ private:
     std::string m_value;
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary

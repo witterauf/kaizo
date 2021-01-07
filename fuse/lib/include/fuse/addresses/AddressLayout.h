@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 
-namespace fuse {
+namespace kaizo::data {
 
 class AddressLayout
 {
@@ -24,4 +24,4 @@ public:
     virtual auto copy() const -> std::unique_ptr<AddressLayout> = 0;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

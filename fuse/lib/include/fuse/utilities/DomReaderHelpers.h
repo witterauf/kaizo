@@ -4,7 +4,7 @@
 #include <optional>
 #include <stdexcept>
 
-namespace fuse {
+namespace kaizo::data {
 
 namespace details {
 
@@ -126,4 +126,4 @@ template <class Key> void enterArray(DomReader& reader, const Key& key)
     }
 }
 
-} // namespace fuse
+} // namespace kaizo::data

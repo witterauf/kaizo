@@ -2,7 +2,7 @@
 #include <fuse/addresses/AddressFormat.h>
 #include <typeinfo>
 
-namespace fuse {
+namespace kaizo::data {
 
 auto AddressFormat::makeAddress(address_t address) const -> Address
 {
@@ -14,4 +14,4 @@ bool AddressFormat::isCompatible(const AddressFormat& format) const
     return typeid(format) == typeid(*this);
 }
 
-} // namespace fuse
+} // namespace kaizo::data

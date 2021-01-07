@@ -3,7 +3,7 @@
 #include <fstream>
 #include <fuse/utilities/CsvReader.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 CsvReader::CsvReader(const std::filesystem::path& filename)
 {
@@ -162,4 +162,4 @@ auto CsvReader::columnName(size_t index) const -> const std::string&
     return *m_columnNames[index];
 }
 
-} // namespace fuse
+} // namespace kaizo::data

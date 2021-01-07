@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class AnnotatedBinary;
 
@@ -27,7 +27,7 @@ public:
     bool hasFixedOffset() const;
     auto fixedOffset() const -> size_t;
 
-    virtual auto binary() const -> fuse::Binary = 0;
+    virtual auto binary() const -> Binary = 0;
     virtual auto path() const -> const binary::DataPath& = 0;
     virtual auto realSize() const -> size_t = 0;
     virtual auto size() const -> size_t = 0;
@@ -59,7 +59,7 @@ public:
     PackedObject() = default;
     explicit PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset = 0);
 
-    auto binary() const -> fuse::Binary override;
+    auto binary() const -> Binary override;
     void changeOffset(size_t offset);
     void addSection(size_t realOffset, size_t sectionSize);
     void addUnresolvedReference(const UnresolvedReference& reference);
@@ -85,4 +85,4 @@ private:
     std::vector<UnresolvedReference> m_references;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

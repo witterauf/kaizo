@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace fuse {
+namespace kaizo::data {
 
 class DataPathParser
 {
@@ -24,4 +24,4 @@ private:
     size_t m_index{0};
 };
 
-} // namespace fuse
+} // namespace kaizo::data

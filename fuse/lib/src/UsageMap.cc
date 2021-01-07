@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <fuse/UsageMap.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 void UsageMap::allocate(size_t start, size_t end)
 {
@@ -113,4 +113,4 @@ auto UsageMap::size() const -> size_t
     return m_end - m_start;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

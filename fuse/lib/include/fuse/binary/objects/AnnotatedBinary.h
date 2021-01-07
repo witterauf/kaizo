@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class AnnotatedBinary
 {
@@ -44,4 +44,4 @@ private:
     size_t m_nextRealOffset;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

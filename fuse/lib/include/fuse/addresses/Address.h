@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-namespace fuse {
+namespace kaizo::data {
 
 class Address
 {
@@ -37,4 +37,4 @@ private:
     const AddressFormat* m_format{nullptr};
 };
 
-} // namespace fuse
+} // namespace kaizo::data

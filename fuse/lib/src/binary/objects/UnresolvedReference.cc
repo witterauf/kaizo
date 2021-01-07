@@ -2,9 +2,9 @@
 #include <fuse/binary/objects/UnresolvedReference.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
-using namespace fuse::binary;
+using namespace kaizo::data::binary;
 
-namespace fuse {
+namespace kaizo::data {
 
 UnresolvedReference::UnresolvedReference(size_t offset)
     : m_relativeOffset{offset}
@@ -53,4 +53,4 @@ auto UnresolvedReference::addressLayout() const -> const AddressLayout&
     return *m_format;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

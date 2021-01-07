@@ -9,7 +9,7 @@
 #include <memory>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class PriorityObjectList
 {
@@ -97,4 +97,4 @@ private:
     std::ofstream m_log;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

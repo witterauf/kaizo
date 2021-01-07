@@ -5,7 +5,7 @@
 #include <stack>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class FreeSpace
 {
@@ -52,4 +52,4 @@ private:
     std::stack<Split> m_splits;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

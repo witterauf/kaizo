@@ -1,7 +1,7 @@
 #include <fuse/binary/data/Data.h>
 #include <fuse/binary/serialization/Serialization.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 class CsvSerialization : public DataSerialization
 {
@@ -41,4 +41,4 @@ private:
     std::string m_currentValue;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

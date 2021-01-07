@@ -6,7 +6,7 @@
 #include <optional>
 #include <vector>
 
-namespace fuse {
+namespace kaizo::data {
 
 class FreeSpace;
 class Object;
@@ -42,4 +42,4 @@ private:
     std::unique_ptr<Constraint> m_constraint;
 };
 
-} // namespace fuse
+} // namespace kaizo::data

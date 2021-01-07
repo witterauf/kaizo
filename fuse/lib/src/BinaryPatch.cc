@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/BinaryPatch.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 BinaryPatch::BinaryPatch(uint64_t data, uint64_t mask, size_t size, ptrdiff_t relativeOffset)
     : m_offset{relativeOffset}
@@ -78,4 +78,4 @@ bool BinaryPatch::usesOnlyFullBytes() const
     return true;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

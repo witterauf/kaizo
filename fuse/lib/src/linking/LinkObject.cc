@@ -2,7 +2,7 @@
 #include "fuse/linking/FreeSpace.h"
 #include <contracts/Contracts.h>
 
-namespace fuse {
+namespace kaizo::data {
 
 LinkObject::LinkObject(const std::string& id, const size_t size)
     : m_id{id}
@@ -113,4 +113,4 @@ bool LinkObject::isUnconstrained() const
     return m_constraint == nullptr;
 }
 
-} // namespace fuse
+} // namespace kaizo::data

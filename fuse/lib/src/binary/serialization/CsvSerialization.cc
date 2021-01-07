@@ -8,9 +8,9 @@
 #include <fuse/binary/serialization/CsvSerialization.h>
 #include <fuse/utilities/CsvReader.h>
 
-using namespace fuse::binary;
+using namespace kaizo::data::binary;
 
-namespace fuse {
+namespace kaizo::data {
 
 void CsvSerialization::serialize(const binary::Data& data, const std::filesystem::path& sourcePath)
 {
@@ -308,4 +308,4 @@ auto CsvSerialization::makeNext(size_t pathIndex) -> std::unique_ptr<binary::Dat
     }
 }
 
-} // namespace fuse
+} // namespace kaizo::data

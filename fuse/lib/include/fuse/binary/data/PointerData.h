@@ -2,7 +2,7 @@
 
 #include "Data.h"
 
-namespace fuse::binary {
+namespace kaizo::data::binary {
 
 class PointerData : public Data
 {
@@ -10,4 +10,4 @@ public:
 private:
 };
 
-} // namespace fuse::binary
+} // namespace kaizo::data::binary
