@@ -5,13 +5,16 @@
 #include <fuse/Integers.h>
 #include <vector>
 
-namespace kaizo {
+namespace kaizo::data {
+
+class BinaryView;
 
 class Binary
 {
 public:
     static auto load(const std::filesystem::path& filename) -> Binary;
     static auto fromArray(const uint8_t* data, size_t size) -> Binary;
+    static auto from(const BinaryView& view) -> Binary;
 
     Binary() = default;
     explicit Binary(size_t size);
@@ -20,8 +23,10 @@ public:
 
     auto size() const -> size_t;
     auto data(size_t offset = 0) const -> const uint8_t*;
+    auto data(size_t offset = 0) -> uint8_t*;
+
     auto read(size_t offset, size_t length) const -> Binary;
-    template <class T> auto readAs(size_t offset, const fuse::IntegerLayout& layout) const -> T;
+    template <class T> auto readAs(size_t offset, const IntegerLayout& layout) const -> T;
 
     template <class T> auto readAs(size_t offset, size_t length) const -> T
     {
@@ -41,8 +46,8 @@ public:
     void append(uint8_t value);
     void append(char value);
 
-    template <class T> void append(T value, const fuse::IntegerLayout& layout);
-    template <class T> void write(size_t offset, T value, const fuse::IntegerLayout& layout);
+    template <class T> void append(T value, const IntegerLayout& layout);
+    template <class T> void write(size_t offset, T value, const IntegerLayout& layout);
 
     template <class T> void appendLittle(T value, size_t size);
     template <size_t N, class T> void appendLittle(T value);
@@ -85,7 +90,7 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary;
 
 //##[ implementation ]#############################################################################
 
-template <class T> auto Binary::readAs(size_t offset, const fuse::IntegerLayout& layout) const -> T
+template <class T> auto Binary::readAs(size_t offset, const IntegerLayout& layout) const -> T
 {
     if (layout.endianness == Endianness::Little)
     {
@@ -107,7 +112,7 @@ template <size_t N, class T> auto Binary::readLittle(size_t offset) const -> T
     return result;
 }
 
-template <class T> void Binary::append(T value, const fuse::IntegerLayout& layout)
+template <class T> void Binary::append(T value, const IntegerLayout& layout)
 {
     if (layout.endianness == Endianness::Little)
     {
@@ -173,4 +178,4 @@ template <size_t N, class T> void Binary::writeBig(size_t offset, T value)
     }
 }
 
-} // namespace kaizo
+} // namespace kaizo::data

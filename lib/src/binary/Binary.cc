@@ -1,10 +1,9 @@
-#include "kaizo/binary/Binary.h"
+#include "fuse/Binary.h"
 #include <fstream>
 
-namespace kaizo {
+namespace kaizo::data {
 
 namespace fs = std::filesystem;
-using namespace fuse;
 
 Binary::Binary(size_t size)
     : m_data(size)
@@ -47,6 +46,11 @@ auto Binary::size() const -> size_t
 }
 
 auto Binary::data(size_t offset) const -> const uint8_t*
+{
+    return m_data.data() + offset;
+}
+
+auto Binary::data(size_t offset) -> uint8_t*
 {
     return m_data.data() + offset;
 }
@@ -127,4 +131,4 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary
     return lhs += rhs;
 }
 
-} // namespace fuse
+} // namespace kaizo::data
