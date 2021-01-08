@@ -1,0 +1,6 @@
+[submodule "external/contracts"]
+	path = external/contracts
+	url = https://github.com/witterauf/contracts.git
+[submodule "external/pybind11"]
+	path = external/pybind11
+	url = https://github.com/pybind/pybind11.git
