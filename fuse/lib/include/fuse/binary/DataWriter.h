@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class DataWriter
 {
@@ -58,4 +58,4 @@ private:
     size_t m_lastPlacedOffset{0};
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

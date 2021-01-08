@@ -9,7 +9,7 @@
 #include <map>
 #include <memory>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class Data;
 
@@ -52,4 +52,4 @@ private:
     DataRangeTracker* m_dataRangeConsumer{nullptr};
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

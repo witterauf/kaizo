@@ -1,6 +1,6 @@
 #include <fuse/binary/data/StringData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 StringData::StringData()
     : Data{DataType::String}
@@ -37,4 +37,4 @@ auto StringData::copy() const -> std::unique_ptr<Data>
     return std::unique_ptr<StringData>{new StringData{*this}};
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

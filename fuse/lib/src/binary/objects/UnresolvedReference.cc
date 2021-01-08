@@ -2,7 +2,7 @@
 #include <fuse/binary/objects/UnresolvedReference.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 
 namespace kaizo::data {
 
@@ -32,12 +32,12 @@ void UnresolvedReference::setFormat(const std::shared_ptr<AddressLayout>& format
     m_format = format;
 }
 
-auto UnresolvedReference::originPath() const -> const binary::DataPath&
+auto UnresolvedReference::originPath() const -> const DataPath&
 {
     return m_sourcePath;
 }
 
-auto UnresolvedReference::referencedPath() const -> const binary::DataPath&
+auto UnresolvedReference::referencedPath() const -> const DataPath&
 {
     return m_destinationPath;
 }

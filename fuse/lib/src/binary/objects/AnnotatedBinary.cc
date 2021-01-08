@@ -3,11 +3,11 @@
 #include <fuse/binary/objects/AnnotatedBinary.h>
 #include <fuse/utilities/DomReaderHelpers.h>
 
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 
 namespace kaizo::data {
 
-void AnnotatedBinary::startObject(const binary::DataPath& path)
+void AnnotatedBinary::startObject(const DataPath& path)
 {
     m_currentPath = path;
     m_currentObject = std::make_unique<PackedObject>(m_currentPath, this, m_binary.size());
@@ -69,7 +69,7 @@ auto AnnotatedBinary::objectCount() const -> size_t
 }
 
 void AnnotatedBinary::addUnresolvedReference(const std::shared_ptr<AddressLayout>& format,
-                                             const binary::DataPath& destination)
+                                             const DataPath& destination)
 {
     UnresolvedReference reference{m_currentObject->path(),
                                   m_binary.size() - m_currentObject->offset()};
@@ -88,7 +88,7 @@ auto AnnotatedBinary::relativeOffset() const -> size_t
     return m_binary.size() - m_currentObject->size();
 }
 
-void AnnotatedBinary::enter(const binary::DataPathElement& child)
+void AnnotatedBinary::enter(const DataPathElement& child)
 {
     m_currentPath /= child;
 }

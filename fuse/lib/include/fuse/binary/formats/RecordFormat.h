@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class RecordFormat final : public DataFormat
 {
@@ -36,4 +36,4 @@ private:
     std::vector<Element> m_elements;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

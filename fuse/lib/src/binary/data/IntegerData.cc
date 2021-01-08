@@ -1,6 +1,6 @@
 #include <fuse/binary/data/IntegerData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 IntegerData::IntegerData()
     : Data{DataType::Integer}
@@ -96,4 +96,4 @@ auto IntegerData::requiredSize() const -> size_t
     return size;
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

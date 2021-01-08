@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 enum class DataType
 {
@@ -47,4 +47,4 @@ template <class T> auto Data::copyAs() const -> std::unique_ptr<T>
     return std::unique_ptr<T>(static_cast<T*>(copied.release()));
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

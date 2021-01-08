@@ -18,4 +18,4 @@ public:
 
 auto fileOffsetFormat() -> const AbsoluteOffset*;
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

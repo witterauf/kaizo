@@ -7,7 +7,7 @@
 #include <fuse/binary/formats/IntegerFormat.h>
 #include <optional>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class PointerFormat : public DataFormat
 {
@@ -44,4 +44,4 @@ private:
     std::shared_ptr<AddressLayout> m_layout;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

@@ -3,7 +3,7 @@
 #include "Data.h"
 #include <fuse/binary/DataPath.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class ReferenceData final : public Data
 {
@@ -21,4 +21,4 @@ private:
     DataPath m_path;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

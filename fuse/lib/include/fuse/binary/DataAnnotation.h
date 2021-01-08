@@ -3,7 +3,7 @@
 #include "DataPath.h"
 #include <map>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 template <class T> class DataAnnotation
 {
@@ -27,4 +27,4 @@ private:
     std::multimap<DataPath, T> m_annotations;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

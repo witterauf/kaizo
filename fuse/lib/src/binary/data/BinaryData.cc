@@ -1,6 +1,6 @@
 #include <fuse/binary/data/BinaryData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 BinaryData::BinaryData()
     : Data{DataType::Binary}
@@ -43,4 +43,4 @@ auto BinaryData::copy() const -> std::unique_ptr<Data>
     return std::move(data);
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

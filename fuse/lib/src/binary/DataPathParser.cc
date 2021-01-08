@@ -3,12 +3,12 @@
 
 namespace kaizo::data {
 
-auto DataPathParser::parse(const std::string& string) -> std::optional<binary::DataPath>
+auto DataPathParser::parse(const std::string& string) -> std::optional<DataPath>
 {
     m_string = &string;
     m_index = 0;
 
-    binary::DataPath path;
+    DataPath path;
     while (hasNext())
     {
         if (auto maybeElement = parseElement())
@@ -23,7 +23,7 @@ auto DataPathParser::parse(const std::string& string) -> std::optional<binary::D
     return path;
 }
 
-auto DataPathParser::parseElement() -> std::optional<binary::DataPathElement>
+auto DataPathParser::parseElement() -> std::optional<DataPathElement>
 {
     if (fetch() == '.')
     {
@@ -54,7 +54,7 @@ static bool continuesName(char c)
     return std::isalnum(c) || c == '_';
 }
 
-auto DataPathParser::parseNameElement() -> std::optional<binary::DataPathElement>
+auto DataPathParser::parseNameElement() -> std::optional<DataPathElement>
 {
     if (!startsName(fetch()))
     {
@@ -66,7 +66,7 @@ auto DataPathParser::parseNameElement() -> std::optional<binary::DataPathElement
         name += fetch();
         consume();
     }
-    return binary::DataPathElement::makeName(name);
+    return DataPathElement::makeName(name);
 }
 
 static auto digitValue(char c) -> size_t
@@ -74,7 +74,7 @@ static auto digitValue(char c) -> size_t
     return static_cast<size_t>(c - '0');
 }
 
-auto DataPathParser::parseIndexElement() -> std::optional<binary::DataPathElement>
+auto DataPathParser::parseIndexElement() -> std::optional<DataPathElement>
 {
     consume(); // '['
 
@@ -101,7 +101,7 @@ auto DataPathParser::parseIndexElement() -> std::optional<binary::DataPathElemen
     consume();
     if (index > 0)
     {
-        return binary::DataPathElement::makeIndex(index);
+        return DataPathElement::makeIndex(index);
     }
     else
     {

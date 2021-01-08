@@ -21,7 +21,7 @@ public:
         size_t size;
     };
 
-    virtual void track(const binary::DataPath& path, const Range& range,
+    virtual void track(const DataPath& path, const Range& range,
                        const std::optional<std::string>& tag = {}) = 0;
     virtual void serialize(LuaWriter& writer) const = 0;
 };
@@ -29,7 +29,7 @@ public:
 class TagOnlyRangeTracker : public DataRangeTracker
 {
 public:
-    void track(const binary::DataPath& path, const Range& range,
+    void track(const DataPath& path, const Range& range,
                const std::optional<std::string>& tag = {}) override;
     void serialize(LuaWriter& writer) const override;
 

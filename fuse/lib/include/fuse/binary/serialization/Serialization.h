@@ -9,9 +9,9 @@ namespace kaizo::data {
 class DataSerialization
 {
 public:
-    virtual void serialize(const binary::Data& data, const std::filesystem::path& filename) = 0;
+    virtual void serialize(const Data& data, const std::filesystem::path& filename) = 0;
     virtual auto deserialize(const std::filesystem::path& filename)
-        -> std::unique_ptr<binary::Data> = 0;
+        -> std::unique_ptr<Data> = 0;
 };
 
 } // namespace kaizo::data

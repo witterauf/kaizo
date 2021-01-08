@@ -8,7 +8,7 @@
 #include <fuse/binary/data/ReferenceData.h>
 #include <fuse/binary/formats/PointerFormat.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 void PointerFormat::useAddressMap(bool on)
 {
@@ -204,4 +204,4 @@ auto PointerFormat::makeStorageFormat() -> std::shared_ptr<AddressLayout>
     return m_layout;
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

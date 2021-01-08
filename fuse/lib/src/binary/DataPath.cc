@@ -2,7 +2,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/binary/DataPath.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 auto DataPathElement::makeName(const std::string& name) -> DataPathElement
 {
@@ -201,4 +201,4 @@ bool DataPath::isEmpty() const
     return m_elements.empty();
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

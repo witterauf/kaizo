@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class DataPathElement
 {
@@ -69,4 +69,4 @@ private:
     std::vector<DataPathElement> m_elements;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

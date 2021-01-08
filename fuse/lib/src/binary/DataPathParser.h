@@ -9,10 +9,10 @@ namespace kaizo::data {
 class DataPathParser
 {
 public:
-    auto parse(const std::string& string) -> std::optional<binary::DataPath>;
-    auto parseElement() -> std::optional<binary::DataPathElement>;
-    auto parseNameElement() -> std::optional<binary::DataPathElement>;
-    auto parseIndexElement() -> std::optional<binary::DataPathElement>;
+    auto parse(const std::string& string) -> std::optional<DataPath>;
+    auto parseElement() -> std::optional<DataPathElement>;
+    auto parseNameElement() -> std::optional<DataPathElement>;
+    auto parseIndexElement() -> std::optional<DataPathElement>;
 
 private:
     bool hasNext() const;

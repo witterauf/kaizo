@@ -3,7 +3,7 @@
 #include "Data.h"
 #include <variant>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class IntegerData final : public Data
 {
@@ -28,4 +28,4 @@ private:
     std::variant<int64_t, uint64_t> m_value;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

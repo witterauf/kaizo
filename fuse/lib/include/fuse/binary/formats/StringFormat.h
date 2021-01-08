@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class StringFormat final : public DataFormat
 {
@@ -28,4 +28,4 @@ private:
     std::shared_ptr<text::TextEncoding> m_encoding;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

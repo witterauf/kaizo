@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/binary/data/ArrayData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 ArrayData::ArrayData(size_t size)
     : Data{DataType::Array}
@@ -82,4 +82,4 @@ auto ArrayData::copy() const -> std::unique_ptr<Data>
     return std::move(data);
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

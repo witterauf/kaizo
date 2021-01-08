@@ -1,7 +1,7 @@
 #include "FormatHelpers.h"
 #include <stdexcept>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 void expectDataType(DataType type, const Data& data, const DataPath& path)
 {
@@ -12,4 +12,4 @@ void expectDataType(DataType type, const Data& data, const DataPath& path)
     }
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

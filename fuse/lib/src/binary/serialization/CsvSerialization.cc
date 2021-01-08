@@ -8,11 +8,11 @@
 #include <fuse/binary/serialization/CsvSerialization.h>
 #include <fuse/utilities/CsvReader.h>
 
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 
 namespace kaizo::data {
 
-void CsvSerialization::serialize(const binary::Data& data, const std::filesystem::path& sourcePath)
+void CsvSerialization::serialize(const Data& data, const std::filesystem::path& sourcePath)
 {
     m_currentPath.clear();
     std::ofstream output{sourcePath};
@@ -27,7 +27,7 @@ void CsvSerialization::serialize(const binary::Data& data, const std::filesystem
     }
 }
 
-void CsvSerialization::serializeData(const binary::Data& data)
+void CsvSerialization::serializeData(const Data& data)
 {
     switch (data.type())
     {
@@ -39,7 +39,7 @@ void CsvSerialization::serializeData(const binary::Data& data)
     }
 }
 
-void CsvSerialization::serializeRecord(const binary::Data& data)
+void CsvSerialization::serializeRecord(const Data& data)
 {
     auto const& recordData = static_cast<const RecordData&>(data);
     auto const elements = recordData.elementNames();
@@ -52,7 +52,7 @@ void CsvSerialization::serializeRecord(const binary::Data& data)
     }
 }
 
-void CsvSerialization::serializeArray(const binary::Data& data)
+void CsvSerialization::serializeArray(const Data& data)
 {
     auto const& arrayData = static_cast<const ArrayData&>(data);
     for (auto i = 0U; i < arrayData.elementCount(); ++i)
@@ -64,7 +64,7 @@ void CsvSerialization::serializeArray(const binary::Data& data)
     }
 }
 
-void CsvSerialization::serializeInteger(const binary::Data& data)
+void CsvSerialization::serializeInteger(const Data& data)
 {
     auto const& integerData = static_cast<const IntegerData&>(data);
     if (integerData.isNegative())
@@ -77,13 +77,13 @@ void CsvSerialization::serializeInteger(const binary::Data& data)
     }
 }
 
-void CsvSerialization::serializeString(const binary::Data& data)
+void CsvSerialization::serializeString(const Data& data)
 {
     auto const& stringData = static_cast<const StringData&>(data);
     outputRow(DataType::String, stringData.value());
 }
 
-void CsvSerialization::outputRow(binary::DataType type, const std::string& value)
+void CsvSerialization::outputRow(DataType type, const std::string& value)
 {
     (*m_output) << m_currentPath.toString() << "," << toString(type);
     if (type == DataType::String)
@@ -97,7 +97,7 @@ void CsvSerialization::outputRow(binary::DataType type, const std::string& value
 }
 
 auto CsvSerialization::deserialize(const std::filesystem::path& filename)
-    -> std::unique_ptr<binary::Data>
+    -> std::unique_ptr<Data>
 {
     CsvReader reader{filename};
     while (auto maybeRow = reader.nextRow())
@@ -170,7 +170,7 @@ void CsvSerialization::decodeValue(std::string&& value)
     m_currentValue = std::move(value);
 }
 
-void CsvSerialization::process(binary::Data* data, size_t pathIndex)
+void CsvSerialization::process(Data* data, size_t pathIndex)
 {
     auto const& element = m_currentPath.element(pathIndex);
     switch (element.kind())
@@ -181,7 +181,7 @@ void CsvSerialization::process(binary::Data* data, size_t pathIndex)
     }
 }
 
-void CsvSerialization::processExisting(binary::Data* data, size_t pathIndex)
+void CsvSerialization::processExisting(Data* data, size_t pathIndex)
 {
     auto const& element = m_currentPath.element(pathIndex);
     switch (element.kind())
@@ -236,7 +236,7 @@ auto CsvSerialization::makeLeaf() -> std::unique_ptr<Data>
     }
 }
 
-auto CsvSerialization::makeReferenceLeaf() -> std::unique_ptr<binary::Data>
+auto CsvSerialization::makeReferenceLeaf() -> std::unique_ptr<Data>
 {
     if (auto maybePath = DataPath::fromString(m_currentValue))
     {
@@ -249,7 +249,7 @@ auto CsvSerialization::makeReferenceLeaf() -> std::unique_ptr<binary::Data>
     }
 }
 
-auto CsvSerialization::makeIntegerLeaf() -> std::unique_ptr<binary::Data>
+auto CsvSerialization::makeIntegerLeaf() -> std::unique_ptr<Data>
 {
     if (m_currentValue[0] == '-')
     {
@@ -263,7 +263,7 @@ auto CsvSerialization::makeIntegerLeaf() -> std::unique_ptr<binary::Data>
     }
 }
 
-auto CsvSerialization::makeStringLeaf() -> std::unique_ptr<binary::Data>
+auto CsvSerialization::makeStringLeaf() -> std::unique_ptr<Data>
 {
     return std::make_unique<StringData>(m_currentValue);
 }
@@ -284,7 +284,7 @@ void CsvSerialization::processRecord(Data* data, size_t pathIndex)
     }
 }
 
-auto CsvSerialization::makeNext(size_t pathIndex) -> std::unique_ptr<binary::Data>
+auto CsvSerialization::makeNext(size_t pathIndex) -> std::unique_ptr<Data>
 {
     if (pathIndex + 1 == m_currentPath.length())
     {

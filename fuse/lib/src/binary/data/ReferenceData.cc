@@ -1,6 +1,6 @@
 #include <fuse/binary/data/ReferenceData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 ReferenceData::ReferenceData(const DataPath& path)
     : Data{DataType::Reference}
@@ -28,4 +28,4 @@ auto ReferenceData::copy() const -> std::unique_ptr<Data>
     return std::unique_ptr<ReferenceData>{new ReferenceData{*this}};
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

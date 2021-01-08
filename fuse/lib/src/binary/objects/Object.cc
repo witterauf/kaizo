@@ -3,7 +3,7 @@
 #include <contracts/Contracts.h>
 #include <functional>
 
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 
 namespace kaizo::data {
 
@@ -89,7 +89,7 @@ auto PackedObject::deserialize(LuaDomReader& reader, AnnotatedBinary* parent)
 }
 */
 
-PackedObject::PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset)
+PackedObject::PackedObject(const DataPath& path, AnnotatedBinary* parent, size_t offset)
     : m_path{path}
     , m_parent{parent}
     , m_offset{offset}
@@ -115,7 +115,7 @@ void PackedObject::addUnresolvedReference(const UnresolvedReference& reference)
     m_references.push_back(reference);
 }
 
-auto PackedObject::path() const -> const binary::DataPath&
+auto PackedObject::path() const -> const DataPath&
 {
     return m_path;
 }

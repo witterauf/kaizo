@@ -4,7 +4,7 @@
 #include <fuse/binary/DataWriter.h>
 
 using namespace kaizo::data;
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 namespace py = pybind11;
 
 static auto convert(const UnresolvedReference& ref) -> py::dict

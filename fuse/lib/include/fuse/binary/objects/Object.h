@@ -28,7 +28,7 @@ public:
     auto fixedOffset() const -> size_t;
 
     virtual auto binary() const -> Binary = 0;
-    virtual auto path() const -> const binary::DataPath& = 0;
+    virtual auto path() const -> const DataPath& = 0;
     virtual auto realSize() const -> size_t = 0;
     virtual auto size() const -> size_t = 0;
     virtual auto toPackedOffset(size_t offset) const -> size_t = 0;
@@ -57,13 +57,13 @@ public:
         -> std::unique_ptr<PackedObject>;
 
     PackedObject() = default;
-    explicit PackedObject(const binary::DataPath& path, AnnotatedBinary* parent, size_t offset = 0);
+    explicit PackedObject(const DataPath& path, AnnotatedBinary* parent, size_t offset = 0);
 
     auto binary() const -> Binary override;
     void changeOffset(size_t offset);
     void addSection(size_t realOffset, size_t sectionSize);
     void addUnresolvedReference(const UnresolvedReference& reference);
-    auto path() const -> const binary::DataPath& override;
+    auto path() const -> const DataPath& override;
     auto realSize() const -> size_t override;
     auto size() const -> size_t override;
     auto offset() const -> size_t;
@@ -79,7 +79,7 @@ public:
 
 private:
     AnnotatedBinary* m_parent{nullptr};
-    binary::DataPath m_path;
+    DataPath m_path;
     size_t m_offset{0};
     std::vector<Section> m_sections;
     std::vector<UnresolvedReference> m_references;

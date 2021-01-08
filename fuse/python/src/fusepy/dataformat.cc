@@ -19,7 +19,7 @@
 
 namespace py = pybind11;
 using namespace kaizo::data;
-using namespace kaizo::data::binary;
+using namespace kaizo::data;
 
 static auto convert(const Data& data) -> py::object;
 

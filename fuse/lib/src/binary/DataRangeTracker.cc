@@ -2,7 +2,7 @@
 
 namespace kaizo::data {
 
-void TagOnlyRangeTracker::track(const binary::DataPath&, const Range& range,
+void TagOnlyRangeTracker::track(const DataPath&, const Range& range,
                                 const std::optional<std::string>& tag)
 {
     if (tag.has_value())

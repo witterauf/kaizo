@@ -2,7 +2,7 @@
 
 #include "DataFormat.h"
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 class BinarySizeProvider
 {
@@ -42,4 +42,4 @@ private:
     std::unique_ptr<BinarySizeProvider> m_sizeProvider;
 };
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data

@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fuse/binary/data/RecordData.h>
 
-namespace kaizo::data::binary {
+namespace kaizo::data {
 
 RecordData::RecordData()
     : Data{DataType::Record}
@@ -89,4 +89,4 @@ auto RecordData::copy() const -> std::unique_ptr<Data>
     return std::unique_ptr<RecordData>{new RecordData{*this}};
 }
 
-} // namespace kaizo::data::binary
+} // namespace kaizo::data
