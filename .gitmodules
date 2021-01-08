@@ -1,6 +1,3 @@
-[submodule "external/fuse"]
-	path = external/fuse
-	url = https://github.com/witterauf/fuse.git
 [submodule "external/contracts"]
 	path = external/contracts
 	url = https://github.com/witterauf/contracts.git
