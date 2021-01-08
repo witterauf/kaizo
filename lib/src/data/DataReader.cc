@@ -1,8 +1,9 @@
+#include "kaizo/data/DataReader.h"
+#include "kaizo/binary/Binary.h"
 #include <contracts/Contracts.h>
-#include <fuse/addresses/AbsoluteOffset.h>
-#include <fuse/addresses/IdempotentAddressMap.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/data/Data.h>
+#include <kaizo/addresses/AbsoluteOffset.h>
+#include <kaizo/addresses/IdempotentAddressMap.h>
+#include <kaizo/data/data/Data.h>
 
 namespace kaizo::data {
 

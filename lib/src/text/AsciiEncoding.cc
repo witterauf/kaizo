@@ -1,4 +1,4 @@
-#include <fuse/text/AsciiEncoding.h>
+#include <kaizo/text/AsciiEncoding.h>
 
 namespace kaizo::data::text {
 

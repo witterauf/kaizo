@@ -1,6 +1,6 @@
 #include <contracts/Contracts.h>
-#include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressFormat.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/addresses/AddressFormat.h>
 
 namespace kaizo::data {
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "DataPath.h"
-#include <fuse/Binary.h>
-#include <fuse/addresses/Address.h>
-#include <fuse/binary/objects/AnnotatedBinary.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/binary/Binary.h>
+#include <kaizo/data/objects/AnnotatedBinary.h>
 #include <map>
 #include <vector>
 

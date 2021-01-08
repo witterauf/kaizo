@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fuse/addresses/Address.h>
+#include <kaizo/addresses/Address.h>
 #include <memory>
 #include <vector>
 

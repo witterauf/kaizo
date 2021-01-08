@@ -2,7 +2,7 @@
 
 #include "AddressFormat.h"
 #include "AddressLayout.h"
-#include <fuse/Integers.h>
+#include <kaizo/binary/Integers.h>
 #include <memory>
 #include <optional>
 
@@ -27,7 +27,7 @@ private:
     Address m_address;
 };
 
-class RelativeOffsetLayout: public AddressLayout
+class RelativeOffsetLayout : public AddressLayout
 {
 public:
     void setBaseAddress(const Address base);

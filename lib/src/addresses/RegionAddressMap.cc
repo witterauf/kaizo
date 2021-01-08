@@ -1,5 +1,5 @@
 #include <contracts/Contracts.h>
-#include <fuse/addresses/RegionAddressMap.h>
+#include <kaizo/addresses/RegionAddressMap.h>
 
 namespace kaizo::data {
 

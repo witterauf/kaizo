@@ -1,7 +1,7 @@
-#include "fuse/Binary.h"
+#include "kaizo/binary/Binary.h"
 #include <fstream>
 
-namespace kaizo::data {
+namespace kaizo {
 
 namespace fs = std::filesystem;
 

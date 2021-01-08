@@ -2,7 +2,7 @@
 
 #include "DataFormat.h"
 #include <cstddef>
-#include <fuse/Integers.h>
+#include <kaizo/binary/Integers.h>
 
 namespace kaizo::data {
 

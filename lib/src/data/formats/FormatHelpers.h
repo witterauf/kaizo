@@ -1,7 +1,7 @@
 #pragma once
 
-#include <fuse/binary/data/Data.h>
-#include <fuse/binary/DataPath.h>
+#include <kaizo/data/data/Data.h>
+#include <kaizo/data/DataPath.h>
 
 namespace kaizo::data {
 

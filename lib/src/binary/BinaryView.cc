@@ -1,6 +1,6 @@
-#include "fuse/BinaryView.h"
+#include "kaizo/binary/BinaryView.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 BinaryView::BinaryView(const Binary& binary)
     : m_buffer{binary.data()}

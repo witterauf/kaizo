@@ -1,6 +1,6 @@
 #pragma once
 
-namespace kaizo::data {
+namespace kaizo {
 
 template <class T> class Rectangle
 {
@@ -95,4 +95,4 @@ private:
 
 using BitmapRegion = Rectangle<size_t>;
 
-} // namespace kaizo::data
+} // namespace kaizo

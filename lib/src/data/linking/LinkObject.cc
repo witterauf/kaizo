@@ -1,5 +1,5 @@
-#include "fuse/linking/LinkObject.h"
-#include "fuse/linking/FreeSpace.h"
+#include "kaizo/data/linking/LinkObject.h"
+#include "kaizo/data/linking/FreeSpace.h"
 #include <contracts/Contracts.h>
 
 namespace kaizo::data {

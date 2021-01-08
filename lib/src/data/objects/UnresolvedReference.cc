@@ -1,6 +1,6 @@
 #include <contracts/Contracts.h>
-#include <fuse/binary/objects/UnresolvedReference.h>
-#include <fuse/utilities/DomReaderHelpers.h>
+#include <kaizo/data/objects/UnresolvedReference.h>
+#include <kaizo/utilities/DomReaderHelpers.h>
 
 using namespace kaizo::data;
 

@@ -1,4 +1,4 @@
-#include <fuse/utilities/StringCollection.h>
+#include <kaizo/utilities/StringCollection.h>
 
 namespace kaizo::data {
 

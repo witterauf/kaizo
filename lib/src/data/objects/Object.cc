@@ -1,5 +1,5 @@
-#include "fuse/binary/objects/Object.h"
-#include "fuse/binary/objects/AnnotatedBinary.h"
+#include "kaizo/data/objects/Object.h"
+#include "kaizo/data/objects/AnnotatedBinary.h"
 #include <contracts/Contracts.h>
 #include <functional>
 

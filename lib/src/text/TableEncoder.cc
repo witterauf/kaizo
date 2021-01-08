@@ -1,10 +1,8 @@
 #include "kaizo/text/TableEncoder.h"
 #include "TableControlParser.h"
 #include <algorithm>
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 #include <set>
-
-using namespace fuse;
 
 namespace kaizo::text {
 
@@ -147,7 +145,7 @@ void TableEncoder::tryEncodeCharacters(size_t begin, size_t end)
             textSnippet += "{...}";
         }
 
-        throw std::runtime_error{ "could not encode '" + escape(textSnippet) + "'" };
+        throw std::runtime_error{"could not encode '" + escape(textSnippet) + "'"};
     }
 }
 

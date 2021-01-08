@@ -3,9 +3,9 @@
 #include "DataAnnotation.h"
 #include "DataRangeTracker.h"
 #include <cstddef>
-#include <fuse/Binary.h>
-#include <fuse/BinaryView.h>
-#include <fuse/addresses/AddressMap.h>
+#include <kaizo/addresses/AddressMap.h>
+#include <kaizo/binary/Binary.h>
+#include <kaizo/binary/BinaryView.h>
 #include <map>
 #include <memory>
 

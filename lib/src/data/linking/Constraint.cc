@@ -1,4 +1,4 @@
-#include "fuse/linking/Constraint.h"
+#include "kaizo/data/linking/Constraint.h"
 
 namespace kaizo::data {
 

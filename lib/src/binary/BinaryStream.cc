@@ -1,9 +1,7 @@
 #include "kaizo/binary/BinaryStream.h"
-#include <diagnostics/Contracts.h>
+#include <contracts/Contracts.h>
 
 namespace kaizo {
-
-using namespace fuse;
 
 BinaryStream::BinaryStream(const std::filesystem::path& filename, Mode mode)
     : m_mode{mode}

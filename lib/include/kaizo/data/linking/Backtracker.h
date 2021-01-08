@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fuse/linking/Constraint.h"
-#include "fuse/linking/FreeSpace.h"
-#include "fuse/linking/LinkObject.h"
+#include "kaizo/data/linking/Constraint.h"
+#include "kaizo/data/linking/FreeSpace.h"
+#include "kaizo/data/linking/LinkObject.h"
 #include <filesystem>
 #include <fstream>
 #include <functional>

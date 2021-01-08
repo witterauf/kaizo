@@ -1,4 +1,4 @@
-#include <fuse/utilities/DomReader.h>
+#include <kaizo/utilities/DomReader.h>
 
 namespace kaizo::data {
 

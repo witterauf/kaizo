@@ -1,6 +1,6 @@
 #include <contracts/Contracts.h>
 #include <fstream>
-#include <fuse/text/StringSet.h>
+#include <kaizo/text/StringSet.h>
 
 namespace kaizo::data {
 

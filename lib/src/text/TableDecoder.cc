@@ -1,10 +1,9 @@
 #include "kaizo/text/TableDecoder.h"
 #include <algorithm>
 #include <contracts/Contracts.h>
-#include <fuse/utilities/StringAlgorithms.h>
+#include <kaizo/utilities/StringAlgorithms.h>
 
-using namespace fuse;
-using namespace fuse::utilities;
+using namespace kaizo::data;
 
 namespace kaizo::text {
 

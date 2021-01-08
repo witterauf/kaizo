@@ -1,5 +1,5 @@
-#include <fuse/binary/data/Data.h>
-#include <fuse/binary/serialization/Serialization.h>
+#include <kaizo/data/data/Data.h>
+#include <kaizo/data/serialization/Serialization.h>
 
 namespace kaizo::data {
 

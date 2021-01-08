@@ -1,4 +1,4 @@
-#include <fuse/text/ShiftJis.h>
+#include <kaizo/text/ShiftJis.h>
 #include "ShiftJisToUnicode.h"
 
 namespace kaizo::data::text {

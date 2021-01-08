@@ -1,4 +1,4 @@
-#include "fuse/addresses/AddressLayout.h"
+#include "kaizo/addresses/AddressLayout.h"
 
 namespace kaizo::data {
 

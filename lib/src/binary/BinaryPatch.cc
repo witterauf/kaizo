@@ -1,7 +1,7 @@
+#include "kaizo/binary/BinaryPatch.h"
 #include <contracts/Contracts.h>
-#include <fuse/BinaryPatch.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 BinaryPatch::BinaryPatch(uint64_t data, uint64_t mask, size_t size, ptrdiff_t relativeOffset)
     : m_offset{relativeOffset}

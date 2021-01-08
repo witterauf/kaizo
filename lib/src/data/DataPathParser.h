@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fuse/binary/DataPath.h>
+#include <kaizo/data/DataPath.h>
 #include <optional>
 #include <string>
 

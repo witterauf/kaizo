@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstddef>
-#include <fuse/UsageMap.h>
-#include <fuse/binary/DataPath.h>
+#include <kaizo/utilities/UsageMap.h>
+#include <kaizo/data/DataPath.h>
 #include <map>
 #include <optional>
 

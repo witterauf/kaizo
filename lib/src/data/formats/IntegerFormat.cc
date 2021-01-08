@@ -1,8 +1,8 @@
 #include <contracts/Contracts.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/DataWriter.h>
-#include <fuse/binary/data/IntegerData.h>
-#include <fuse/binary/formats/IntegerFormat.h>
+#include <kaizo/data/DataReader.h>
+#include <kaizo/data/DataWriter.h>
+#include <kaizo/data/data/IntegerData.h>
+#include <kaizo/data/formats/IntegerFormat.h>
 
 namespace kaizo::data {
 

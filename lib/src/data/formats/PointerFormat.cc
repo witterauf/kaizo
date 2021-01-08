@@ -1,12 +1,12 @@
 #include <contracts/Contracts.h>
-#include <fuse/addresses/AddressFormat.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/DataWriter.h>
-#include <fuse/binary/data/Data.h>
-#include <fuse/binary/data/IntegerData.h>
-#include <fuse/binary/data/NullData.h>
-#include <fuse/binary/data/ReferenceData.h>
-#include <fuse/binary/formats/PointerFormat.h>
+#include <kaizo/addresses/AddressFormat.h>
+#include <kaizo/data/DataReader.h>
+#include <kaizo/data/DataWriter.h>
+#include <kaizo/data/data/Data.h>
+#include <kaizo/data/data/IntegerData.h>
+#include <kaizo/data/data/NullData.h>
+#include <kaizo/data/data/ReferenceData.h>
+#include <kaizo/data/formats/PointerFormat.h>
 
 namespace kaizo::data {
 

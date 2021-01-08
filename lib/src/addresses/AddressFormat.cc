@@ -1,5 +1,5 @@
-#include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressFormat.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/addresses/AddressFormat.h>
 #include <typeinfo>
 
 namespace kaizo::data {

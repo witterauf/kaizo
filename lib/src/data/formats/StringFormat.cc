@@ -1,9 +1,9 @@
 #include "FormatHelpers.h"
 #include <contracts/Contracts.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/DataWriter.h>
-#include <fuse/binary/data/StringData.h>
-#include <fuse/binary/formats/StringFormat.h>
+#include <kaizo/data/DataReader.h>
+#include <kaizo/data/DataWriter.h>
+#include <kaizo/data/data/StringData.h>
+#include <kaizo/data/formats/StringFormat.h>
 
 namespace kaizo::data {
 

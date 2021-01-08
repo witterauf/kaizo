@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
-#include <fuse/binary/data/BinaryData.h>
-#include <fuse/binary/formats/BinaryFormat.h>
-#include <fuse/binary/DataReader.h>
+#include <kaizo/data/data/BinaryData.h>
+#include <kaizo/data/formats/BinaryFormat.h>
+#include <kaizo/data/DataReader.h>
 
 namespace kaizo::data {
 

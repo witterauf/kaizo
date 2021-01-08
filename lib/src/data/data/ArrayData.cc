@@ -1,5 +1,5 @@
 #include <contracts/Contracts.h>
-#include <fuse/binary/data/ArrayData.h>
+#include <kaizo/data/data/ArrayData.h>
 
 namespace kaizo::data {
 

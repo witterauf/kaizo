@@ -1,7 +1,7 @@
 #include <cctype>
 #include <contracts/Contracts.h>
 #include <fstream>
-#include <fuse/utilities/CsvReader.h>
+#include <kaizo/utilities/CsvReader.h>
 
 namespace kaizo::data {
 

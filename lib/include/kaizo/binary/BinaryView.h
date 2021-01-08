@@ -2,7 +2,7 @@
 
 #include "Binary.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 class MutableBinaryView
 {

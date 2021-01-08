@@ -1,7 +1,8 @@
-#include "fuse/addresses/MipsLayout.h"
-#include "fuse/addresses/AbsoluteOffset.h"
-#include "fuse/addresses/AddressFormat.h"
-#include "fuse/utilities/NarrowCast.h"
+#include "kaizo/addresses/MipsLayout.h"
+#include "kaizo/addresses/AbsoluteOffset.h"
+#include "kaizo/addresses/AddressFormat.h"
+#include "kaizo/binary/Binary.h"
+#include "kaizo/utilities/NarrowCast.h"
 #include <contracts/Contracts.h>
 
 namespace kaizo::data {

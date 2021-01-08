@@ -161,10 +161,13 @@ set(KAIZO_UTILITIES_SOURCES
     ${KAIZO_INCLUDE_DIRECTORY}/utilities/DomReader.h
     ${KAIZO_INCLUDE_DIRECTORY}/utilities/DomReaderHelpers.h
     ${KAIZO_INCLUDE_DIRECTORY}/utilities/NarrowCast.h
+    ${KAIZO_INCLUDE_DIRECTORY}/utilities/Rectangle.h
+    ${KAIZO_INCLUDE_DIRECTORY}/utilities/UsageMap.h
     src/utilities/CsvReader.cc
     src/utilities/DomReader.cc
     src/utilities/DomReaderHelpers.cc
     src/utilities/StringCollection.cc
+    src/utilities/UsageMap.cc
 )
 
 set(KAIZO_GRAPHICS_SOURCES

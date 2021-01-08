@@ -1,6 +1,6 @@
-#include <fuse/addresses/AbsoluteOffset.h>
-#include <fuse/addresses/Address.h>
-#include <fuse/utilities/StringAlgorithms.h>
+#include <kaizo/addresses/AbsoluteOffset.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/utilities/StringAlgorithms.h>
 
 namespace kaizo::data {
 
@@ -31,7 +31,7 @@ auto AbsoluteOffset::copy() const -> std::unique_ptr<AddressFormat>
 
 auto AbsoluteOffset::toString(const Address& address) const -> std::string
 {
-    return "0x" + utilities::toString(address.toInteger(), 16, 8);
+    return "0x" + kaizo::data::toString(address.toInteger(), 16, 8);
 }
 
 auto fileOffsetFormat() -> const AbsoluteOffset*

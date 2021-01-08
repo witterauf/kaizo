@@ -1,10 +1,10 @@
 #pragma once
 
-#include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressLayout.h>
-#include <fuse/binary/data/IntegerData.h>
-#include <fuse/binary/formats/DataFormat.h>
-#include <fuse/binary/formats/IntegerFormat.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/addresses/AddressLayout.h>
+#include <kaizo/data/data/IntegerData.h>
+#include <kaizo/data/formats/DataFormat.h>
+#include <kaizo/data/formats/IntegerFormat.h>
 #include <optional>
 
 namespace kaizo::data {

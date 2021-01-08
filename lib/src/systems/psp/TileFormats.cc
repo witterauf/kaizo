@@ -31,7 +31,7 @@ auto Psp4bppTileFormat::requiredSize(size_t count) const -> size_t
     return count * m_width * m_height / 2;
 }
 
-auto Psp4bppTileFormat::write(fuse::MutableBinaryView& buffer, offset_t offset, const Tile& tile)
+auto Psp4bppTileFormat::write(MutableBinaryView& buffer, offset_t offset, const Tile& tile)
     -> offset_t
 {
     Expects(offset % 8 == 0);
@@ -47,8 +47,7 @@ auto Psp4bppTileFormat::write(fuse::MutableBinaryView& buffer, offset_t offset, 
     return offset;
 }
 
-auto Psp4bppTileFormat::read(const fuse::BinaryView& buffer, offset_t offset)
-    -> std::pair<Tile, offset_t>
+auto Psp4bppTileFormat::read(const BinaryView& buffer, offset_t offset) -> std::pair<Tile, offset_t>
 {
     Expects(offset % 8 == 0);
     Tile tile{m_width, m_height, PixelFormat::makeIndexed(4)};

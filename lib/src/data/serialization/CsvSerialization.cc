@@ -1,12 +1,12 @@
 #include <fstream>
-#include <fuse/binary/DataPath.h>
-#include <fuse/binary/data/ArrayData.h>
-#include <fuse/binary/data/IntegerData.h>
-#include <fuse/binary/data/RecordData.h>
-#include <fuse/binary/data/ReferenceData.h>
-#include <fuse/binary/data/StringData.h>
-#include <fuse/binary/serialization/CsvSerialization.h>
-#include <fuse/utilities/CsvReader.h>
+#include <kaizo/data/DataPath.h>
+#include <kaizo/data/data/ArrayData.h>
+#include <kaizo/data/data/IntegerData.h>
+#include <kaizo/data/data/RecordData.h>
+#include <kaizo/data/data/ReferenceData.h>
+#include <kaizo/data/data/StringData.h>
+#include <kaizo/data/serialization/CsvSerialization.h>
+#include <kaizo/utilities/CsvReader.h>
 
 using namespace kaizo::data;
 

@@ -3,7 +3,7 @@
 #include "Binary.h"
 #include <filesystem>
 #include <fstream>
-#include <fuse/Integers.h>
+#include <kaizo/binary/Integers.h>
 #include <string>
 
 namespace kaizo {
@@ -20,7 +20,7 @@ public:
 
     explicit BinaryStream(const std::filesystem::path& filename, Mode mode);
 
-    void setEndianness(fuse::Endianness endianness);
+    void setEndianness(Endianness endianness);
     void setLittleEndian();
     void setBigEndian();
 
@@ -43,7 +43,7 @@ public:
 
 private:
     Mode m_mode;
-    fuse::Endianness m_endianness{fuse::Endianness::Little};
+    Endianness m_endianness{Endianness::Little};
     std::fstream m_stream;
 };
 

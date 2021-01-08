@@ -1,4 +1,4 @@
-#include <fuse/binary/DataRangeTracker.h>
+#include <kaizo/data/DataRangeTracker.h>
 
 namespace kaizo::data {
 

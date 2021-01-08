@@ -1,4 +1,4 @@
-#include <fuse/binary/data/ReferenceData.h>
+#include <kaizo/data/data/ReferenceData.h>
 
 namespace kaizo::data {
 

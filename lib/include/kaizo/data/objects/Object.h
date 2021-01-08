@@ -1,7 +1,7 @@
 #pragma once
 
 #include "UnresolvedReference.h"
-#include <fuse/binary/DataPath.h>
+#include <kaizo/data/DataPath.h>
 #include <optional>
 #include <vector>
 

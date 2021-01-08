@@ -1,4 +1,4 @@
-#include "fuse/linking/FreeSpace.h"
+#include "kaizo/data/linking/FreeSpace.h"
 #include <algorithm>
 #include <contracts/Contracts.h>
 #include <numeric>

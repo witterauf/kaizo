@@ -1,8 +1,6 @@
 #include "kaizo/systems/psp/TextureSwizzle.h"
 #include <contracts/Contracts.h>
 
-using namespace fuse;
-
 namespace kaizo {
 
 static constexpr unsigned BlockWidth = 16;

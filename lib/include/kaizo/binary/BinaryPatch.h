@@ -3,7 +3,7 @@
 #include "Binary.h"
 #include "BinaryView.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 class BinaryPatch
 {

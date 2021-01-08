@@ -1,7 +1,5 @@
 #include "kaizo/text/TableEncoding.h"
 
-using namespace fuse;
-
 namespace kaizo::text {
 
 void TableEncoding::addTable(const Table& table)

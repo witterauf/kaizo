@@ -1,4 +1,4 @@
-#include <fuse/addresses/AddressMap.h>
+#include <kaizo/addresses/AddressMap.h>
 
 namespace kaizo::data {
 

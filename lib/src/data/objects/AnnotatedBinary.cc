@@ -1,7 +1,7 @@
 #include <contracts/Contracts.h>
 #include <fstream>
-#include <fuse/binary/objects/AnnotatedBinary.h>
-#include <fuse/utilities/DomReaderHelpers.h>
+#include <kaizo/data/objects/AnnotatedBinary.h>
+#include <kaizo/utilities/DomReaderHelpers.h>
 
 using namespace kaizo::data;
 

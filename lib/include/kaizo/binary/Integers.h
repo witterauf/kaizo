@@ -1,6 +1,6 @@
 #pragma once
 
-namespace kaizo::data {
+namespace kaizo {
 
 enum class Signedness
 {
@@ -18,7 +18,7 @@ class LuaDomReader;
 
 struct IntegerLayout
 {
-    //static auto deserialize(LuaDomReader& reader) -> IntegerLayout;
+    // static auto deserialize(LuaDomReader& reader) -> IntegerLayout;
 
     size_t sizeInBytes;
     Signedness signedness;
@@ -27,6 +27,6 @@ struct IntegerLayout
 
 class LuaWriter;
 
-//void serialize(LuaWriter& writer, const IntegerLayout& layout);
+// void serialize(LuaWriter& writer, const IntegerLayout& layout);
 
-} // namespace kaizo::data
+} // namespace kaizo

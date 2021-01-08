@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataFormat.h"
-#include <fuse/text/TextEncoding.h>
+#include <kaizo/text/TextEncoding.h>
 #include <memory>
 #include <optional>
 

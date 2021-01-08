@@ -1,5 +1,5 @@
 #include <contracts/Contracts.h>
-#include <fuse/addresses/IdempotentAddressMap.h>
+#include <kaizo/addresses/IdempotentAddressMap.h>
 
 namespace kaizo::data {
 

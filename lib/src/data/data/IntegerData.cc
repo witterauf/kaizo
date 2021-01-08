@@ -1,4 +1,4 @@
-#include <fuse/binary/data/IntegerData.h>
+#include <kaizo/data/data/IntegerData.h>
 
 namespace kaizo::data {
 

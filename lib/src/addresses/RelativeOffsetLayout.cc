@@ -1,6 +1,6 @@
-#include "fuse/addresses/RelativeOffsetLayout.h"
-#include "fuse/addresses/AbsoluteOffset.h"
-#include "fuse/addresses/AddressFormat.h"
+#include "kaizo/addresses/RelativeOffsetLayout.h"
+#include "kaizo/addresses/AbsoluteOffset.h"
+#include "kaizo/addresses/AddressFormat.h"
 #include <contracts/Contracts.h>
 
 namespace kaizo::data {

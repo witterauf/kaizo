@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fuse/BinaryView.h>
+#include <kaizo/binary/BinaryView.h>
 #include <memory>
 
 namespace kaizo::data::text {

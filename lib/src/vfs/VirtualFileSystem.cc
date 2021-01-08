@@ -38,12 +38,12 @@ bool RegularFile::isFolder() const
     return false;
 }
 
-auto RegularFile::openAsFolder(fuse::Binary &&) -> std::unique_ptr<VirtualFileSystem>
+auto RegularFile::openAsFolder(Binary &&) -> std::unique_ptr<VirtualFileSystem>
 {
     throw std::runtime_error{"file is not a folder"};
 }
 
-auto RegularFile::open(fuse::Binary&& binary) -> fuse::Binary
+auto RegularFile::open(Binary&& binary) -> Binary
 {
     return std::move(binary);
 }

@@ -2,13 +2,13 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fuse/Rectangle.h>
 #include <kaizo/graphics/PixelFormat.h>
+#include <kaizo/utilities/Rectangle.h>
 #include <vector>
 
 namespace kaizo {
 
-using TileRegion = fuse::Rectangle<size_t>;
+using TileRegion = kaizo::Rectangle<size_t>;
 
 class Tile
 {

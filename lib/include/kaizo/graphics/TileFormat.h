@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fuse/BinaryView.h>
+#include <kaizo/binary/BinaryView.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -22,10 +22,9 @@ public:
 
     virtual ~TileFormat() = default;
     virtual auto requiredSize(size_t count) const -> size_t = 0;
-    virtual auto write(fuse::MutableBinaryView& buffer, offset_t offset, const Tile& tile)
+    virtual auto write(MutableBinaryView& buffer, offset_t offset, const Tile& tile)
         -> offset_t = 0;
-    virtual auto read(const fuse::BinaryView& buffer, offset_t offset)
-        -> std::pair<Tile, offset_t> = 0;
+    virtual auto read(const BinaryView& buffer, offset_t offset) -> std::pair<Tile, offset_t> = 0;
 };
 
 class TileFormatFactory

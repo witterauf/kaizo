@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Table.h"
-#include <fuse/Binary.h>
+#include <kaizo/binary/Binary.h>
 #include <optional>
 
 namespace kaizo::text {
@@ -23,7 +23,7 @@ public:
     void setFixedLength(size_t length);
     void unsetFixedLength();
 
-    auto encode(const std::string& text) -> fuse::Binary;
+    auto encode(const std::string& text) -> Binary;
 
     auto encodeCharacters(size_t begin, size_t end)
         -> std::optional<std::pair<size_t, BinarySequence>>;
@@ -38,7 +38,7 @@ private:
 
     const std::string* m_text{nullptr};
     size_t m_index{0};
-    fuse::Binary m_binary;
+    Binary m_binary;
 
     size_t m_activeTable{0};
     std::vector<Table> m_tables;

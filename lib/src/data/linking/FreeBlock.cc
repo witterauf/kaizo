@@ -1,4 +1,4 @@
-#include "fuse/linking/FreeBlock.h"
+#include "kaizo/data/linking/FreeBlock.h"
 #include <contracts/Contracts.h>
 
 namespace kaizo::data {

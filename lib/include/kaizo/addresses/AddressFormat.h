@@ -5,10 +5,13 @@
 #include <optional>
 #include <string>
 
+namespace kaizo {
+class Binary;
+}
+
 namespace kaizo::data {
 
 class Address;
-class Binary;
 
 class AddressFormat
 {

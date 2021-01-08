@@ -2,8 +2,8 @@
 
 #include "Address.h"
 #include <cstddef>
-#include <fuse/Binary.h>
-#include <fuse/BinaryPatch.h>
+#include <kaizo/binary/Binary.h>
+#include <kaizo/binary/BinaryPatch.h>
 #include <optional>
 #include <string>
 #include <utility>

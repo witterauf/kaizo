@@ -1,8 +1,8 @@
 #pragma once
 
 #include "BinarySource.h"
-#include <fuse/Binary.h>
-#include <fuse/BinaryStream.h>
+#include <kaizo/binary/Binary.h>
+#include <kaizo/binary/BinaryStream.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -23,7 +23,7 @@ public:
     virtual auto fileInfo(const size_t index) const -> FileInfo = 0;
     virtual auto fileName(const size_t index) const -> std::string = 0;
     virtual auto fileIndex(const std::string& name) const -> std::optional<size_t> = 0;
-    virtual auto openFile(const size_t index) -> fuse::Binary = 0;
+    virtual auto openFile(const size_t index) -> Binary = 0;
     virtual auto openFolder(const size_t index) -> std::unique_ptr<VirtualFileSystem> = 0;
     virtual auto glob(const std::string& pattern) const -> std::vector<size_t>;
 
@@ -37,16 +37,16 @@ class FileTypeDescriptor
 public:
     virtual ~FileTypeDescriptor() = default;
     virtual bool isFolder() const = 0;
-    virtual auto openAsFolder(fuse::Binary&& binary) -> std::unique_ptr<VirtualFileSystem> = 0;
-    virtual auto open(fuse::Binary&& binary) -> fuse::Binary = 0;
+    virtual auto openAsFolder(Binary&& binary) -> std::unique_ptr<VirtualFileSystem> = 0;
+    virtual auto open(Binary&& binary) -> Binary = 0;
 };
 
 class RegularFile final : public FileTypeDescriptor
 {
 public:
     bool isFolder() const override;
-    auto openAsFolder(fuse::Binary &&) -> std::unique_ptr<VirtualFileSystem> override;
-    auto open(fuse::Binary&& binary) -> fuse::Binary override;
+    auto openAsFolder(Binary &&) -> std::unique_ptr<VirtualFileSystem> override;
+    auto open(Binary&& binary) -> Binary override;
 };
 
 } // namespace kaizo

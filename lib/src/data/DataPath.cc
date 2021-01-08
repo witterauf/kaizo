@@ -1,6 +1,6 @@
 #include "DataPathParser.h"
 #include <contracts/Contracts.h>
-#include <fuse/binary/DataPath.h>
+#include <kaizo/data/DataPath.h>
 
 namespace kaizo::data {
 

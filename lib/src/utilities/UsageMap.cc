@@ -1,5 +1,5 @@
+#include "kaizo/utilities/UsageMap.h"
 #include <algorithm>
-#include <fuse/UsageMap.h>
 
 namespace kaizo::data {
 

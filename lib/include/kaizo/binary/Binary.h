@@ -2,10 +2,10 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <fuse/Integers.h>
+#include <kaizo/binary/Integers.h>
 #include <vector>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class BinaryView;
 
@@ -178,4 +178,4 @@ template <size_t N, class T> void Binary::writeBig(size_t offset, T value)
     }
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

@@ -2,7 +2,7 @@
 
 #include "Data.h"
 #include <cstdint>
-#include <fuse/Binary.h>
+#include <kaizo/binary/Binary.h>
 #include <vector>
 
 namespace kaizo::data {

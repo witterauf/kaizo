@@ -1,9 +1,9 @@
 #pragma once
 
-#include <fuse/Binary.h>
-#include <fuse/addresses/Address.h>
-#include <fuse/addresses/AddressLayout.h>
-#include <fuse/binary/DataPath.h>
+#include <kaizo/binary/Binary.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/addresses/AddressLayout.h>
+#include <kaizo/data/DataPath.h>
 #include <memory>
 #include <optional>
 

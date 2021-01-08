@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Constraint.h"
-#include <fuse/addresses/Address.h>
+#include <kaizo/addresses/Address.h>
 #include <memory>
 #include <optional>
 #include <vector>
