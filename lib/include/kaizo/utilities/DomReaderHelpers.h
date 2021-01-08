@@ -12,8 +12,8 @@ template <class Key> auto display(Key key) -> std::string
 {
     return std::to_string(key);
 }
-template <> auto display<const std::string&>(const std::string& key)->std::string;
-template <> auto display<const char*>(const char* key)->std::string;
+template <> auto display<const std::string&>(const std::string& key) -> std::string;
+template <> auto display<const char*>(const char* key) -> std::string;
 
 } // namespace details
 
@@ -99,7 +99,7 @@ template <class Key> auto requireSignedInteger(DomReader& reader, const Key& key
     reader.enter(key);
     if (!reader.isInteger())
     {
-        throw std::runtime_error{ "the given field is not an integer" };
+        throw std::runtime_error{"the given field is not an integer"};
     }
     auto integer = reader.asInteger();
     reader.leave();

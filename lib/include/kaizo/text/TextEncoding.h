@@ -3,7 +3,7 @@
 #include <kaizo/binary/BinaryView.h>
 #include <memory>
 
-namespace kaizo::data::text {
+namespace kaizo {
 
 class TextEncoding
 {

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <kaizo/text/StringSet.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 auto StringSet::insert(const std::string& string) -> size_t
 {
@@ -28,4 +28,4 @@ auto StringSet::strings() const -> std::vector<std::string>
     return result;
 }
 
-} // namespace tales
+} // namespace kaizo

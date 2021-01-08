@@ -5,7 +5,7 @@
 #include "kaizo/utilities/NarrowCast.h"
 #include <contracts/Contracts.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 void MipsLayout::setBaseAddress(const Address base)
 {
@@ -86,4 +86,4 @@ auto MipsLayout::getName() const -> std::string
     return "mips";
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

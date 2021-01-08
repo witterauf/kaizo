@@ -3,7 +3,7 @@
 #include "Table.h"
 #include <functional>
 
-namespace kaizo::text {
+namespace kaizo {
 
 class TableMapper
 {

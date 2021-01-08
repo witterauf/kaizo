@@ -4,7 +4,7 @@
 #include <contracts/Contracts.h>
 #include <set>
 
-namespace kaizo::text {
+namespace kaizo {
 
 TableEncoder::TableEncoder(const Table& table)
 {
@@ -240,4 +240,4 @@ auto TableEncoder::textLength() const -> size_t
     return m_text->length();
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

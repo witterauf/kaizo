@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <contracts/Contracts.h>
 
-namespace kaizo::text {
+namespace kaizo {
 
 TableMapper::TableMapper(const Table& table)
 {

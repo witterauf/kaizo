@@ -6,12 +6,9 @@
 #include <string>
 
 namespace kaizo {
-class Binary;
-}
-
-namespace kaizo::data {
 
 class Address;
+class Binary;
 
 class AddressFormat
 {
@@ -34,4 +31,4 @@ protected:
     auto makeAddress(address_t address) const -> Address;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

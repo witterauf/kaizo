@@ -7,12 +7,12 @@
 
 namespace kaizo::data {
 
-StringFormat::StringFormat(const std::shared_ptr<text::TextEncoding>& encoding)
+StringFormat::StringFormat(const std::shared_ptr<TextEncoding>& encoding)
     : m_encoding{encoding}
 {
 }
 
-void StringFormat::setEncoding(const std::shared_ptr<text::TextEncoding>& encoding)
+void StringFormat::setEncoding(const std::shared_ptr<TextEncoding>& encoding)
 {
     m_encoding = encoding;
 }

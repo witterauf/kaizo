@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace kaizo::text {
+namespace kaizo {
 
 class TableControlParser
 {
@@ -41,4 +41,4 @@ private:
     size_t m_index{0};
 };
 
-} // namespace kaizo::text
+} // namespace kaizo

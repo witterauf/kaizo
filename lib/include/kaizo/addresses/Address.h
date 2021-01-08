@@ -7,7 +7,9 @@
 #include <string>
 #include <utility>
 
-namespace kaizo::data {
+namespace kaizo {
+
+class AddressFormat;
 
 class Address
 {
@@ -37,4 +39,4 @@ private:
     const AddressFormat* m_format{nullptr};
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

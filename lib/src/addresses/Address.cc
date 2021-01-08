@@ -2,7 +2,7 @@
 #include <kaizo/addresses/Address.h>
 #include <kaizo/addresses/AddressFormat.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 Address::Address(size_t address, const AddressFormat* format)
     : m_address{address}

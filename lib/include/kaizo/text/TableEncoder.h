@@ -4,7 +4,7 @@
 #include <kaizo/binary/Binary.h>
 #include <optional>
 
-namespace kaizo::text {
+namespace kaizo {
 
 class TableEncoder
 {
@@ -48,4 +48,4 @@ private:
     std::vector<size_t> m_missingEntries;
 };
 
-} // namespace kaizo::text
+} // namespace kaizo

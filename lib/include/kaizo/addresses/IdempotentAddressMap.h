@@ -2,7 +2,7 @@
 
 #include "AddressMap.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 class IdempotentAddressMap : public AddressMap
 {
@@ -19,4 +19,4 @@ private:
     const AddressFormat* m_format{nullptr};
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

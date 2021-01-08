@@ -2,7 +2,7 @@
 
 #include "AddressMap.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 class RegionAddressMap : public AddressMap
 {
@@ -34,4 +34,4 @@ private:
     std::vector<Mapping> m_mappings;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

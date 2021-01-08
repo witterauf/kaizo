@@ -1,7 +1,7 @@
 #include "kaizo/text/Table.h"
 #include <contracts/Contracts.h>
 
-namespace kaizo::text {
+namespace kaizo {
 
 void Table::setName(const std::string& name)
 {
@@ -67,4 +67,4 @@ auto Table::entry(size_t index) const -> EntryReference
     return EntryReference{&iter->first, &iter->second};
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

@@ -6,7 +6,7 @@
 #include <memory>
 #include <optional>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class BaseAddressProvider
 {
@@ -61,4 +61,4 @@ private:
     IntegerLayout m_layout;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace kaizo::text {
+namespace kaizo {
 
 class Table final
 {
@@ -146,4 +146,4 @@ auto Table::findLongestBinaryMatch(InputIterator begin, InputIterator end) const
     }
 }
 
-} // namespace fuse::text
+} // namespace kaizo

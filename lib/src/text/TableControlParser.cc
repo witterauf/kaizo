@@ -2,7 +2,7 @@
 #include <cctype>
 #include <contracts/Contracts.h>
 
-namespace kaizo::text {
+namespace kaizo {
 
 auto TableControlParser::parse(const std::string& text, size_t index) -> std::optional<ControlCode>
 {
@@ -214,4 +214,4 @@ void TableControlParser::consume(size_t size)
     m_index += size;
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

@@ -2,7 +2,7 @@
 
 #include "TextEncoding.h"
 
-namespace kaizo::data::text {
+namespace kaizo {
 
 class AsciiEncoding : public TextEncoding
 {

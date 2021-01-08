@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace kaizo::data {
+namespace kaizo {
 
 template <class T, class U> constexpr T narrow_cast(U&& u) noexcept
 {
@@ -41,4 +41,4 @@ template <class T, class U> constexpr T narrow(U u) noexcept(false)
     return t;
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

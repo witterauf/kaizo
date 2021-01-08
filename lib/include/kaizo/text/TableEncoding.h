@@ -5,9 +5,9 @@
 #include "TableEncoder.h"
 #include <kaizo/text/TextEncoding.h>
 
-namespace kaizo::text {
+namespace kaizo {
 
-class TableEncoding : public kaizo::data::text::TextEncoding
+class TableEncoding : public TextEncoding
 {
 public:
     void addTable(const Table& table);
@@ -26,4 +26,4 @@ private:
     std::unique_ptr<MissingDecoder> m_missingDecoder;
 };
 
-} // namespace kaizo::text
+} // namespace kaizo

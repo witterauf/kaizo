@@ -1,7 +1,7 @@
 #include "kaizo/utilities/UsageMap.h"
 #include <algorithm>
 
-namespace kaizo::data {
+namespace kaizo {
 
 void UsageMap::allocate(size_t start, size_t end)
 {
@@ -113,4 +113,4 @@ auto UsageMap::size() const -> size_t
     return m_end - m_start;
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

@@ -1,7 +1,7 @@
 #include "kaizo/text/TableEntry.h"
 #include <contracts/Contracts.h>
 
-namespace kaizo::text {
+namespace kaizo {
 
 bool TableEntry::ParameterFormat::isCompatible(argument_t value) const
 {
@@ -141,4 +141,4 @@ bool TableEntry::isEnd() const
     return kind() == Kind::End;
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

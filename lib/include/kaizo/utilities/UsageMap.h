@@ -2,7 +2,7 @@
 
 #include <map>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class UsageMap
 {
@@ -43,4 +43,4 @@ private:
     std::map<size_t, size_t> m_usage;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

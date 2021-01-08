@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace kaizo::text {
+namespace kaizo {
 
 using BinarySequence = std::string;
 
@@ -108,4 +108,4 @@ auto TableEntry::ParameterFormat::decode(InputIterator begin) const -> argument_
     }
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-namespace kaizo::text {
+namespace kaizo {
 
 class MissingDecoder
 {
@@ -55,4 +55,4 @@ private:
     size_t m_offset{0};
 };
 
-} // namespace kaizo::text
+} // namespace kaizo

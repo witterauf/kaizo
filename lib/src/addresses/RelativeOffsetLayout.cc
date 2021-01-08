@@ -3,7 +3,7 @@
 #include "kaizo/addresses/AddressFormat.h"
 #include <contracts/Contracts.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 FixedBaseAddressProvider::FixedBaseAddressProvider(Address address)
     : m_address{address}
@@ -109,4 +109,4 @@ auto RelativeOffsetLayout::getName() const -> std::string
     return "relative";
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

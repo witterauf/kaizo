@@ -1,6 +1,6 @@
 #include <kaizo/addresses/AddressMap.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 bool AddressMap::coversSourceAddress(const Address address) const
 {
@@ -12,4 +12,4 @@ bool AddressMap::coversTargetAddress(const Address address) const
     return !toSourceAddresses(address).empty();
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

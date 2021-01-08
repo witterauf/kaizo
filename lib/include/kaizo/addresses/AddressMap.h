@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class AddressMap
 {
@@ -19,4 +19,4 @@ public:
     bool coversTargetAddress(const Address) const;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

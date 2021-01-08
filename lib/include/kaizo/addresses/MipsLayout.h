@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class MipsLayout : public AddressLayout
 {
@@ -26,4 +26,4 @@ private:
     Address m_baseAddress;
 };
 
-} // namespace kaizo::data
+} // namespace kaizo

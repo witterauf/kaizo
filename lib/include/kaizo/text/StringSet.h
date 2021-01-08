@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace kaizo::data {
+namespace kaizo {
 
 class StringSet
 {
@@ -18,4 +18,4 @@ private:
     std::map<std::string, size_t> m_strings;
 };
 
-} // namespace tales
+} // namespace kaizo

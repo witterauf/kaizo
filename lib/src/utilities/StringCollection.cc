@@ -1,6 +1,6 @@
 #include <kaizo/utilities/StringCollection.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 auto StringCollection::insert(const std::string& string) -> size_t
 {
@@ -26,4 +26,4 @@ auto StringCollection::strings() const -> std::vector<std::string>
     return result;
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

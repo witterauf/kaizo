@@ -3,9 +3,7 @@
 #include <contracts/Contracts.h>
 #include <kaizo/utilities/StringAlgorithms.h>
 
-using namespace kaizo::data;
-
-namespace kaizo::text {
+namespace kaizo {
 
 TableDecoder::TableDecoder(const Table& table)
 {
@@ -215,4 +213,4 @@ void TableDecoder::advance(size_t size)
     m_offset += size;
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

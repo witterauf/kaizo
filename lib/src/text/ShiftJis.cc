@@ -1,7 +1,10 @@
 #include <kaizo/text/ShiftJis.h>
+// clang-format off
+#include <cstdint>
 #include "ShiftJisToUnicode.h"
+// clang-format on
 
-namespace kaizo::data::text {
+namespace kaizo {
 
 static auto toUnicode(uint16_t sjis) -> std::optional<uint32_t>
 {
@@ -63,4 +66,4 @@ auto ShiftJis::toUtf8(uint16_t sjis) -> std::optional<std::string>
     }
 }
 
-} // namespace kaizo::data::text
+} // namespace kaizo

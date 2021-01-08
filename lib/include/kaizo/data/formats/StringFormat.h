@@ -11,9 +11,9 @@ class StringFormat final : public DataFormat
 {
 public:
     StringFormat() = default;
-    explicit StringFormat(const std::shared_ptr<text::TextEncoding>& encoding);
+    explicit StringFormat(const std::shared_ptr<TextEncoding>& encoding);
 
-    void setEncoding(const std::shared_ptr<text::TextEncoding>& encoding);
+    void setEncoding(const std::shared_ptr<TextEncoding>& encoding);
     void setFixedLength(size_t length);
     auto copy() const -> std::unique_ptr<DataFormat> override;
 
@@ -25,7 +25,7 @@ protected:
 
 private:
     std::optional<size_t> m_fixedLength;
-    std::shared_ptr<text::TextEncoding> m_encoding;
+    std::shared_ptr<TextEncoding> m_encoding;
 };
 
 } // namespace kaizo::data

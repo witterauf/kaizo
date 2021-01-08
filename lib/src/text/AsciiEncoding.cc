@@ -1,6 +1,6 @@
 #include <kaizo/text/AsciiEncoding.h>
 
-namespace kaizo::data::text {
+namespace kaizo {
 
 bool AsciiEncoding::canEncode() const
 {
@@ -43,4 +43,4 @@ auto AsciiEncoding::copy() const -> std::unique_ptr<TextEncoding>
     return std::make_unique<AsciiEncoding>();
 }
 
-} // namespace kaizo::data::text
+} // namespace kaizo

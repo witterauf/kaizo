@@ -1,6 +1,6 @@
 #include "kaizo/text/TableEncoding.h"
 
-namespace kaizo::text {
+namespace kaizo {
 
 void TableEncoding::addTable(const Table& table)
 {
@@ -50,4 +50,4 @@ auto TableEncoding::copy() const -> std::unique_ptr<TextEncoding>
     return std::move(encoding);
 }
 
-} // namespace kaizo::text
+} // namespace kaizo
