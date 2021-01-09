@@ -2,7 +2,7 @@
 
 #include "AddressFormat.h"
 
-namespace kaizo::data {
+namespace kaizo {
 
 class AbsoluteOffset : public AddressFormat
 {
@@ -18,4 +18,4 @@ public:
 
 auto fileOffsetFormat() -> const AbsoluteOffset*;
 
-} // namespace kaizo::data
+} // namespace kaizo

@@ -1,76 +1,28 @@
 #include "pyutilities.h"
 
-using namespace fuse;
+namespace py = pybind11;
+using namespace kaizo;
 
-bool pykCheckArguments(const Py_ssize_t nargs, const Py_ssize_t expected, const std::string& names)
+auto requestReadOnly(py::buffer& b) -> BinaryView
 {
-    if (nargs != expected)
+    py::buffer_info info = b.request();
+    if (info.ndim != 1)
     {
-        PyErr_SetString(PyExc_TypeError,
-                        ("got " + std::to_string(nargs) + " arguments, but expected " +
-                         std::to_string(expected) + " arguments (" + names + ")")
-                            .c_str());
-        return false;
+        throw std::runtime_error{"requires a 1-dimensional buffer"};
     }
-    return true;
+    return BinaryView{reinterpret_cast<const uint8_t*>(info.ptr), static_cast<size_t>(info.size)};
 }
 
-PyBufferWrapper::PyBufferWrapper(PyObject* object, const bool writable)
+auto requestWritable(py::buffer& b) -> MutableBinaryView
 {
-    if (PyObject_GetBuffer(object, &m_pyBuffer,
-                           PyBUF_C_CONTIGUOUS | PyBUF_SIMPLE | (writable ? PyBUF_WRITEABLE : 0)) >=
-        0)
+    py::buffer_info info = b.request();
+    if (info.ndim != 1)
     {
-        m_valid = true;
+        throw std::runtime_error{"requires a 1-dimensional buffer"};
     }
-}
-
-PyBufferWrapper::~PyBufferWrapper()
-{
-    if (m_valid)
+    if (info.readonly)
     {
-        PyBuffer_Release(&m_pyBuffer);
+        throw std::runtime_error{"requires a writable buffer"};
     }
-}
-
-bool PyBufferWrapper::isValid() const
-{
-    return m_valid;
-}
-
-auto PyBufferWrapper::view() const -> BinaryView
-{
-    return BinaryView{reinterpret_cast<const uint8_t*>(m_pyBuffer.buf),
-                      static_cast<size_t>(m_pyBuffer.len)};
-}
-
-auto PyBufferWrapper::mutableView() const -> fuse::MutableBinaryView
-{
-    return MutableBinaryView{reinterpret_cast<uint8_t*>(m_pyBuffer.buf),
-                             static_cast<size_t>(m_pyBuffer.len)};
-}
-
-PyBufferWrapper::operator bool() const
-{
-    return isValid();
-}
-
-auto pykGetBuffer(PyObject* object) -> PyBufferWrapper
-{
-    return PyBufferWrapper{object, false};
-}
-
-auto pykGetWritableBuffer(PyObject* object) -> PyBufferWrapper
-{
-    return PyBufferWrapper{object, true};
-}
-
-auto pykGetString(PyObject* arg) -> std::optional<std::string>
-{
-    const char* szArg = PyUnicode_AsUTF8(arg);
-    if (!szArg)
-    {
-        return {};
-    }
-    return szArg;
+    return MutableBinaryView{reinterpret_cast<uint8_t*>(info.ptr), static_cast<size_t>(info.size)};
 }

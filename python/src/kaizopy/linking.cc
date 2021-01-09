@@ -1,9 +1,10 @@
 #include "linking.h"
-#include <fuse/addresses/Address.h>
-#include <fuse/linking/Backtracker.h>
+#include <kaizo/addresses/Address.h>
+#include <kaizo/data/linking/Backtracker.h>
 
-using namespace kaizo::data;
 namespace py = pybind11;
+using namespace kaizo;
+using namespace kaizo::data;
 
 static auto BacktrackingPacker_get_link_offset(const BacktrackingPacker& packer, const size_t index)
     -> size_t
@@ -35,7 +36,7 @@ static auto BacktrackingPacker_get_link_address(const BacktrackingPacker& packer
     return object.allocation().address;
 }
 
-void registerLinkingTypes(pybind11::module_& m)
+void registerKaizoDataLinking(pybind11::module_& m)
 {
     py::class_<BacktrackingPacker>(m, "_BacktrackingPacker")
         .def("add_object",

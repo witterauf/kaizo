@@ -2,7 +2,7 @@
 #include <kaizo/addresses/Address.h>
 #include <kaizo/utilities/StringAlgorithms.h>
 
-namespace kaizo::data {
+namespace kaizo {
 
 auto AbsoluteOffset::applyOffset(const Address& address, offset_t offset) const -> Address
 {
@@ -40,4 +40,4 @@ auto fileOffsetFormat() -> const AbsoluteOffset*
     return fileOffset.get();
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

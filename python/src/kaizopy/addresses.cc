@@ -1,12 +1,10 @@
-#include "addresses.h"
-#include "binary.h"
-#include <fuse/addresses/AbsoluteOffset.h>
-#include <fuse/addresses/MipsLayout.h>
-#include <fuse/addresses/RegionAddressMap.h>
-#include <fuse/addresses/RelativeOffsetLayout.h>
+#include <kaizo/addresses/AbsoluteOffset.h>
+#include <kaizo/addresses/MipsLayout.h>
+#include <kaizo/addresses/RegionAddressMap.h>
+#include <kaizo/addresses/RelativeOffsetLayout.h>
 #include <pybind11/stl.h>
 
-using namespace kaizo::data;
+using namespace kaizo;
 namespace py = pybind11;
 
 auto AddressLayout_encode(const AddressLayout& layout, const Address& address) -> py::list
@@ -64,7 +62,7 @@ static auto AddressMap_map_to_sources(const AddressMap& map, const Address addre
 
 //#################################################################################################
 
-void registerFuseAddresses(py::module_& m)
+void registerKaizoAddresses(py::module_& m)
 {
     py::class_<Address>(m, "Address")
         .def("__str__", &Address::toString)

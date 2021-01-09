@@ -1,24 +1,24 @@
-#include "dataformat.h"
-#include <fuse/addresses/AddressFormat.h>
-#include <fuse/addresses/AddressLayout.h>
-#include <fuse/binary/DataReader.h>
-#include <fuse/binary/DataWriter.h>
-#include <fuse/binary/data/ArrayData.h>
-#include <fuse/binary/data/Data.h>
-#include <fuse/binary/data/IntegerData.h>
-#include <fuse/binary/data/NullData.h>
-#include <fuse/binary/data/RecordData.h>
-#include <fuse/binary/data/StringData.h>
-#include <fuse/binary/formats/ArrayFormat.h>
-#include <fuse/binary/formats/DataFormat.h>
-#include <fuse/binary/formats/IntegerFormat.h>
-#include <fuse/binary/formats/PointerFormat.h>
-#include <fuse/binary/formats/RecordFormat.h>
-#include <fuse/binary/formats/StringFormat.h>
-#include <fuse/text/TextEncoding.h>
+#include <kaizo/addresses/AddressFormat.h>
+#include <kaizo/addresses/AddressLayout.h>
+#include <kaizo/data/DataReader.h>
+#include <kaizo/data/DataWriter.h>
+#include <kaizo/data/data/ArrayData.h>
+#include <kaizo/data/data/Data.h>
+#include <kaizo/data/data/IntegerData.h>
+#include <kaizo/data/data/NullData.h>
+#include <kaizo/data/data/RecordData.h>
+#include <kaizo/data/data/StringData.h>
+#include <kaizo/data/formats/ArrayFormat.h>
+#include <kaizo/data/formats/DataFormat.h>
+#include <kaizo/data/formats/IntegerFormat.h>
+#include <kaizo/data/formats/PointerFormat.h>
+#include <kaizo/data/formats/RecordFormat.h>
+#include <kaizo/data/formats/StringFormat.h>
+#include <kaizo/text/TextEncoding.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
-using namespace kaizo::data;
+using namespace kaizo;
 using namespace kaizo::data;
 
 static auto convert(const Data& data) -> py::object;
@@ -178,7 +178,7 @@ static auto DataFormat_encode(DataFormat& format, DataWriter& writer, py::object
     }
 }
 
-void registerDataFormatTypes(py::module_& m)
+void registerKaizoDataFormats(py::module_& m)
 {
     py::class_<DataFormat>(m, "_DataFormat")
         .def("set_skip_after", &DataFormat::setSkipAfter)
@@ -194,7 +194,7 @@ void registerDataFormatTypes(py::module_& m)
         .def(py::init<size_t, Signedness, Endianness>());
 
     py::class_<StringFormat, DataFormat>(m, "_StringFormat")
-        .def(py::init<const std::shared_ptr<text::TextEncoding>&>());
+        .def(py::init<const std::shared_ptr<TextEncoding>&>());
 
     py::class_<ArrayFormat, DataFormat>(m, "_ArrayFormat")
         .def(py::init())

@@ -3,9 +3,11 @@
 #include "systems.h"
 #include "text.h"
 #include <optional>
+#include <pybind11/pybind11.h>
 
 using namespace kaizo;
 
+/*
 //##[ VirtualFileSystem ]##########################################################################
 
 static auto PyVirtualFileSystem_file_count_get(PyVirtualFileSystem* pyVfs, void*) -> PyObject*
@@ -331,4 +333,16 @@ PyMODINIT_FUNC PyInit__kaizopy(void)
     }
 
     return m;
+}
+*/
+
+PYBIND11_MODULE(kaizopy, m)
+{
+    m.doc() = "ROM hacking tools";
+
+    registerKaizoAddresses(m);
+    registerKaizoData(m);
+    registerKaizoGraphics(m);
+    registerKaizoText(m);
+    registerKaizoSystems(m);
 }

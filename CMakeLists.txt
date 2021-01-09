@@ -9,4 +9,4 @@ include(TargetWarnings)
 
 add_subdirectory(external)
 add_subdirectory(lib)
-#add_subdirectory(python)
+add_subdirectory(python)
