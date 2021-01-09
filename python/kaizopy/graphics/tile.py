@@ -2,6 +2,54 @@ from kaizopy._kaizopy import _Tile, _TileFormat
 from kaizopy.graphics.palette import ColorFormat
 from abc import ABC, abstractmethod
 
+# TODO: put into utilities after merging with fuse
+class Rectangle:
+    def __init__(self, x1, y1, x2, y2):
+        if x1 <= x2:
+            self.x1 = x1
+            self.x2 = x2
+        else:
+            self.x1 = x2
+            self.x2 = x1
+
+        if y1 <= y2:
+            self.y1 = y1
+            self.y2 = y2
+        else:
+            self.y1 = y2
+            self.y2 = y1
+
+    @property
+    def left(self):
+        return self.x1
+
+    @property
+    def right(self):
+        return self.x2
+
+    @property
+    def top(self):
+        return self.y1
+
+    @property
+    def bottom(self):
+        return self.y2
+
+    @property
+    def width(self):
+        return self.x2 - self.x1
+
+    @property
+    def height(self):
+        return self.y2 - self.y1
+
+    @property
+    def area(self):
+        return self.width * self.height
+
+    def __str__(self):
+        return f'[{self.left},{self.right})x[{self.top},{self.bottom})'
+
 class Tile:
     @classmethod
     def _make(cls, _tile, format=None):
@@ -44,11 +92,19 @@ class Tile:
     def crop(self, x, y, width, height):
         return Tile._make(self._tile.crop(x, y, width, height), self.format)
 
-    def blit(self, tile, x, y, bgcolor):
-        self._tile.blit(tile._tile, x, y, bgcolor)
+    def blit(self, tile, x, y, bgcolor, region=None):
+        if region:
+            self._tile.blit_partial(tile._tile, region.left, region.top,
+                                    region.width, region.height, x, y, bgcolor)
+        else:
+            self._tile.blit(tile._tile, x, y, bgcolor)
 
     def save(self, filename):
         self._tile.save(filename)
+
+    def bounding_box(self, bgcolor):
+        coordinates = self._tile.bounding_box(int(bgcolor))
+        return Rectangle(*coordinates)
 
 class Image(Tile):
     pass

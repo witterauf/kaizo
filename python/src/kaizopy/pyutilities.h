@@ -3,6 +3,7 @@
 #include <fuse/BinaryView.h>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <type_traits>
 
 #define PY_SSIZE_T_CLEAN
@@ -68,7 +69,19 @@ template <class T> auto pykGetNumber(PyObject* arg) -> std::optional<T>
     }
     else
     {
-        static_assert(false, "unsupported");
+        if constexpr (sizeof(T) == sizeof(long long))
+        {
+            auto const number = PyLong_AsLongLong(arg);
+            if (number == static_cast<decltype(number)>(-1) && PyErr_Occurred())
+            {
+                return {};
+            }
+            return number;
+        }
+        else
+        {
+            static_assert(false, "unsupported");
+        }
     }
 }
 
@@ -84,3 +97,9 @@ template <class Instance> auto pykGetObject(PyObject* arg, PyTypeObject* type) -
 }
 
 auto pykGetString(PyObject* arg) -> std::optional<std::string>;
+
+inline auto pykNone() -> PyObject*
+{
+    Py_INCREF(Py_None);
+    return Py_None;
+}

@@ -256,6 +256,56 @@ static auto PyKaizoTile_blit(PyKaizoTile* self, PyObject* const* args, const Py_
     return Py_None;
 }
 
+static auto PyKaizoTile_blit_partial(PyKaizoTile* self, PyObject* const* args,
+                                     const Py_ssize_t nargs) -> PyObject*
+{
+    if (!pykCheckArguments(nargs, 8, "source, sx, sy, width, height, dx, dy, bgColor"))
+    {
+        return NULL;
+    }
+
+    auto* source = pykGetObject<PyKaizoTile>(args[0], &PyKaizoTileType);
+    auto sx = pykGetNumber<long long>(args[1]);
+    auto sy = pykGetNumber<long long>(args[2]);
+    auto width = pykGetNumber<long long>(args[3]);
+    auto height = pykGetNumber<long long>(args[4]);
+    auto dx = pykGetNumber<long long>(args[5]);
+    auto dy = pykGetNumber<long long>(args[6]);
+    auto const bgColor = pykGetNumber<Tile::pixel_t>(args[7]);
+    if (!source || !sx || !sy || !width || !height || !dx || !dy || !bgColor)
+    {
+        return NULL;
+    }
+
+    sx = std::max(*sx, static_cast<long long>(0));
+    sy = std::max(*sy, static_cast<long long>(0));
+    dx = std::max(*dx, static_cast<long long>(0));
+    dy = std::max(*dy, static_cast<long long>(0));
+    width = std::max(*width, static_cast<long long>(0));
+    height = std::max(*height, static_cast<long long>(0));
+
+    TileRegion region{static_cast<size_t>(*sx), static_cast<size_t>(*sy),
+                      static_cast<size_t>(*width), static_cast<size_t>(*height)};
+    self->tile.blit(static_cast<size_t>(*dx), static_cast<size_t>(*dy), source->tile, region,
+                    *bgColor);
+    return pykNone();
+}
+
+static auto PyKaizoTile_bounding_box(PyKaizoTile* self, PyObject* pyBgColor) -> PyObject*
+{
+    auto maybeBgColor = pykGetNumber<Tile::pixel_t>(pyBgColor);
+    if (!maybeBgColor)
+    {
+        return NULL;
+    }
+
+    auto const bb = self->tile.boundingBox(*maybeBgColor);
+    return Py_BuildValue("(KKKK)", static_cast<unsigned long long>(bb.left()),
+                         static_cast<unsigned long long>(bb.top()),
+                         static_cast<unsigned long long>(bb.right()),
+                         static_cast<unsigned long long>(bb.bottom()));
+}
+
 static auto PyKaizoTile_getwidth(PyKaizoTile* self, void*) -> PyObject*
 {
     return PyLong_FromUnsignedLongLong(self->tile.width());
@@ -291,6 +341,8 @@ static PyMethodDef PyKaizoTile_methods[] = {
     {"get_pixel", (PyCFunction)PyKaizoTile_getpixel, METH_FASTCALL},
     {"crop", (PyCFunction)PyKaizoTile_crop, METH_FASTCALL},
     {"blit", (PyCFunction)PyKaizoTile_blit, METH_FASTCALL},
+    {"blit_partial", (PyCFunction)PyKaizoTile_blit_partial, METH_FASTCALL},
+    {"bounding_box", (PyCFunction)PyKaizoTile_bounding_box, METH_O},
     {NULL}};
 
 PyGetSetDef PyKaizoTile_getsets[] = {

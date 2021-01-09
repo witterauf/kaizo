@@ -1,13 +1,71 @@
 #include "text.h"
+#include "pyutilities.h"
 #include <kaizo/text/TableEncoding.h>
 
 using namespace kaizo::text;
 
+static auto convert(const TableEntry::ParameterFormat& parameter) -> std::string
+{
+    std::string string;
+    string += (parameter.endianess == TableEntry::ParameterFormat::Endianess::Little) ? "<" : ">";
+    string += std::to_string(parameter.size);
+    switch (parameter.preferedDisplay)
+    {
+    case TableEntry::ParameterFormat::Display::Decimal: string += "d"; break;
+    case TableEntry::ParameterFormat::Display::Hexadecimal: string += "x"; break;
+    case TableEntry::ParameterFormat::Display::Binary: string += "b"; break;
+    default: break;
+    }
+    return string;
+}
+
+static auto makeTableControlEntry(const TableEntry& entry) -> PyObject*
+{
+    std::string parameters;
+    for (size_t i = 0; i < entry.parameterCount(); ++i)
+    {
+        auto const& parameter = entry.parameter(i);
+        parameters += convert(parameter);
+    }
+
+    return Py_BuildValue("(Ksss)", 1, entry.labelName().c_str(), entry.label().postfix.c_str(),
+                         parameters.c_str());
+}
+
+static auto makeTableTextEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Ks)", 0, entry.text());
+}
+
+static auto makeTableEndEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Kss)", 3, entry.label().name.c_str(), entry.label().postfix.c_str());
+}
+
+static auto makeTableSwitchEntry(const TableEntry& entry) -> PyObject*
+{
+    return Py_BuildValue("(Ks)", 3, entry.targetTable().c_str());
+}
+
+static auto makeTableEntry(const TableEntry& entry) -> PyObject*
+{
+    switch (entry.kind())
+    {
+    case TableEntry::Kind::Text: return makeTableTextEntry(entry);
+    case TableEntry::Kind::Control: return makeTableControlEntry(entry);
+    case TableEntry::Kind::TableSwitch: return makeTableSwitchEntry(entry);
+    case TableEntry::Kind::End: return makeTableEndEntry(entry);
+    default: return NULL;
+    }
+}
+
+static auto makeTableArgument(const TableEntry::ParameterFormat& format,
+                              const TableEntry::ParameterFormat::argument_t argument) -> PyObject*
+{
+    return Py_BuildValue("L", static_cast<long long>(argument));
+}
+
 //##[ TableEncoding ]##############################################################################
-
-static PyMethodDef PyKaizoTableEncoding_methods[] = {{NULL}};
-
-PyTypeObject PyKaizoTableEncodingType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._TableEncoding"};
 
 class PythonMissingDecoder : public MissingDecoder
 {
@@ -87,6 +145,54 @@ static int PyKaizoTableEncoding_init(PyKaizoTableEncoding* self, PyObject* args,
     new (&self->base.encoding) std::shared_ptr<fuse::text::TextEncoding>(encoding);
     return 0;
 }
+
+static auto PyKaizoTableEncoding_chunks(PyKaizoTableEncoding* self, PyObject* pyText) -> PyObject*
+{
+    auto const text = pykGetString(pyText);
+    if (!text)
+    {
+        return NULL;
+    }
+    auto const chunks = static_cast<TableEncoding*>(self->base.encoding.get())->makeChunks(*text);
+
+    PyObject* list = PyList_New(chunks.size());
+    for (size_t i = 0; i < chunks.size(); ++i)
+    {
+        auto const& entry = chunks[i].mapping.entry.text();
+        PyObject* pyEntry = makeTableEntry(entry);
+        if (entry.kind() == TableEntry::Kind::Control)
+        {
+            auto const& arguments = chunks[i].mapping.arguments;
+            PyObject* pyArguments = PyList_New(arguments.size());
+            for (size_t j = 0; j < arguments.size(); ++j)
+            {
+                PyObject* pyItem = makeTableArgument(entry.parameter(i), arguments[i]);
+                PyList_SetItem(pyArguments, j, pyItem);
+            }
+            PyObject* item =
+                Py_BuildValue("(s#y#OO)", chunks[i].text.c_str(), chunks[i].text.length(),
+                              chunks[i].mapping.entry.binary().c_str(),
+                              chunks[i].mapping.entry.binary().length(), pyEntry, pyArguments);
+            PyList_SetItem(list, i, item);
+        }
+        else
+        {
+            PyObject* item =
+                Py_BuildValue("(s#y#O)", chunks[i].text.c_str(), chunks[i].text.length(),
+                              chunks[i].mapping.entry.binary().c_str(),
+                              chunks[i].mapping.entry.binary().length(), pyEntry);
+            PyList_SetItem(list, i, item);
+        }
+    }
+    return list;
+}
+
+static PyMethodDef PyKaizoTableEncoding_methods[] = {
+    {"chunks", (PyCFunction)PyKaizoTableEncoding_chunks, METH_O,
+     "divide the given text into chunks according to the encoding"},
+    {NULL}};
+
+PyTypeObject PyKaizoTableEncodingType = {PyVarObject_HEAD_INIT(NULL, 0) "_kaizopy._TableEncoding"};
 
 static bool registerKaizoTableEncoding(PyObject* module)
 {
@@ -432,49 +538,6 @@ static auto PyKaizoTable_insert_end_entry(PyKaizoTable* self, PyObject* const* a
 
     Py_INCREF(Py_None);
     return Py_None;
-}
-
-static auto convert(const TableEntry::ParameterFormat& parameter) -> std::string
-{
-    std::string string;
-    string += (parameter.endianess == TableEntry::ParameterFormat::Endianess::Little) ? "<" : ">";
-    string += std::to_string(parameter.size);
-    switch (parameter.preferedDisplay)
-    {
-    case TableEntry::ParameterFormat::Display::Decimal: string += "d"; break;
-    case TableEntry::ParameterFormat::Display::Hexadecimal: string += "x"; break;
-    case TableEntry::ParameterFormat::Display::Binary: string += "b"; break;
-    default: break;
-    }
-    return string;
-}
-
-static auto makeTableControlEntry(const TableEntry& entry) -> PyObject*
-{
-    std::string parameters;
-    for (size_t i = 0; i < entry.parameterCount(); ++i)
-    {
-        auto const& parameter = entry.parameter(i);
-        parameters += convert(parameter);
-    }
-
-    return Py_BuildValue("(Ksss)", 1, entry.labelName().c_str(), entry.label().postfix.c_str(),
-                         parameters.c_str());
-}
-
-static auto makeTableTextEntry(const TableEntry& entry) -> PyObject*
-{
-    return Py_BuildValue("(Ks)", 0, entry.text());
-}
-
-static auto makeTableEndEntry(const TableEntry& entry) -> PyObject*
-{
-    return Py_BuildValue("(Kss)", 3, entry.label().name.c_str(), entry.label().postfix.c_str());
-}
-
-static auto makeTableSwitchEntry(const TableEntry& entry) -> PyObject*
-{
-    return Py_BuildValue("(Ks)", 3, entry.targetTable().c_str());
 }
 
 static auto PyKaizoTable_getentry(PyKaizoTable* self, PyObject* pyIndex) -> PyObject*
