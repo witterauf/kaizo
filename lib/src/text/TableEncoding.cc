@@ -2,10 +2,19 @@
 
 namespace kaizo {
 
+TableEncoding::TableEncoding()
+{
+    m_mapper.setMapper([this](const std::string& text, const TableMapper::Mapping& mapping) {
+        return this->mapChunk(text, mapping);
+    });
+}
+
 void TableEncoding::addTable(const Table& table)
 {
+    // inefficient...
     m_encoder.addTable(table);
     m_decoder.addTable(table);
+    m_mapper.addTable(table);
 }
 
 void TableEncoding::setFixedLength(size_t length)
@@ -48,6 +57,19 @@ auto TableEncoding::copy() const -> std::unique_ptr<TextEncoding>
     encoding->m_encoder = m_encoder;
     encoding->m_missingDecoder = m_missingDecoder->copy();
     return std::move(encoding);
+}
+
+auto TableEncoding::makeChunks(const std::string& text) const -> std::vector<Chunk>
+{
+    m_chunks.clear();
+    m_mapper.map(text);
+    return std::move(m_chunks);
+}
+
+bool TableEncoding::mapChunk(const std::string& text, const TableMapper::Mapping& mapping)
+{
+    m_chunks.push_back({text, mapping});
+    return true;
 }
 
 } // namespace kaizo

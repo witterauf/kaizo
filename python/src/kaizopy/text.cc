@@ -1,4 +1,5 @@
 #include "pyutilities.h"
+#include <kaizo/text/AsciiEncoding.h>
 #include <kaizo/text/TableEncoding.h>
 #include <pybind11/pybind11.h>
 
@@ -154,6 +155,12 @@ static auto makeTableSwitchEntry(const TableEntry& entry) -> py::tuple
     return tuple;
 }
 
+static auto makeTableArgument(const TableEntry::ParameterFormat&,
+                              const TableEntry::ParameterFormat::argument_t argument) -> py::object
+{
+    return py::int_(static_cast<long long>(argument));
+}
+
 static auto convert(const TableEntry& entry) -> py::tuple
 {
     switch (entry.kind())
@@ -172,6 +179,44 @@ static auto Table_get_entry(const Table& table, const size_t index)
     const py::bytes bytes(entry.binary().data(), entry.binary().size());
     auto const pyEntry = convert(entry.text());
     return std::make_pair(bytes, pyEntry);
+}
+
+static auto TableEncoding_chunks(const TableEncoding& encoding, const std::string& text) -> py::list
+{
+    auto const chunks = encoding.makeChunks(text);
+    py::list list(chunks.size());
+    for (size_t i = 0; i < chunks.size(); ++i)
+    {
+        auto const& entry = chunks[i].mapping.entry.text();
+        py::tuple pyEntry = convert(entry);
+        if (entry.kind() == TableEntry::Kind::Control)
+        {
+            auto const& arguments = chunks[i].mapping.arguments;
+            py::list pyArguments(arguments.size());
+            for (size_t j = 0; j < arguments.size(); ++j)
+            {
+                pyArguments[j] = makeTableArgument(entry.parameter(i), arguments[i]);
+            }
+
+            py::tuple tuple(4);
+            tuple[0] = chunks[i].text;
+            tuple[1] = py::bytes(chunks[i].mapping.entry.binary().c_str(),
+                                 chunks[i].mapping.entry.binary().size());
+            tuple[2] = pyEntry;
+            tuple[3] = pyArguments;
+            list[i] = tuple;
+        }
+        else
+        {
+            py::tuple tuple(3);
+            tuple[0] = chunks[i].text;
+            tuple[1] = py::bytes(chunks[i].mapping.entry.binary().c_str(),
+                                 chunks[i].mapping.entry.binary().size());
+            tuple[2] = pyEntry;
+            list[i] = tuple;
+        }
+    }
+    return list;
 }
 
 void registerKaizoText(py::module_& m)
@@ -195,115 +240,7 @@ void registerKaizoText(py::module_& m)
 
     m.add_object("_AsciiEncoding", py::cast(static_cast<TextEncoding*>(new AsciiEncoding{}),
                                             py::return_value_policy::take_ownership));
+
+    py::class_<TableEncoding, TextEncoding, std::shared_ptr<TableEncoding>>(m, "_TableEncoding")
+        .def("chunks", &TableEncoding_chunks);
 }
-
-/*
-
-//##[ TableEncoding
-]##############################################################################
-
-static PyMethodDef PyKaizoTableEncoding_methods[] = {{NULL}};
-
-PyTypeObject PyKaizoTableEncodingType = {PyVarObject_HEAD_INIT(NULL, 0)
-"_kaizopy._TableEncoding"};
-
-class PythonMissingDecoder : public MissingDecoder
-{
-public:
-    explicit PythonMissingDecoder(PyObject* callable)
-        : m_callable{callable}
-    {
-        Py_INCREF(m_callable);
-    }
-
-    ~PythonMissingDecoder()
-    {
-        Py_DECREF(m_callable);
-    }
-
-    auto decode(const fuse::BinaryView& binary, size_t offset)
-        -> std::optional<std::pair<size_t, std::string>> override
-    {
-        PyObject* args = Py_BuildValue("(y#K)", binary.data(), binary.size(),
-(Py_ssize_t)offset); PyObject* result = PyObject_CallObject(m_callable, args); Py_DECREF(args);
-        if (!result)
-        {
-            return {};
-        }
-
-        const char* text{nullptr};
-        unsigned long long newOffset{0};
-        Py_ssize_t length{0};
-        if (PyArg_ParseTuple(result, "Ks#", &newOffset, &text, &length) < 0)
-        {
-            Py_DECREF(result);
-            return {};
-        }
-
-        std::string textString(text, length);
-        Py_DECREF(result);
-        return std::make_pair(newOffset, textString);
-    }
-
-    auto copy() const -> std::unique_ptr<MissingDecoder>
-    {
-        return std::make_unique<PythonMissingDecoder>(m_callable);
-    }
-
-private:
-    PyObject* m_callable{nullptr};
-};
-
-static int PyKaizoTableEncoding_init(PyKaizoTableEncoding* self, PyObject* args, PyObject*)
-{
-    PyObject* pyTable{nullptr};
-    PyObject* pyCallable{nullptr};
-    if (PyArg_ParseTuple(args, "OO", &pyTable, &pyCallable) < 0)
-    {
-        return -1;
-    }
-
-    if (!PyObject_IsInstance(pyTable, (PyObject*)&PyKaizoTableType))
-    {
-        PyErr_SetString(PyExc_TypeError, "expected a Table as first argument");
-        return -1;
-    }
-    if (pyCallable != Py_None && !PyCallable_Check(pyCallable))
-    {
-        PyErr_SetString(PyExc_TypeError, "expected None or a callable object as second
-argument"); return -1;
-    }
-
-    auto* encoding = new TableEncoding;
-    if (pyCallable != Py_None)
-    {
-        encoding->setMissingDecoder(std::make_unique<PythonMissingDecoder>(pyCallable));
-    }
-    encoding->addTable(*reinterpret_cast<PyKaizoTable*>(pyTable)->table);
-
-    new (&self->base.encoding) std::shared_ptr<fuse::text::TextEncoding>(encoding);
-    return 0;
-}
-
-static bool registerKaizoTableEncoding(PyObject* module)
-{
-    PyKaizoTableEncodingType.tp_new = PyType_GenericNew;
-    PyKaizoTableEncodingType.tp_basicsize = sizeof(PyKaizoTableEncoding);
-    PyKaizoTableEncodingType.tp_base = &Py_TextEncoding;
-    PyKaizoTableEncodingType.tp_flags = Py_TPFLAGS_DEFAULT;
-    PyKaizoTableEncodingType.tp_doc = "Represents a TextEncoding based on Tables";
-    PyKaizoTableEncodingType.tp_methods = PyKaizoTableEncoding_methods;
-    PyKaizoTableEncodingType.tp_init = (initproc)PyKaizoTableEncoding_init;
-    if (PyType_Ready(&PyKaizoTableEncodingType) < 0)
-    {
-        return false;
-    }
-    Py_INCREF(&PyKaizoTableEncodingType);
-    if (PyModule_AddObject(module, "_TableEncoding", (PyObject*)&PyKaizoTableEncodingType) < 0)
-    {
-        Py_DECREF(&PyKaizoTableEncodingType);
-        return false;
-    }
-    return true;
-}
-*/

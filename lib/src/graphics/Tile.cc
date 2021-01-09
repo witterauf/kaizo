@@ -117,7 +117,7 @@ void Tile::blit(size_t x, size_t y, const Tile& source, const TileRegion& region
 
 auto Tile::boundingBox(const pixel_t background) const -> TileRegion
 {
-    Expects(background == 0 || background < (1UL << bitsPerPixel()));
+    Expects(bitsPerPixel() == sizeof(pixel_t) || background < (1UL << bitsPerPixel()));
 
     size_t left{m_width};
     size_t right{0};

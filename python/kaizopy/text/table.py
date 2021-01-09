@@ -17,7 +17,30 @@ def _escape_postfix(postfix):
     return postfix
 
 class TableEntry:
-    pass
+    @staticmethod
+    def _make(entry):
+        if entry[0] == 0:
+            return TableTextEntry(entry[1])
+        elif entry[0] == 1:
+            return TableControlEntry(entry[1], entry[2], entry[3])
+        elif entry[0] == 2:
+            return TableSwitchEntry(entry[1])
+        elif entry[0] == 3:
+            return TableEndEntry(entry[1], entry[2])
+        else:
+            raise ValueError()
+
+    @property
+    def is_text(self):
+        return self.kind == TableEntryKind.TEXT
+
+    @property
+    def is_end(self):
+        return self.kind == TableEntryKind.END
+
+    @property
+    def is_control(self):
+        return self.kind == TableEntryKind.CONTROL
 
 class TableControlEntry(TableEntry):
     def __init__(self, label, postfix=None, parameters=None):
@@ -117,17 +140,7 @@ class Table:
 
     def get_entry(self, index):
         binary, _entry = self._table.get_entry(index)
-        if _entry[0] == 0:
-            entry = TableTextEntry(_entry[1])
-        elif _entry[0] == 1:
-            entry = TableControlEntry(_entry[1], _entry[2], _entry[3])
-        elif _entry[0] == 2:
-            entry = TableSwitchEntry(_entry[1])
-        elif _entry[0] == 3:
-            entry = TableEndEntry(_entry[1], _entry[2])
-        else:
-            raise ValueError()
-        return (binary, entry)
+        return binary, TableEntry._make(_entry)
 
     def __iter__(self):
         for i in range(self._table.entry_count):

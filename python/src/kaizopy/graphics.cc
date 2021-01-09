@@ -1,5 +1,5 @@
+#include "pyutilities.h"
 #include <filesystem>
-#include <iostream>
 #include <kaizo/graphics/ImageFileFormat.h>
 #include <kaizo/graphics/TileFormat.h>
 #include <pybind11/pybind11.h>
@@ -95,7 +95,7 @@ static auto Tile_crop(const Tile& tile, const size_t x, const size_t y, const si
     return tile.crop(region);
 }
 
-//static auto Tile_blit(Tile& tile, const size_t x, const size_t y, const Tile& source)
+// static auto Tile_blit(Tile& tile, const size_t x, const size_t y, const Tile& source)
 
 void registerKaizoGraphics(py::module_& m)
 {
@@ -137,3 +137,111 @@ void registerKaizoGraphics(py::module_& m)
             return format.requiredSize(count);
         });
 }
+
+/*
+static auto PyKaizoTile_blit(PyKaizoTile* self, PyObject* const* args, const Py_ssize_t nargs)
+    -> PyObject*
+{
+    if (nargs != 4)
+    {
+        PyErr_SetString(PyExc_TypeError,
+                        "wrong number of arguments; expected 4 (source, x, y, bgColor)");
+        return NULL;
+    }
+
+    if (!PyObject_IsInstance(args[0], (PyObject*)&PyKaizoTileType))
+    {
+        PyErr_SetString(PyExc_TypeError, "first argument must be a Tile");
+        return NULL;
+    }
+    auto const* source = reinterpret_cast<PyKaizoTile*>(args[0]);
+
+    TileRegion region{0, 0, source->tile.width(), source->tile.height()};
+
+    auto x = PyLong_AsLongLong(args[1]);
+    if (x == static_cast<decltype(x)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    if (x < 0)
+    {
+        region.setLeft(static_cast<size_t>(-x));
+        region.setRight(source->tile.width());
+        x = 0;
+    }
+
+    auto y = PyLong_AsLongLong(args[2]);
+    if (y == static_cast<decltype(y)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+    if (y < 0)
+    {
+        region.setTop(static_cast<size_t>(-y));
+        region.setBottom(source->tile.height());
+        y = 0;
+    }
+
+    auto const background = PyLong_AsUnsignedLongLong(args[3]);
+    if (background == static_cast<decltype(background)>(-1) && PyErr_Occurred())
+    {
+        return NULL;
+    }
+
+    self->tile.blit(static_cast<size_t>(x), static_cast<size_t>(y), source->tile, region,
+                    static_cast<Tile::pixel_t>(background));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static auto PyKaizoTile_blit_partial(PyKaizoTile* self, PyObject* const* args,
+                                     const Py_ssize_t nargs) -> PyObject*
+{
+    if (!pykCheckArguments(nargs, 8, "source, sx, sy, width, height, dx, dy, bgColor"))
+    {
+        return NULL;
+    }
+
+    auto* source = pykGetObject<PyKaizoTile>(args[0], &PyKaizoTileType);
+    auto sx = pykGetNumber<long long>(args[1]);
+    auto sy = pykGetNumber<long long>(args[2]);
+    auto width = pykGetNumber<long long>(args[3]);
+    auto height = pykGetNumber<long long>(args[4]);
+    auto dx = pykGetNumber<long long>(args[5]);
+    auto dy = pykGetNumber<long long>(args[6]);
+    auto const bgColor = pykGetNumber<Tile::pixel_t>(args[7]);
+    if (!source || !sx || !sy || !width || !height || !dx || !dy || !bgColor)
+    {
+        return NULL;
+    }
+
+    sx = std::max(*sx, static_cast<long long>(0));
+    sy = std::max(*sy, static_cast<long long>(0));
+    dx = std::max(*dx, static_cast<long long>(0));
+    dy = std::max(*dy, static_cast<long long>(0));
+    width = std::max(*width, static_cast<long long>(0));
+    height = std::max(*height, static_cast<long long>(0));
+
+    TileRegion region{static_cast<size_t>(*sx), static_cast<size_t>(*sy),
+                      static_cast<size_t>(*width), static_cast<size_t>(*height)};
+    self->tile.blit(static_cast<size_t>(*dx), static_cast<size_t>(*dy), source->tile, region,
+                    *bgColor);
+    return pykNone();
+}
+
+static auto PyKaizoTile_bounding_box(PyKaizoTile* self, PyObject* pyBgColor) -> PyObject*
+{
+    auto maybeBgColor = pykGetNumber<Tile::pixel_t>(pyBgColor);
+    if (!maybeBgColor)
+    {
+        return NULL;
+    }
+
+    auto const bb = self->tile.boundingBox(*maybeBgColor);
+    return Py_BuildValue("(KKKK)", static_cast<unsigned long long>(bb.left()),
+                         static_cast<unsigned long long>(bb.top()),
+                         static_cast<unsigned long long>(bb.right()),
+                         static_cast<unsigned long long>(bb.bottom()));
+}
+
+*/
