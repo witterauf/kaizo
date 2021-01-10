@@ -1,6 +1,6 @@
+from kaizo.text import Table, TableTextEntry, TableEndEntry, TableControlEntry, TableEntryKind
 import parsy
 import re
-from kaizopy.text import Table, TableTextEntry, TableEndEntry, TableControlEntry, TableEntryKind
 
 def to_hex(characters):
     return [int(characters[i:i+2], 16) for i in range(0, len(characters), 2)]

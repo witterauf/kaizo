@@ -1,1 +1,1 @@
-from kaizopy.archives.io import *
+from kaizo.archives.io import *

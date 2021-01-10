@@ -1,6 +1,6 @@
-from fuse.fusepy import *
-from fuse.fusepy import _FileOffset, _DataFormat, _IntegerFormat, _StringFormat, _RecordFormat, _ArrayFormat, _PointerFormat
-from fuse import TextEncoding
+from kaizo.kaizopy import *
+from kaizo.kaizopy import _FileOffset, _DataFormat, _IntegerFormat, _StringFormat, _RecordFormat, _ArrayFormat, _PointerFormat
+from kaizo import TextEncoding
 
 class DataFormat:
     def _setup(self, **kwargs):

@@ -1,7 +1,7 @@
-from fusepy.objects import BinaryObject, FixedAddressConstraint, AddressRangeConstraint
-from fusepy._fusepy import _BacktrackingPacker
-from fusepy.addresses import FileOffset
-from fusepy.utilities import IntervalList
+from kaizo.data.objects import BinaryObject, FixedAddressConstraint, AddressRangeConstraint
+from kaizo.data.addresses import FileOffset
+from kaizo.data.utilities import IntervalList
+from kaizo.kaizopy import _BacktrackingPacker
 from pathlib import Path
 from sortedcontainers import SortedList
 import shutil

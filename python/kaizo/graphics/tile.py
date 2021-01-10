@@ -1,5 +1,5 @@
-from kaizopy._kaizopy import _Tile, _TileFormat
-from kaizopy.graphics.palette import ColorFormat
+from kaizo.kaizopy import _Tile, _TileFormat
+from kaizo.graphics.palette import ColorFormat
 from abc import ABC, abstractmethod
 
 # TODO: put into utilities after merging with fuse

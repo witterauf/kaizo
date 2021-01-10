@@ -1,7 +1,11 @@
-from fuse.fusepy import Signedness, Endianness
-from fuse.fusepy import Address, _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _MipsEmbeddedLayout, _AddressMap, _RegionedAddressMap
+from kaizo.kaizopy import Signedness, Endianness
+from kaizo.kaizopy import Address, _FileOffset, _AddressFormat, _AddressLayout, _RelativeAddressLayout, _MipsEmbeddedLayout, _AddressMap, _RegionedAddressMap
 
 class AddressLayout:
+    """
+    Represents the storage layout of an Address.
+    """
+
     @staticmethod
     def _make(layout):
         if isinstance(layout, _RelativeAddressLayout):
@@ -31,6 +35,10 @@ class AddressLayout:
             patch.apply(target, offset)
 
 class RelativeAddressLayout(AddressLayout):
+    """
+    Stores an Address as an offset relative to a base address.
+    """
+
     ID = 'relative'
 
     @staticmethod
@@ -51,6 +59,11 @@ class RelativeAddressLayout(AddressLayout):
             self._layout.set_null_pointer(null_pointer[0], null_pointer[1])
 
 class MipsEmbeddedLayout(AddressLayout):
+    """
+    Stores an Address embedded into two MIPS assembly instructions; one loading
+    the lower word and one loading the upper word.
+    """
+
     ID = 'mips'
 
     @staticmethod
@@ -80,6 +93,10 @@ class AddressFormat:
 FileOffset = AddressFormat(_FileOffset)
 
 class AddressMap:
+    """
+    Represents a mapping from one address space into another.
+    """
+
     def __init__(self, map):
         if not isinstance(map, _AddressMap):
             raise TypeError("expected an _AddressMap")
@@ -100,6 +117,10 @@ class AddressMap:
         return self._map.map_to_target(source)
 
 class RegionedAddressMap(AddressMap):
+    """
+    An AddressMap where contiguous address regions are mapped onto each other.
+    """
+
     def __init__(self, source_format, target_format):
         self._map = _RegionedAddressMap(source_format._format, target_format._format)
 

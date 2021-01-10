@@ -1,4 +1,4 @@
-from kaizopy.graphics.tile import Tile, Image
+from kaizo.graphics.tile import Tile, Image
 from pathlib import PurePath, Path
 import json
 from enum import Enum

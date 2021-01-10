@@ -1,6 +1,6 @@
-from fuse.fusepy import _DataReader, _DataWriter
-from fuse.objects import BinaryObject, UnresolvedReference, ObjectSection
-from fuse.addresses import AddressLayout
+from kaizo.kaizopy import _DataReader, _DataWriter
+from kaizo.data.objects import BinaryObject, UnresolvedReference, ObjectSection
+from kaizo.addresses import AddressLayout
 
 class DataReader:
     """

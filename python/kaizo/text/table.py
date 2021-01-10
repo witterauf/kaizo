@@ -1,4 +1,5 @@
-from kaizopy._kaizopy import _Table
+from kaizo.kaizopy import _Table, _TableEncoding
+from kaizo.text.encoding import ExtensionTextEncoding
 from enum import Enum
 
 class TableEntryKind(Enum):
@@ -154,3 +155,25 @@ class Table:
             f.write(entry.to_tbl(binary))
             f.write('\n')
 
+class Chunk:
+    def __init__(self, text, binary, entry, arguments=None):
+        self.text = str(text)
+        self.binary = binary
+        self.entry = entry
+        self.arguments = arguments
+
+    def __repr__(self):
+        if self.arguments:
+            return f'Chunk("{self.binary}, {self.entry}, {self.arguments})'
+        else:
+            return f'Chunk("{self.binary}, {self.entry})'
+
+class TableEncoding(ExtensionTextEncoding):
+    def __init__(self, table, missing_decoder=None):
+        encoding = _TableEncoding(table._table, missing_decoder)
+        super().__init__(encoding)
+
+    def chunks(self, text):
+        _chunks = self._encoding.chunks(text)
+        return [Chunk(_chunk[0], _chunk[1], TableEntry._make(_chunk[2]),
+                      None if len(_chunk) == 3 else _chunk[3]) for _chunk in _chunks]

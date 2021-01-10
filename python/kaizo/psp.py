@@ -1,5 +1,5 @@
-from kaizopy.graphics.tile import TileFormat
-from kaizopy._kaizopy import _psp_swizzle, _psp_unswizzle
+from kaizo.graphics.tile import TileFormat
+from kaizo.kaizopy import _psp_swizzle, _psp_unswizzle
 
 def _psp4bpp(width, height):
     return TileFormat.make('psp.4bpp', {'width': width, 'height': height})

@@ -1,4 +1,4 @@
-from kaizopy._kaizopy import _Palette, _PixelFormat
+from kaizo.kaizopy import _Palette, _PixelFormat
 
 class ColorFormat:
     @staticmethod
