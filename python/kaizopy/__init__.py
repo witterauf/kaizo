@@ -1,7 +1,7 @@
-import fusepy
-from kaizopy._kaizopy import *
-import kaizopy.vfs
-import kaizopy.text
-import kaizopy.graphics
-import kaizopy.psp
-import kaizopy.archives
+from kaizo.kaizopy import *
+from kaizo.vfs import *
+from kaizo.text import *
+from kaizo.graphics import *
+from kaizo.archives import *
+import kaizo.data
+import kaizo.psp
