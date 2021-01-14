@@ -1,6 +1,6 @@
 from kaizo.data.objects import BinaryObject, FixedAddressConstraint, AddressRangeConstraint
-from kaizo.data.addresses import FileOffset
-from kaizo.data.utilities import IntervalList
+from kaizo.addresses import FileOffset
+from kaizo.utilities import IntervalList
 from kaizo.kaizopy import _BacktrackingPacker
 from pathlib import Path
 from sortedcontainers import SortedList
