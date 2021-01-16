@@ -40,6 +40,8 @@ public:
     auto begin() const -> const uint8_t*;
     auto end() const -> const uint8_t*;
 
+    auto slice(const size_t start, const size_t end) const -> BinaryView;
+
     auto operator[](const size_t offset) const -> uint8_t;
 
 private:
@@ -57,4 +59,4 @@ template <size_t N, class T, class B> auto readLittle(const B& binary, const siz
     return result;
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

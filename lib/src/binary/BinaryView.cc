@@ -1,4 +1,5 @@
 #include "kaizo/binary/BinaryView.h"
+#include <contracts/Contracts.h>
 
 namespace kaizo {
 
@@ -22,6 +23,14 @@ auto BinaryView::data() const -> const uint8_t*
 auto BinaryView::size() const -> size_t
 {
     return m_size;
+}
+
+auto BinaryView::slice(const size_t start, const size_t end) const -> BinaryView
+{
+    Expects(start < m_size);
+    Expects(end < m_size);
+    Expects(end >= start);
+    return BinaryView{m_buffer + start, end - start};
 }
 
 auto BinaryView::begin() const -> const uint8_t*
@@ -96,4 +105,4 @@ auto MutableBinaryView::operator[](const size_t offset) -> uint8_t&
     return m_buffer[offset];
 }
 
-} // namespace kaizo::data
+} // namespace kaizo

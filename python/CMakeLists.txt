@@ -20,11 +20,6 @@ target_link_libraries(kaizopy
   PRIVATE
     Kaizo::Kaizo
 )
-#target_include_directories(kaizopy INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-if (WIN32)
-  target_compile_definitions(kaizopy PRIVATE "-DKAIZO_WIN_EXPORT")
-endif()
-#set_target_properties(kaizopy PROPERTIES DEBUG_POSTFIX "_d")
 
 add_library(Kaizo::Python ALIAS kaizopy)
 

@@ -1,4 +1,5 @@
 #include "kaizo/binary/Binary.h"
+#include "kaizo/binary/BinaryView.h"
 #include <fstream>
 
 namespace kaizo {
@@ -16,6 +17,11 @@ auto Binary::fromArray(const uint8_t* data, size_t size) -> Binary
     binary.m_data.resize(size);
     memcpy(binary.m_data.data(), data, size);
     return binary;
+}
+
+auto Binary::from(const BinaryView& view) -> Binary
+{
+    return fromArray(view.data(), view.size());
 }
 
 auto Binary::load(const std::filesystem::path& filename) -> Binary
@@ -131,4 +137,4 @@ auto operator+(Binary lhs, const Binary& rhs) -> Binary
     return lhs += rhs;
 }
 
-} // namespace kaizo::data
+} // namespace kaizo
