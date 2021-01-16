@@ -2,6 +2,7 @@
 #include <kaizo/text/AsciiEncoding.h>
 #include <kaizo/text/TableEncoding.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 using namespace kaizo;
@@ -219,6 +220,13 @@ static auto TableEncoding_chunks(const TableEncoding& encoding, const std::strin
     return list;
 }
 
+static auto TableEncoding_init(const Table& table) -> std::shared_ptr<TableEncoding>
+{
+    auto encoding = std::make_shared<TableEncoding>();
+    encoding->addTable(table);
+    return encoding;
+}
+
 void registerKaizoText(py::module_& m)
 {
     py::class_<Table>(m, "_Table")
@@ -242,5 +250,6 @@ void registerKaizoText(py::module_& m)
                                             py::return_value_policy::take_ownership));
 
     py::class_<TableEncoding, TextEncoding, std::shared_ptr<TableEncoding>>(m, "_TableEncoding")
+        .def(py::init(&TableEncoding_init))
         .def("chunks", &TableEncoding_chunks);
 }

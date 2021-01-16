@@ -89,7 +89,7 @@ class TableEndEntry(TableEntry):
         self.postfix = postfix
 
     def _insert(self, table, binary):
-        table.insert_end_entry(binary, self.label)
+        table.insert_end_entry(binary, self.label, self.postfix)
 
     def __str__(self):
         string = f'[{self.label}]'
@@ -117,14 +117,16 @@ class Table:
         from kaizopy.text.tblreader import read_tbl_file
         return read_tbl_file(filename)
 
-    def __init__(self, table=None):
+    def __init__(self, table=None, entries=None):
         if table:
             if isinstance(table, _Table):
                 self._table = table
             else:
                 raise TypeError("must be an instance of _Table")
         else:
-            self._table = _Table()        
+            self._table = _Table()
+        
+        self.insert_entries(entries)
 
     def insert_entries(self, entry_pairs):
         for key, value in entry_pairs:
@@ -132,8 +134,8 @@ class Table:
 
     def insert_entry(self, binary, entry):
         try:
-            entry._insert(self._table, binary)
-        except:
+            entry._insert(self._table, bytes(binary))
+        except AttributeError:
             if isinstance(entry, str):
                 self._table.insert_text_entry(binary, entry)
             else:
@@ -169,8 +171,8 @@ class Chunk:
             return f'Chunk("{self.binary}, {self.entry})'
 
 class TableEncoding(ExtensionTextEncoding):
-    def __init__(self, table, missing_decoder=None):
-        encoding = _TableEncoding(table._table, missing_decoder)
+    def __init__(self, table):
+        encoding = _TableEncoding(table._table)
         super().__init__(encoding)
 
     def chunks(self, text):
