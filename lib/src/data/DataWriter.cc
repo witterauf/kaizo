@@ -72,6 +72,7 @@ void DataWriter::enterLevel()
         m_sections.push_back({});
     }
     m_sectionIndex++;
+    startNewObject();
 
     // section().referencePath = m_path.parent();
     // section().referenceOffset = sectionOffset(-1);

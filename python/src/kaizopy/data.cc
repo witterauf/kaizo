@@ -15,7 +15,7 @@ static auto convert(const UnresolvedReference& ref) -> py::dict
     py::dict dict;
     dict["offset"] = ref.relativeOffset();
     dict["path"] = ref.referencedPath().toString();
-    dict["layout"] = py::cast(&ref.addressLayout(), py::return_value_policy::reference);
+    dict["layout"] = ref.addressLayout().copy();
     return dict;
 }
 

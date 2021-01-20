@@ -135,12 +135,16 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
     }
     else if (m_pointedFormat)
     {
+        throw std::runtime_error{
+            "implicit pointers not yet supported - please use explicit references"};
+        /*
         writer.enterLevel();
         writer.enter(DataPathElement::makePointer());
         m_pointedFormat->encode(writer, data);
         destination = writer.path();
         writer.leave();
         writer.leaveLevel();
+        */
     }
     else
     {

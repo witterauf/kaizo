@@ -196,7 +196,7 @@ static auto TableEncoding_chunks(const TableEncoding& encoding, const std::strin
             py::list pyArguments(arguments.size());
             for (size_t j = 0; j < arguments.size(); ++j)
             {
-                pyArguments[j] = makeTableArgument(entry.parameter(i), arguments[i]);
+                pyArguments[j] = makeTableArgument(entry.parameter(j), arguments[j]);
             }
 
             py::tuple tuple(4);

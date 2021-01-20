@@ -75,7 +75,10 @@ class MipsEmbeddedLayout(AddressLayout):
     def __init__(self, base, lo16, hi16):
         self._layout = _MipsEmbeddedLayout()
         self._layout.set_offsets(hi16, lo16)
-        self._layout.set_base_address(base)
+        if isinstance(base, Address):
+            self._layout.set_base_address(base)
+        else:
+            self._layout.set_base_address(FileOffset(base))
 
 class AddressFormat:
     def __init__(self, format):

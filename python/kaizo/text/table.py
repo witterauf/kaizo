@@ -114,7 +114,7 @@ class TableSwitchEntry(TableEntry):
 class Table:
     @staticmethod
     def load_tbl_file(filename):
-        from kaizopy.text.tblreader import read_tbl_file
+        from kaizo.text.tblreader import read_tbl_file
         return read_tbl_file(filename)
 
     def __init__(self, table=None, entries=None):
@@ -126,15 +126,25 @@ class Table:
         else:
             self._table = _Table()
         
-        self.insert_entries(entries)
+        if entries is not None:
+            self.insert_entries(entries)
 
     def insert_entries(self, entry_pairs):
         for key, value in entry_pairs:
             self.insert_entry(key, value)
 
+    def _as_binary(self, key):
+        if isinstance(key, bytes):
+            return key
+        elif isinstance(key, int) and key < 0x100:
+            return bytes([key])
+        else:
+            return bytes(key)
+
     def insert_entry(self, binary, entry):
+        binary = self._as_binary(binary)
         try:
-            entry._insert(self._table, bytes(binary))
+            entry._insert(self._table, binary)
         except AttributeError:
             if isinstance(entry, str):
                 self._table.insert_text_entry(binary, entry)

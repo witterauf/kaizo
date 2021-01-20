@@ -160,7 +160,6 @@ class FileLinkTarget(LinkTarget):
         return self._f.read(size)
 
     def write(self, data, offset):
-        print(f'Writing to {offset}')
         self._f.seek(offset, 0)
         self._f.write(data)
 

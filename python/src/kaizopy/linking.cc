@@ -39,6 +39,7 @@ static auto BacktrackingPacker_get_link_address(const BacktrackingPacker& packer
 void registerKaizoDataLinking(pybind11::module_& m)
 {
     py::class_<BacktrackingPacker>(m, "_BacktrackingPacker")
+        .def(py::init())
         .def("add_object",
              [](BacktrackingPacker& packer, const size_t size) {
                  auto const id = "obj_" + std::to_string(packer.objectCount());

@@ -1,5 +1,7 @@
 from kaizo.kaizopy import *
-from kaizo.kaizopy import _FileOffset, _DataFormat, _IntegerFormat, _StringFormat, _RecordFormat, _ArrayFormat, _PointerFormat
+from kaizo.kaizopy import _FileOffset, _DataFormat, _IntegerFormat,\
+                          _StringFormat, _RecordFormat, _ArrayFormat,\
+                          _PointerFormat
 from kaizo import TextEncoding
 
 class DataFormat:
@@ -42,7 +44,7 @@ class RecordFormat(DataFormat):
                 raise TypeError("expected DataFormat")
             if not element[0]:
                 raise ValueError("expected a non-empty string")
-            self._format.append_element(element[0], element[1]._format)
+            self._format.append(element[0], element[1]._format)
 
 class ArrayFormat(DataFormat):
     def __init__(self, length, element, **kwargs):

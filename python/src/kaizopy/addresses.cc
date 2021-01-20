@@ -66,6 +66,7 @@ void registerKaizoAddresses(py::module_& m)
 {
     py::class_<Address>(m, "Address")
         .def("__str__", &Address::toString)
+        .def("__repr__", &Address::toString)
         .def("offset", &Address::applyOffset);
     py::class_<AddressFormat>(m, "_AddressFormat").def("from_int", &AddressFormat::fromInteger);
     m.add_object("_FileOffset", py::cast(static_cast<const AddressFormat*>(fileOffsetFormat()),

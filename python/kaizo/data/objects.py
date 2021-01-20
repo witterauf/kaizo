@@ -1,6 +1,8 @@
 from pathlib import Path
 import json
 import base64
+from kaizo import Address, Endianness, Signedness
+import pprint
 
 class UnresolvedReference:
     def __init__(self, offset, path, layout):
@@ -183,6 +185,23 @@ class BinaryObject:
 
         return as_dict
 
+def _json_serializer(data):
+    if isinstance(data, Address):
+        return str(data)
+    elif isinstance(data, Endianness):
+        if data == Endianness.LITTLE:
+            return 'little'
+        else:
+            return 'big'
+    elif isinstance(data, Signedness):
+        if data == Signedness.UNSIGNED:
+            return 'unsigned'
+        else:
+            return 'signed'
+    else:
+        type_name = data.__class__.__name__
+        raise TypeError(f"Object of type {type_name} is not serializable")        
+
 def _save_objects_json(filepath, objects, config):
     config = config if config is not None else {}
     inline = config.get('inline', False)
@@ -214,12 +233,12 @@ def _save_objects_json(filepath, objects, config):
         if inline:
             json.dump({
                 'objects': object_dicts
-                }, f, indent=2)
+                }, f, indent=2, default=_json_serializer)
         else:
             json.dump({
                 'binary': f'{bin_file.name}',
                 'objects': object_dicts
-                }, f, indent=2)
+                }, f, indent=2, default=_json_serializer)
 
 def save_objects(filename, objects, config=None):
     filepath = Path(filename)

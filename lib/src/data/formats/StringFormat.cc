@@ -25,30 +25,23 @@ void StringFormat::setFixedLength(size_t length)
 auto StringFormat::doDecode(DataReader& reader) -> std::unique_ptr<Data>
 {
     Expects(m_encoding);
-    try
+    size_t newOffset;
+    std::string string;
+    if (m_fixedLength)
     {
-        size_t newOffset;
-        std::string string;
-        if (m_fixedLength)
-        {
-            std::tie(newOffset, string) =
-                m_encoding->decode(reader.binary().read(reader.offset(), *m_fixedLength), 0);
-            newOffset = reader.offset() + *m_fixedLength;
-        }
-        else
-        {
-            std::tie(newOffset, string) = m_encoding->decode(reader.binary(), reader.offset());
-        }
-        auto data = std::make_unique<StringData>();
-        data->setValue(string);
-        track(reader, reader.offset(), newOffset - reader.offset());
-        reader.setOffset(newOffset);
-        return std::move(data);
+        std::tie(newOffset, string) =
+            m_encoding->decode(reader.binary().read(reader.offset(), *m_fixedLength), 0);
+        newOffset = reader.offset() + *m_fixedLength;
     }
-    catch (...)
+    else
     {
-        return {};
+        std::tie(newOffset, string) = m_encoding->decode(reader.binary(), reader.offset());
     }
+    auto data = std::make_unique<StringData>();
+    data->setValue(string);
+    track(reader, reader.offset(), newOffset - reader.offset());
+    reader.setOffset(newOffset);
+    return std::move(data);
 }
 
 void StringFormat::doEncode(DataWriter& writer, const Data& data)

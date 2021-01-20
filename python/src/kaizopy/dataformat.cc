@@ -7,6 +7,7 @@
 #include <kaizo/data/data/IntegerData.h>
 #include <kaizo/data/data/NullData.h>
 #include <kaizo/data/data/RecordData.h>
+#include <kaizo/data/data/ReferenceData.h>
 #include <kaizo/data/data/StringData.h>
 #include <kaizo/data/formats/ArrayFormat.h>
 #include <kaizo/data/formats/DataFormat.h>
@@ -71,6 +72,7 @@ static auto convert(const Data& data) -> py::object
     case DataType::String: return convert(static_cast<const StringData&>(data));
     case DataType::Array: return convert(static_cast<const ArrayData&>(data));
     case DataType::Record: return convert(static_cast<const RecordData&>(data));
+    case DataType::Null: return py::none();
     default: throw std::runtime_error{"unsupported data type"};
     }
 }
@@ -92,9 +94,10 @@ static auto convertDict(py::dict dict) -> std::unique_ptr<RecordData>
 static auto convertList(py::sequence list) -> std::unique_ptr<ArrayData>
 {
     auto array = std::make_unique<ArrayData>();
-    for (auto item : list)
+    auto const size = list.size();
+    for (py::handle item : list)
     {
-        array->append(convert(item));
+        array->append(convert(py::reinterpret_borrow<py::object>(item)));
     }
     return array;
 }
@@ -135,17 +138,21 @@ static auto convertInt(py::object int_) -> std::unique_ptr<IntegerData>
 
 static auto convert(py::object object) -> std::unique_ptr<Data>
 {
-    if (py::isinstance<py::sequence>(object))
+    if (py::isinstance<py::str>(object))
     {
-        return convertList(py::reinterpret_borrow<py::sequence>(object));
+        return std::make_unique<StringData>(py::cast<std::string>(object));
     }
     else if (py::isinstance<py::dict>(object))
     {
         return convertDict(py::reinterpret_borrow<py::dict>(object));
     }
-    else if (py::isinstance<py::str>(object))
+    else if (py::isinstance<ReferenceData>(object))
     {
-        return std::make_unique<StringData>(py::cast<std::string>(object));
+        return py::cast<ReferenceData*>(object)->copy();
+    }
+    else if (py::isinstance<py::sequence>(object))
+    {
+        return convertList(py::reinterpret_borrow<py::sequence>(object));
     }
     else if (py::isinstance<py::int_>(object))
     {
@@ -176,6 +183,17 @@ static auto DataFormat_encode(DataFormat& format, DataWriter& writer, py::object
         writer.abortData();
         throw e;
     }
+}
+
+static auto ReferenceData_init(const std::string& path) -> std::unique_ptr<ReferenceData>
+{
+    auto const maybePath = DataPath::fromString(path);
+    if (!maybePath)
+    {
+        throw py::value_error{"not a valid DataPath"};
+    }
+
+    return std::make_unique<ReferenceData>(*maybePath);
 }
 
 void registerKaizoDataFormats(py::module_& m)
@@ -225,4 +243,6 @@ void registerKaizoDataFormats(py::module_& m)
         .def("set_address_layout", [](PointerFormat& format, const AddressLayout& layout) {
             format.setLayout(layout.copy());
         });
+
+    py::class_<ReferenceData>(m, "Reference").def(py::init(&ReferenceData_init));
 }
