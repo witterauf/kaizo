@@ -21,6 +21,21 @@ void MipsLayout::setOffsets(signed hi16, signed lo16)
     m_offsetLo16 = lo16;
 }
 
+auto MipsLayout::baseAddress() const -> Address
+{
+    return m_baseAddress;
+}
+
+auto MipsLayout::offsetHi16() const -> signed
+{
+    return m_offsetHi16;
+}
+
+auto MipsLayout::offsetLo16() const -> signed
+{
+    return m_offsetLo16;
+}
+
 bool MipsLayout::isCompatible(const Address address) const
 {
     return m_baseAddress.isCompatible(address);

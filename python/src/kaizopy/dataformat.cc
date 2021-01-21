@@ -181,7 +181,7 @@ static auto DataFormat_encode(DataFormat& format, DataWriter& writer, py::object
     catch (std::exception& e)
     {
         writer.abortData();
-        throw e;
+        throw py::value_error{e.what()};
     }
 }
 

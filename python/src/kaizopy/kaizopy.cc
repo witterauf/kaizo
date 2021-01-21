@@ -17,6 +17,10 @@ static auto PyBinary_init(py::buffer b) -> Binary
 static void BinaryPatch_apply(BinaryPatch& patch, py::buffer b, const size_t offset)
 {
     auto view = requestWritable(b);
+    if (offset + patch.relativeOffset() + patch.size() > view.size())
+    {
+        throw py::index_error("patch exceeds buffer size");
+    }
     patch.apply(view, offset);
 }
 
@@ -38,12 +42,14 @@ PYBIND11_MODULE(kaizopy, m)
 
     py::class_<BinaryPatch>(m, "BinaryPatch")
         .def("apply", &BinaryPatch_apply)
-        .def("effective_address",
+        .def("set_relative_offset", &BinaryPatch::setRelativeOffset)
+        .def("effective_offset",
              [](const BinaryPatch& patch, const size_t offset) {
                  return offset + patch.relativeOffset();
              })
         .def_property_readonly("is_partial",
-                               [](const BinaryPatch& patch) { return !patch.usesOnlyFullBytes(); });
+                               [](const BinaryPatch& patch) { return !patch.usesOnlyFullBytes(); })
+        .def("__len__", &BinaryPatch::size);
 
     py::enum_<Signedness>(m, "Signedness")
         .value("UNSIGNED", Signedness::Unsigned)

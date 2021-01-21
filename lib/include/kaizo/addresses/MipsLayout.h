@@ -12,6 +12,9 @@ class MipsLayout : public AddressLayout
 public:
     void setBaseAddress(const Address base);
     void setOffsets(signed hi16, signed lo16);
+    auto baseAddress() const -> Address;
+    auto offsetHi16() const -> signed;
+    auto offsetLo16() const -> signed;
 
     auto getName() const -> std::string override;
     bool isCompatible(const Address address) const override;

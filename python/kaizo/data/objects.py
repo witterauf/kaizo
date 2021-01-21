@@ -148,16 +148,30 @@ class BinaryObject:
 
     def _apply_references(self, target):
         for ref in self.resolved:
+            print(ref.path)
             patches = ref.layout.encode(ref.address)
-            for patch in patches:
+            for patch in patches:                
+                start = patch.effective_offset(ref.actual_offset)
+                start = self.packed_offset(start)
+
                 if patch.is_partial:
                     # Read in original data before applying patch
+                    offset = patch.effective_offset(self.link_offset +
+                                                    ref.actual_offset)
                     size = len(patch)
-                    original = target.read(patch.effective_offset(ref.actual_offset), size)
-                    start = patch.effective_offset(ref.offset)
+                    original = target.read(offset, size)
                     end = start + size
                     self.binary[start:end] = original
-                patch.apply(self.binary, ref.offset)
+
+                patch.set_relative_offset(0)
+                patch.apply(self.binary, start)
+
+    def packed_offset(self, offset):
+        for section in self.sections:
+            if section.actual_offset <= offset < section.actual_offset + section.size:
+                return section.offset + (offset - section.actual_offset)
+        print(self.sections)
+        raise ValueError(f'offset {hex(offset)} is not part of the object')
 
     def to_dict(self):
         sections = [section.to_dict() for section in self.sections]

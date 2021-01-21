@@ -49,6 +49,15 @@ auto RelativeAddressLayout_to_dict(const RelativeOffsetLayout& layout) -> py::di
     return dict;
 }
 
+auto MipsLayout_to_dict(const MipsLayout& layout) -> py::dict
+{
+    py::dict dict;
+    dict["base"] = layout.baseAddress();
+    dict["lo16"] = layout.offsetHi16();
+    dict["hi16"] = layout.offsetLo16();
+    return dict;
+}
+
 static auto AddressMap_map_to_sources(const AddressMap& map, const Address address) -> py::list
 {
     auto const sources = map.toSourceAddresses(address);
@@ -93,5 +102,6 @@ void registerKaizoAddresses(py::module_& m)
     py::class_<MipsLayout, AddressLayout>(m, "_MipsEmbeddedLayout")
         .def(py::init())
         .def("set_base_address", &MipsLayout::setBaseAddress)
-        .def("set_offsets", &MipsLayout::setOffsets);
+        .def("set_offsets", &MipsLayout::setOffsets)
+        .def("to_dict", &MipsLayout_to_dict);
 }
