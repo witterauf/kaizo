@@ -132,6 +132,12 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
     {
         auto const& referenceData = static_cast<const ReferenceData&>(data);
         destination = referenceData.path();
+        writer.addUnresolvedReference(makeStorageFormat(), destination);
+        writeAddressPlaceHolder(writer);
+    }
+    else if (data.type() == DataType::Null)
+    {
+        writeNullAddress(writer);
     }
     else if (m_pointedFormat)
     {
@@ -151,9 +157,6 @@ void PointerFormat::doEncode(DataWriter& writer, const Data& data)
         throw std::runtime_error{"reference data or pointed format required at '" +
                                  writer.path().toString() + "'"};
     }
-
-    writer.addUnresolvedReference(makeStorageFormat(), destination);
-    writeAddressPlaceHolder(writer);
 }
 
 bool PointerFormat::hasNullPointer() const
@@ -184,6 +187,29 @@ void PointerFormat::writeAddressPlaceHolder(DataWriter& writer)
 {
     Expects(m_layout);
     auto const patches = m_layout->writePlaceHolder();
+    size_t offset{0};
+    // assume patches are ordered according to relativeOffset
+    for (auto const& patch : patches)
+    {
+        if (patch.relativeOffset() < 0)
+        {
+            throw std::runtime_error{"address placeholder: relative offset must be positive"};
+        }
+        if (static_cast<size_t>(patch.relativeOffset()) > offset)
+        {
+            writer.skip(patch.relativeOffset() - offset);
+            offset = patch.relativeOffset();
+        }
+        writer.binary().append(Binary{patch.size()});
+        offset += patch.size();
+    }
+}
+
+void PointerFormat::writeNullAddress(DataWriter& writer)
+{
+    Expects(m_nullPointer.has_value());
+    Expects(m_layout);
+    auto const patches = m_layout->writeAddress(*m_nullPointer);
     size_t offset{0};
     // assume patches are ordered according to relativeOffset
     for (auto const& patch : patches)

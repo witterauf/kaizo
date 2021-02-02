@@ -83,6 +83,21 @@ bool PriorityObjectList::hasUnmapped() const
     return !m_unmapped.empty();
 }
 
+auto PriorityObjectList::unmappedObjectCount() const -> size_t
+{
+    return m_unmapped.size();
+}
+
+auto PriorityObjectList::unmappedObjectScore(const size_t index) const -> long long
+{
+    return m_unmapped[index].score;
+}
+
+auto PriorityObjectList::unmappedObject(const size_t index) const -> const LinkObject*
+{
+    return m_unmapped[index].object;
+}
+
 BacktrackingPacker::BacktrackingPacker()
     : m_objects{&m_freeSpace}
 {
@@ -260,10 +275,11 @@ void BacktrackingPacker::log_StartPacking()
     {
         m_log << "Start packing...\n";
         m_log << "Objects:\n";
-        for (size_t i = 0; i < m_linkObjects.size(); ++i)
+        for (size_t i = 0; i < m_objects.unmappedObjectCount(); ++i)
         {
-            m_log << " [" << i << "] " << m_linkObjects[i]->id() << ": " << m_linkObjects[i]->size()
-                  << "\n";
+            auto const* object = m_objects.unmappedObject(i);
+            m_log << " [" << i << "] " << object->id() << ": " << object->size()
+                  << " (score: " << m_objects.unmappedObjectScore(i) << ")\n";
         }
     }
 }

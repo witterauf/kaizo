@@ -6,6 +6,9 @@ from pathlib import Path
 from sortedcontainers import SortedList
 import shutil
 
+class PackingFailedError(Exception):
+    pass
+
 class Packer:
     def pack(self, objects, free_blocks):
         pass
@@ -30,11 +33,10 @@ class BacktrackingPacker(Packer):
                 raise ValueError('constraints not yet supported')
             self._packer.add_object(obj.actual_size)
         if not self._packer.pack():
-            return False
+            raise PackingFailedError('could not pack the given objects')
         for i, obj in enumerate(objects):
             obj.link_offset = self._packer.get_link_offset(i)
             obj.link_address = self._packer.get_link_address(i)
-        return True
 
 class FreeBlock:
     @staticmethod
@@ -132,6 +134,25 @@ class LinkTarget:
             block = FreeBlock(obj.link_offset, address, obj.packed_size)
             self.free_blocks.subtract(block)
 
+class MemoryLinkTarget(LinkTarget):
+    """
+    Represents a LinkTarget that resides in memory.
+    """
+
+    def __init__(self, binary, address_map, free_blocks=[]):
+        super().__init__(address_map, free_blocks)
+        self.binary = binary
+
+    def apply(self, objects):
+        for obj in objects:
+            obj.apply(self)
+
+    def read(self, offset, size):
+        return self.binary[offset:offset+size]
+
+    def write(self, data, offset):
+        self.binary[offset:offset+len(data)] = data
+
 class FileLinkTarget(LinkTarget):
     """
     Represents a physical file to link BinaryObjects into.
@@ -168,6 +189,8 @@ def _pack_with_fixed_offset(objects, target):
     for obj in objects:
         if obj.link_offset is not None:
             target.allocate(obj)
+            obj.link_address = target.address_map.map_to_target(
+                FileOffset(obj.link_offset))
         else:
             remaining.append(obj)
     return remaining
@@ -184,16 +207,18 @@ def pack_objects(objects, targets, *, packer=None):
     assert len(targets) == 1, "only one simultaneous target supported at the moment"
 
     objects = _pack_with_fixed_offset(objects, targets[0])
-    return packer.pack(objects, targets[0].free_blocks)
+    packer.pack(objects, targets[0].free_blocks)
 
 def resolve_references(objects):
     """
     Resolve any unresolved references within the given objects.
     All referenced data paths need to have a corresponding object that has a
-    link_offset specified.
+    link_address specified.
     """
     link_addresses = {}
     for obj in objects:
+        if obj.link_address is None:
+            raise ValueError(f'Object "{obj.path}" has no link address')
         link_addresses[obj.path] = obj.link_address
     for obj in objects:
         obj.resolve_references(link_addresses)

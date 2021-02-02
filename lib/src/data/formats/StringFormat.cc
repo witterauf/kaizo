@@ -51,6 +51,19 @@ void StringFormat::doEncode(DataWriter& writer, const Data& data)
     auto const& stringData = static_cast<const StringData&>(data);
 
     auto binary = m_encoding->encode(stringData.value());
+    if (m_fixedLength)
+    {
+        if (binary.size() > *m_fixedLength)
+        {
+            throw std::runtime_error{"encoded string exceeds fixed length"};
+        }
+
+        auto const length = binary.size();
+        for (size_t i = 0; i < *m_fixedLength - length; ++i)
+        {
+            binary.append(static_cast<uint8_t>(0));
+        }
+    }
     writer.binary().append(binary);
 }
 

@@ -67,11 +67,11 @@ auto LinkObject::findAllocations(const FreeSpace& space) const -> std::vector<Al
         for (auto i = 0U; i < blocks.size(); ++i)
         {
             allocations[i].address = space.block(blocks[i]).address();
-            allocations[i].size = space.block(blocks[i]).size() - size();
+            allocations[i].size = space.block(blocks[i]).size();
             allocations[i].offset = space.block(blocks[i]).offset();
             allocations[i].block = blocks[i];
         }
-        return std::move(allocations);
+        return allocations;
     }
 }
 

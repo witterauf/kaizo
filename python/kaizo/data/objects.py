@@ -87,6 +87,11 @@ class AddressRangeConstraint(Constraint):
         }
 
 class BinaryObject:
+    @staticmethod
+    def from_buffer(path, buffer):
+        return BinaryObject(path, buffer, len(buffer),
+                            [ObjectSection(0, 0, len(buffer))], [])
+
     def __init__(self, path, binary, actual_size, sections, unresolved, *,
                  fixed_offset=None, fixed_address=None, alignment=1):
         self.path = path
@@ -99,11 +104,11 @@ class BinaryObject:
         self.link_address = None
         self.constraints = []
 
-        if fixed_offset and fixed_address:
+        if fixed_offset is not None and fixed_address is not None:
             raise ValueError('can only specify either fixed address or fixed offset')
-        elif fixed_offset:
+        elif fixed_offset is not None:
             self.link_offset = fixed_offset
-        elif fixed_address:
+        elif fixed_address is not None:
             self.constraints.append(FixedAddressConstraint(fixed_address))
 
         self.unresolved = unresolved
@@ -137,6 +142,8 @@ class BinaryObject:
         self.unresolved = []
 
     def apply(self, target):
+        if self.link_offset is None:
+            raise ValueError(f'object "{self.path}" has no link offset')
         if self.unresolved:
             raise ValueError(f'there are {len(self.unresolved)} unresolved references left')
         if self.resolved:
@@ -148,7 +155,6 @@ class BinaryObject:
 
     def _apply_references(self, target):
         for ref in self.resolved:
-            print(ref.path)
             patches = ref.layout.encode(ref.address)
             for patch in patches:                
                 start = patch.effective_offset(ref.actual_offset)

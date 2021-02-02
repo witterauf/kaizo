@@ -31,7 +31,7 @@ class DataPathNameElement:
 class DataPath:
     RE_NAME = '[A-Za-z][A-Za-z0-9_]*'
     RE_INDEXED_NAME = '(?P<name>[a-zA-Z][a-zA-Z0-9_]*)?(?:\\[(?:[0-9]+)\\])+'
-    RE_INDEX = '(?:\\[(?P<index>[0-9]+)\\])+'
+    RE_INDEX = '(?:\\[(?P<index>[0-9]+)\\])'
 
     def __init__(self, path):
         self._split(path)
@@ -148,11 +148,23 @@ def _convert(value, type):
         return str(value)
     elif type == 'int':
         return int(value)
+    elif type == 'null':
+        return None
     else:
         raise ValueError(f'unsupported type "{type}"')
 
 def read_hierarchical_csv(file):
     with open(file, 'r', newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
-        rows = [(row[0], _convert(row[2], row[1])) for row in reader]
+        rows = []
+        for r, row in enumerate(reader):
+            try:
+                data = _convert(row[2], row[1])
+                rows.append((row[0], data,))
+                #rows = [(row[0], _convert(row[2], row[1])) for r, row in enumerate(reader)]
+            except IndexError:
+                if len(row) > 0:
+                    raise IndexError(f'row {r} ({row[0]}) does not have enough columns (must have 3)')
+                else:
+                    raise IndexError(f'row {r} does not have enough columns (must have 3)') 
         return unflatten(rows)

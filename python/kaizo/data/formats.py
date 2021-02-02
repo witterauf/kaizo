@@ -29,10 +29,12 @@ class IntegerFormat(DataFormat):
         self._setup(**kwargs)
 
 class StringFormat(DataFormat):
-    def __init__(self, encoding, **kwargs):
+    def __init__(self, encoding, fixed_length=None, **kwargs):
         if isinstance(encoding, str):
             encoding = TextEncoding.from_name(encoding)
         self._format = _StringFormat(encoding._encoding)
+        if fixed_length is not None:
+            self._format.set_fixed_length(int(fixed_length))
         self._setup(**kwargs)
 
 class RecordFormat(DataFormat):

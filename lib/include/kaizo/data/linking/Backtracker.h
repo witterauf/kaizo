@@ -27,6 +27,10 @@ public:
     bool canBeSatisfied() const;
     bool hasUnmapped() const;
 
+    auto unmappedObjectCount() const -> size_t;
+    auto unmappedObjectScore(const size_t index) const -> long long;
+    auto unmappedObject(const size_t index) const -> const LinkObject*;
+
 private:
     void resortUnmappedObjects();
 

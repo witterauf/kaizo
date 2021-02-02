@@ -212,7 +212,8 @@ void registerKaizoDataFormats(py::module_& m)
         .def(py::init<size_t, Signedness, Endianness>());
 
     py::class_<StringFormat, DataFormat>(m, "_StringFormat")
-        .def(py::init<const std::shared_ptr<TextEncoding>&>());
+        .def(py::init<const std::shared_ptr<TextEncoding>&>())
+        .def("set_fixed_length", &StringFormat::setFixedLength);
 
     py::class_<ArrayFormat, DataFormat>(m, "_ArrayFormat")
         .def(py::init())

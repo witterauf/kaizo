@@ -34,6 +34,7 @@ protected:
 
     virtual auto readAddress(DataReader& reader) -> std::optional<Address>;
     virtual void writeAddressPlaceHolder(DataWriter& writer);
+    virtual void writeNullAddress(DataWriter& writer);
     virtual auto makeStorageFormat() -> std::shared_ptr<AddressLayout>;
 
 private:
