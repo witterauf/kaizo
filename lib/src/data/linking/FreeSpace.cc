@@ -30,7 +30,7 @@ auto FreeSpace::findBlockThatContains(const Address address) -> std::optional<si
         }
         else if (middle->address() < address)
         {
-            lower = middle;
+            lower = middle + 1;
         }
         else
         {
@@ -72,6 +72,11 @@ auto FreeSpace::findBlocksThatFit(size_t size) const -> std::vector<size_t>
         }
     }
     return blocks;
+}
+
+auto FreeSpace::blockCount() const -> size_t
+{
+    return m_blocks.size();
 }
 
 auto FreeSpace::capacity() const -> size_t

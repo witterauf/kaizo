@@ -169,6 +169,9 @@ bool BacktrackingPacker::pack()
                 //<< address.toString() << "\n";
                 m_objects.nextUnmapped()->setAllocation(allocation);
                 // TODO: use method that ensures the range exists
+                m_log << "    "
+                      << m_freeSpace.findBlockThatContains(allocation.address).value_or(1234)
+                      << "\n";
                 m_freeSpace.allocateRange(allocation.address, size);
                 log_Allocated(*m_objects.nextUnmapped());
                 m_objects.mapNext();
@@ -179,6 +182,14 @@ bool BacktrackingPacker::pack()
                 }
                 m_state.push(
                     BacktrackingState{m_objects.nextUnmapped()->findAllocations(m_freeSpace)});
+
+                m_log << "    " << size << "\n";
+                for (size_t i = 0; i < m_freeSpace.blockCount(); ++i)
+                {
+                    m_log << "    [" << i << "] " << m_freeSpace.block(i).size() << " @ "
+                          << m_freeSpace.block(i).offset() << " / "
+                          << m_freeSpace.block(i).address().toString() << "\n";
+                }
             }
             else
             {
@@ -274,6 +285,15 @@ void BacktrackingPacker::log_StartPacking()
     if (m_log.is_open())
     {
         m_log << "Start packing...\n";
+
+        m_log << "Free blocks:\n";
+        for (size_t i = 0; i < m_freeSpace.blockCount(); ++i)
+        {
+            m_log << "[" << i << "] " << m_freeSpace.block(i).size() << " @ "
+                  << m_freeSpace.block(i).offset() << " / "
+                  << m_freeSpace.block(i).address().toString() << "\n";
+        }
+
         m_log << "Objects:\n";
         for (size_t i = 0; i < m_objects.unmappedObjectCount(); ++i)
         {
@@ -288,7 +308,8 @@ void BacktrackingPacker::log_InstantFail()
 {
     if (m_log.is_open())
     {
-        m_log << "Failed instantly due to not enough free space.\n";
+        m_log << "Failed instantly due to insufficient free space (objects: " << m_objectSize
+              << " bytes / free space: " << m_freeSpace.capacity() << ")\n";
     }
 }
 

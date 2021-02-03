@@ -25,6 +25,7 @@ public:
     bool hasBlockThatFits(size_t size) const;
 
     void addBlock(const FreeBlock& block);
+    auto blockCount() const -> size_t;
     auto block(size_t index) const -> const FreeBlock&;
 
     /// Allocates all Addresses within the given range.

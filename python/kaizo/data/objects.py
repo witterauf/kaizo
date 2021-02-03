@@ -2,7 +2,6 @@ from pathlib import Path
 import json
 import base64
 from kaizo import Address, Endianness, Signedness
-import pprint
 
 class UnresolvedReference:
     def __init__(self, offset, path, layout):

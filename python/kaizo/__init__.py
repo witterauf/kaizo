@@ -6,3 +6,4 @@ from kaizo.graphics import *
 from kaizo.archives import *
 import kaizo.data
 import kaizo.psp
+import kaizo.utilities

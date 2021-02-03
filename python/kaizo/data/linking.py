@@ -71,6 +71,7 @@ class FreeBlock:
     @lower.setter
     def lower(self, value):
         self.size = max(self.end_offset - value, 0)
+        self.address = self.address.offset(value - self.offset)
         self.offset = value
 
     @property
@@ -79,7 +80,7 @@ class FreeBlock:
 
     @upper.setter
     def upper(self, value):
-        self.size = max(self.offset, value - self.offset)
+        self.size = max(value - self.offset, 0)
 
     @property
     def length(self):
@@ -102,6 +103,9 @@ class FreeBlock:
             size = block.lower - self.lower
             new_blocks.append(FreeBlock(self.lower, self.address, size))
         return new_blocks
+
+    def __repr__(self):
+        return f'FreeBlock({self.offset}, {self.address}, {self.size})'
 
 class LinkTarget:
     """
@@ -131,7 +135,7 @@ class LinkTarget:
             address = self.address_map.map_to_target(FileOffset.from_int(obj.link_offset))
             if address is None:
                 raise ValueError(f'could not map offset {obj.link_offset} to address')
-            block = FreeBlock(obj.link_offset, address, obj.packed_size)
+            block = FreeBlock(obj.link_offset, address, obj.actual_size)
             self.free_blocks.subtract(block)
 
 class MemoryLinkTarget(LinkTarget):
