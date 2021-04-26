@@ -3,6 +3,7 @@
 #include <kaizo/graphics/ImageFileFormat.h>
 #include <kaizo/graphics/TileFormat.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <string>
 
 namespace py = pybind11;
@@ -95,7 +96,19 @@ static auto Tile_crop(const Tile& tile, const size_t x, const size_t y, const si
     return tile.crop(region);
 }
 
-// static auto Tile_blit(Tile& tile, const size_t x, const size_t y, const Tile& source)
+static auto Tile_blit(Tile& dest, const Tile& source, const size_t x, const size_t y,
+                      const Tile::pixel_t bgColor)
+{
+    TileRegion region{0, 0, source.width(), source.height()};
+    dest.blit(x, y, source, region, bgColor);
+}
+
+static auto Tile_bounding_box(const Tile& tile, const Tile::pixel_t bgColor)
+    -> std::tuple<size_t, size_t, size_t, size_t>
+{
+    auto const bbox = tile.boundingBox(bgColor);
+    return std::make_tuple(bbox.left(), bbox.top(), bbox.right(), bbox.bottom());
+}
 
 void registerKaizoGraphics(py::module_& m)
 {
@@ -115,10 +128,13 @@ void registerKaizoGraphics(py::module_& m)
         .def_property_readonly("index_format", &Palette::indexFormat);
 
     py::class_<Tile>(m, "_Tile")
+        .def(py::init<const size_t, const size_t, const PixelFormat>())
         .def_static("load", &Tile_load)
         .def("save", &Tile_save)
         .def("crop", &Tile_crop)
-        //.def("blit", &Tile_blot)
+        .def("blit", &Tile_blit)
+        .def("fill", &Tile::fill)
+        .def("bounding_box", &Tile_bounding_box)
         .def("set_pixel",
              static_cast<void (Tile::*)(const size_t, const size_t, const Tile::pixel_t)>(
                  &Tile::setPixel))

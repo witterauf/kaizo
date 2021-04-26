@@ -73,7 +73,7 @@ static auto convert(const Data& data) -> py::object
     case DataType::Array: return convert(static_cast<const ArrayData&>(data));
     case DataType::Record: return convert(static_cast<const RecordData&>(data));
     case DataType::Null: return py::none();
-    default: throw std::runtime_error{"unsupported data type"};
+    default: throw std::runtime_error{"unsupported data type: " + toString(data.type())};
     }
 }
 
@@ -157,6 +157,10 @@ static auto convert(py::object object) -> std::unique_ptr<Data>
     else if (py::isinstance<py::int_>(object))
     {
         return convertInt(object);
+    }
+    else if (object.is_none())
+    {
+        return std::make_unique<NullData>();
     }
     else
     {

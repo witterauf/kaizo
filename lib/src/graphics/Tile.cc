@@ -93,6 +93,14 @@ auto Tile::crop(const TileRegion& region) const -> Tile
     return clipped;
 }
 
+void Tile::fill(const pixel_t value)
+{
+    for (auto& pixel : m_data)
+    {
+        pixel = value;
+    }
+}
+
 void Tile::blit(size_t x, size_t y, const Tile& source, const TileRegion& region,
                 const pixel_t background)
 {
@@ -117,7 +125,7 @@ void Tile::blit(size_t x, size_t y, const Tile& source, const TileRegion& region
 
 auto Tile::boundingBox(const pixel_t background) const -> TileRegion
 {
-    Expects(bitsPerPixel() == sizeof(pixel_t) || background < (1UL << bitsPerPixel()));
+    Expects(bitsPerPixel() == (sizeof(pixel_t) * 8) || background < (1UL << bitsPerPixel()));
 
     size_t left{m_width};
     size_t right{0};

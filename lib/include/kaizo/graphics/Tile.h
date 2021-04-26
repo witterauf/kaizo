@@ -32,6 +32,7 @@ public:
               const pixel_t background);
     auto boundingBox(const pixel_t background) const -> TileRegion;
 
+    void fill(const pixel_t value);
     void setPixel(const size_t x, const size_t y, const pixel_t value);
     void setPixel(const size_t index, const pixel_t value);
     auto pixel(const size_t x, const size_t y) const -> pixel_t;

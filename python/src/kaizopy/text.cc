@@ -99,6 +99,14 @@ static void Table_insert_end_entry(Table& table, py::buffer buffer, const std::s
     table.insert(seq, entry);
 }
 
+static void Table_insert_hook_entry(Table& table, py::buffer buffer, const std::string& name)
+{
+    auto const view = requestReadOnly(buffer);
+    auto const seq = BinarySequence(reinterpret_cast<const char*>(view.data()), view.size());
+    auto const entry = TableEntry::makeHook(name);
+    table.insert(seq, entry);
+}
+
 static auto convert(const TableEntry::ParameterFormat& parameter) -> std::string
 {
     std::string string;
@@ -139,6 +147,14 @@ static auto makeTableTextEntry(const TableEntry& entry) -> py::tuple
     return tuple;
 }
 
+static auto makeTableHookEntry(const TableEntry& entry) -> py::tuple
+{
+    py::tuple tuple(2);
+    tuple[0] = 4;
+    tuple[1] = entry.hook();
+    return tuple;
+}
+
 static auto makeTableEndEntry(const TableEntry& entry) -> py::tuple
 {
     py::tuple tuple(3);
@@ -170,6 +186,7 @@ static auto convert(const TableEntry& entry) -> py::tuple
     case TableEntry::Kind::Control: return makeTableControlEntry(entry);
     case TableEntry::Kind::End: return makeTableEndEntry(entry);
     case TableEntry::Kind::TableSwitch: return makeTableSwitchEntry(entry);
+    case TableEntry::Kind::Hook: return makeTableHookEntry(entry);
     }
 }
 
@@ -227,6 +244,60 @@ static auto TableEncoding_init(const Table& table) -> std::shared_ptr<TableEncod
     return encoding;
 }
 
+class PythonHookHandler : public HookHandler
+{
+public:
+    explicit PythonHookHandler(py::object pyDecoder, py::object pyEncoder)
+        : m_encoder{pyEncoder}
+        , m_decoder{pyDecoder}
+    {
+    }
+
+    auto decode(const kaizo::BinaryView& binary, size_t offset)
+        -> std::optional<std::pair<size_t, std::string>>
+    {
+        auto const view = py::memoryview::from_memory(binary.data(), binary.size());
+        py::object result = m_decoder(view, offset);
+        if (!result)
+        {
+            return {};
+        }
+
+        py::tuple tuple = result.cast<py::tuple>();
+        auto const newOffset = tuple[0].cast<size_t>();
+        auto const text = tuple[1].cast<std::string>();
+        return std::make_pair(newOffset, text);
+    }
+
+    auto encode(const std::string& name, const std::string& arguments) -> std::optional<Binary>
+    {
+        py::object result = m_encoder(name, arguments);
+        if (!result)
+        {
+            return {};
+        }
+        py::buffer buffer = result.cast<py::buffer>();
+        auto const view = requestReadOnly(buffer);
+        return Binary::from(view);
+    }
+
+    auto copy() const -> std::unique_ptr<HookHandler> override
+    {
+        return nullptr;
+    }
+
+private:
+    py::object m_encoder;
+    py::object m_decoder;
+};
+
+static void TableEncoding_add_hook(TableEncoding& encoding, const std::string& name,
+                                   py::object pyDecoder, py::object pyEncoder)
+{
+    auto handler = std::make_shared<PythonHookHandler>(pyDecoder, pyEncoder);
+    encoding.addHook(name, handler);
+}
+
 void registerKaizoText(py::module_& m)
 {
     py::class_<Table>(m, "_Table")
@@ -234,6 +305,7 @@ void registerKaizoText(py::module_& m)
         .def("insert_text_entry", &Table_insert_text_entry)
         .def("insert_control_entry", &Table_insert_control_entry)
         .def("insert_end_entry", &Table_insert_end_entry)
+        .def("insert_hook_entry", &Table_insert_hook_entry)
         .def("get_entry", &Table_get_entry)
         .def_property_readonly("entry_count", &Table::size);
 
@@ -251,5 +323,6 @@ void registerKaizoText(py::module_& m)
 
     py::class_<TableEncoding, TextEncoding, std::shared_ptr<TableEncoding>>(m, "_TableEncoding")
         .def(py::init(&TableEncoding_init))
-        .def("chunks", &TableEncoding_chunks);
+        .def("chunks", &TableEncoding_chunks)
+        .def("add_hook", &TableEncoding_add_hook);
 }

@@ -2,18 +2,21 @@
 
 #include "Table.h"
 #include <kaizo/binary/BinaryView.h>
+#include <map>
 #include <optional>
 #include <vector>
 
 namespace kaizo {
 
-class MissingDecoder
+class HookHandler
 {
 public:
-    virtual ~MissingDecoder() = default;
+    virtual ~HookHandler() = default;
     virtual auto decode(const kaizo::BinaryView& binary, size_t offset)
         -> std::optional<std::pair<size_t, std::string>> = 0;
-    virtual auto copy() const -> std::unique_ptr<MissingDecoder> = 0;
+    virtual auto encode(const std::string& name, const std::string& arguments)
+        -> std::optional<Binary> = 0;
+    virtual auto copy() const -> std::unique_ptr<HookHandler> = 0;
 };
 
 class TableDecoder
@@ -29,7 +32,8 @@ public:
     void setActiveTable(size_t index);
     void setActiveTable(const std::string& name);
     auto activeTable() const -> const Table&;
-    void setMissingDecoder(MissingDecoder* missingDecoder);
+
+    void addHook(const std::string& name, HookHandler* hook);
 
     void setFixedLength(size_t length);
     void unsetFixedLength();
@@ -41,15 +45,18 @@ public:
     auto decodeEnd(const TableEntry& end) -> std::string;
     auto decodeTableSwitch(const TableEntry& tableSwitch) -> std::string;
     auto decodeArgument(const TableEntry::ParameterFormat& format) -> std::string;
+    auto decodeHook(const TableEntry& hook) -> std::string;
 
 private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
-    MissingDecoder* m_missingDecoder{nullptr};
+
+    std::map<std::string, HookHandler*> m_hooks;
 
     auto data() const -> const uint8_t*;
     void advance(size_t size);
+    auto remaining() const -> size_t;
 
     const BinaryView* m_binary{nullptr};
     size_t m_offset{0};

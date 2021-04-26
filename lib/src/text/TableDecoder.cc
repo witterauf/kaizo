@@ -69,9 +69,9 @@ void TableDecoder::unsetFixedLength()
     m_fixedLength = {};
 }
 
-void TableDecoder::setMissingDecoder(MissingDecoder* missingDecoder)
+void TableDecoder::addHook(const std::string& name, HookHandler* hook)
 {
-    m_missingDecoder = std::move(missingDecoder);
+    m_hooks[name] = hook;
 }
 
 auto TableDecoder::decode(const BinaryView& binary, size_t offset) -> std::pair<size_t, std::string>
@@ -85,43 +85,33 @@ auto TableDecoder::decode(const BinaryView& binary, size_t offset) -> std::pair<
     {
         if (auto maybeMatch = activeTable().findLongestBinaryMatch(data(), binary.end()))
         {
-            advance(maybeMatch->binary().size());
             switch (maybeMatch->text().kind())
             {
-            case TableEntry::Kind::Text: text += decodeText(maybeMatch->text()); break;
+            case TableEntry::Kind::Text:
+                advance(maybeMatch->binary().size());
+                text += decodeText(maybeMatch->text());
+                break;
             case TableEntry::Kind::End:
+                advance(maybeMatch->binary().size());
                 text += decodeEnd(maybeMatch->text());
                 finished = true;
                 break;
             case TableEntry::Kind::TableSwitch:
+                advance(maybeMatch->binary().size());
                 text += decodeTableSwitch(maybeMatch->text());
                 break;
-            case TableEntry::Kind::Control: text += decodeControl(maybeMatch->text()); break;
+            case TableEntry::Kind::Control:
+                advance(maybeMatch->binary().size());
+                text += decodeControl(maybeMatch->text());
+                break;
+            case TableEntry::Kind::Hook: text += decodeHook(maybeMatch->text()); break;
+            default: throw std::runtime_error{"invalid case"};
             }
         }
         else
         {
-            if (m_missingDecoder)
-            {
-                if (auto maybePair = m_missingDecoder->decode(binary, m_offset))
-                {
-                    auto [newOffset, decoded] = *maybePair;
-                    m_offset = newOffset;
-                    text += decoded;
-                }
-                else
-                {
-                    throw std::runtime_error{"offset " + toString(m_offset, 16, 8) +
-                                             ": no match for 0x" +
-                                             toString(binary[m_offset], 16, 2) + " in table"};
-                }
-            }
-            else
-            {
-                throw std::runtime_error{"offset " + toString(m_offset, 16, 8) +
-                                         ": no match for 0x" + toString(binary[m_offset], 16, 2) +
-                                         " in table"};
-            }
+            throw std::runtime_error{"offset " + toString(m_offset, 16, 8) + ": no match for 0x" +
+                                     toString(binary[m_offset], 16, 2) + " in table"};
         }
 
         if (m_fixedLength)
@@ -201,6 +191,34 @@ auto TableDecoder::decodeTableSwitch(const TableEntry& tableSwitch) -> std::stri
     }
     setActiveTable(tableSwitch.targetTable());
     return {};
+}
+
+auto TableDecoder::decodeHook(const TableEntry& hook) -> std::string
+{
+    auto const iter = m_hooks.find(hook.hook());
+    if (iter != m_hooks.cend())
+    {
+        if (auto const maybeResult = iter->second->decode(*m_binary, m_offset))
+        {
+            auto const [offset, args] = *maybeResult;
+            m_offset = offset;
+            std::string text = "{" + hook.hook();
+            text += ":";
+            text += args;
+            text += "}";
+            return text;
+        }
+        else
+        {
+            throw std::runtime_error{"offset " + toString(m_offset, 16, 8) + ": hook '" +
+                                     hook.hook() + "' failed"};
+        }
+    }
+    else
+    {
+        throw std::runtime_error{"offset " + toString(m_offset, 16, 8) + ": no handler for hook '" +
+                                 hook.hook() + "' installed"};
+    }
 }
 
 auto TableDecoder::data() const -> const uint8_t*

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Table.h"
+#include "TableDecoder.h"
 #include <kaizo/binary/Binary.h>
 #include <optional>
 
@@ -20,6 +21,8 @@ public:
     void setActiveTable(const std::string& name);
     auto activeTable() const -> const Table&;
 
+    void addHook(const std::string& name, HookHandler* hook);
+
     void setFixedLength(size_t length);
     void unsetFixedLength();
 
@@ -28,8 +31,9 @@ public:
     auto encodeCharacters(size_t begin, size_t end)
         -> std::optional<std::pair<size_t, BinarySequence>>;
     bool encodeControl();
-    bool encodeControl(const std::string& label,
+    bool encodeControl(const Table::EntryReference entry,
                        const std::vector<TableEntry::ParameterFormat::argument_t>& arguments);
+    bool encodeHook(const Table::EntryReference entry, const std::string& argument);
 
 private:
     void tryEncodeCharacters(size_t begin, size_t end);
@@ -43,6 +47,7 @@ private:
     size_t m_activeTable{0};
     std::vector<Table> m_tables;
     std::optional<size_t> m_fixedLength;
+    std::map<std::string, HookHandler*> m_hooks;
 
     // For diagnostic messages
     std::vector<size_t> m_missingEntries;

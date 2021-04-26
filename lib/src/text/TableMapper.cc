@@ -157,24 +157,16 @@ bool TableMapper::mapCharacters(size_t begin, size_t end,
 
 bool TableMapper::mapControl()
 {
-    TableControlParser parser;
+    TableControlParser parser{&m_tables[m_activeTable]};
     if (auto maybeControl = parser.parse(*m_text, m_index))
     {
-        if (auto maybeEntry = activeTable().control(maybeControl->label))
-        {
-            auto const originalText = m_text->substr(m_index, maybeControl->offset - m_index);
-            Mapping mapping;
-            mapping.entry = *maybeEntry;
-            mapping.arguments = maybeControl->arguments;
-            map(originalText, mapping);
-            m_index = maybeControl->offset;
-            return true;
-        }
-        else
-        {
-            throw std::runtime_error{"table '" + activeTable().name() + "' has no control code " +
-                                     maybeControl->label};
-        }
+        auto const originalText = m_text->substr(m_index, maybeControl->offset - m_index);
+        Mapping mapping;
+        mapping.entry = maybeControl->entry;
+        mapping.arguments = maybeControl->arguments.controlArguments;
+        map(originalText, mapping);
+        m_index = maybeControl->offset;
+        return true;
     }
     else
     {
@@ -207,4 +199,4 @@ bool TableMapper::map(const std::string& text, const Mapping& mapping)
     return m_mapper(text, mapping);
 }
 
-} // namespace kaizo::text
+} // namespace kaizo

@@ -1,4 +1,4 @@
-from kaizo.text import Table, TableTextEntry, TableEndEntry, TableControlEntry, TableEntryKind
+from kaizo.text import Table, TableTextEntry, TableEndEntry, TableControlEntry, TableEntryKind, TableHookEntry
 import parsy
 import re
 
@@ -33,13 +33,19 @@ def end_rhs():
     postfix = yield control_postfix.optional()
     return TableEndEntry(label, postfix)
 
+@parsy.generate
+def hook_rhs():
+    label = yield control_label
+    return TableHookEntry(label)
+
 text_rhs = parsy.regex('.+$', flags=re.M).map(lambda x: TableTextEntry(x)).desc('text entry')
 
 codepoint = parsy.regex('([0-9a-fA-F]{2})+').map(to_hex).desc('code point in hexadecimal')
 text_entry = parsy.peek(parsy.regex('[0-9a-fA-F]')).map(lambda x: TableEntryKind.TEXT)
 control_entry = parsy.string('$').map(lambda x: TableEntryKind.CONTROL)
 end_entry = parsy.string('/').map(lambda x: TableEntryKind.END)
-entry_kind = text_entry | control_entry | end_entry
+hook_entry = parsy.string('@').map(lambda x: TableEntryKind.HOOK)
+entry_kind = text_entry | control_entry | end_entry | hook_entry
 
 @parsy.generate
 def line():
@@ -52,6 +58,8 @@ def line():
         entry = yield control_rhs
     elif kind == TableEntryKind.END:
         entry = yield end_rhs
+    elif kind == TableEntryKind.HOOK:
+        entry = yield hook_rhs
     else:
         return parsy.fail('unsupported table entry kind')
     return (binary, entry)

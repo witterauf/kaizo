@@ -4,6 +4,25 @@
 
 namespace kaizo {
 
+auto TableControlParser::Arguments::hook(std::string&& arg) -> Arguments
+{
+    Arguments arguments;
+    arguments.hookArgument = std::move(arg);
+    return arguments;
+}
+
+auto TableControlParser::Arguments::control(std::vector<argument_t>&& args) -> Arguments
+{
+    Arguments arguments;
+    arguments.controlArguments = std::move(args);
+    return arguments;
+}
+
+TableControlParser::TableControlParser(const Table* table)
+    : m_table{table}
+{
+}
+
 auto TableControlParser::parse(const std::string& text, size_t index) -> std::optional<ControlCode>
 {
     setSource(text, index);
@@ -22,12 +41,19 @@ auto TableControlParser::parseControl() -> std::optional<ControlCode>
     consume(); // '{'
     if (auto maybeLabel = parseLabel())
     {
-        if (auto maybeArguments = parseArguments())
+        if (auto maybeControl = m_table->control(*maybeLabel))
         {
-            if (expectAndConsume('}'))
+            if (auto maybeArguments = parseArguments(maybeControl->text()))
             {
-                return ControlCode{m_index, *maybeLabel, *maybeArguments};
+                if (expectAndConsume('}'))
+                {
+                    return ControlCode{m_index, *maybeControl, *maybeArguments};
+                }
             }
+        }
+        else
+        {
+            throw std::runtime_error{"control code '" + *maybeLabel + "' not in table"};
         }
     }
     return {};
@@ -50,11 +76,36 @@ auto TableControlParser::parseLabel() -> std::optional<std::string>
     return label;
 }
 
-auto TableControlParser::parseArguments() -> std::optional<std::vector<argument_t>>
+auto TableControlParser::parseArguments(const TableEntry& control) -> std::optional<Arguments>
+{
+    switch (control.kind())
+    {
+    case TableEntry::Kind::Hook: return parseHookArgument();
+    default: return parseArguments();
+    }
+}
+
+auto TableControlParser::parseHookArgument() -> std::optional<Arguments>
 {
     if (!fetchThenConsume(':'))
     {
-        return std::vector<argument_t>{};
+        return Arguments::hook("");
+    }
+
+    std::string argument;
+    while (fetch() != '}')
+    {
+        argument += fetch();
+        consume();
+    }
+    return Arguments::hook(std::move(argument));
+}
+
+auto TableControlParser::parseArguments() -> std::optional<Arguments>
+{
+    if (!fetchThenConsume(':'))
+    {
+        return Arguments::control({});
     }
 
     std::vector<argument_t> arguments;
@@ -78,7 +129,7 @@ auto TableControlParser::parseArguments() -> std::optional<std::vector<argument_
             return {};
         }
     }
-    return arguments;
+    return Arguments::control(std::move(arguments));
 }
 
 auto TableControlParser::parseArgument() -> std::optional<argument_t>

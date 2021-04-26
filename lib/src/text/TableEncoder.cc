@@ -60,6 +60,13 @@ void TableEncoder::setActiveTable(const std::string& name)
     }
 }
 
+void TableEncoder::addHook(const std::string& name, HookHandler* hook)
+{
+    Expects(!name.empty());
+    Expects(hook);
+    m_hooks[name] = hook;
+}
+
 void TableEncoder::setFixedLength(size_t length)
 {
     m_fixedLength = length;
@@ -179,48 +186,82 @@ auto TableEncoder::encodeCharacters(size_t begin, size_t end)
 
 bool TableEncoder::encodeControl()
 {
-    TableControlParser parser;
+    TableControlParser parser{&m_tables[m_activeTable]};
     if (auto maybeControl = parser.parse(*m_text, m_index))
     {
-        if (encodeControl(maybeControl->label, maybeControl->arguments))
+        if (maybeControl->entry.text().kind() == TableEntry::Kind::Hook)
         {
-            m_index = maybeControl->offset;
-            return true;
+            if (encodeHook(maybeControl->entry, maybeControl->arguments.hookArgument))
+            {
+                m_index = maybeControl->offset;
+                return true;
+            }
+        }
+        else
+        {
+            if (encodeControl(maybeControl->entry, maybeControl->arguments.controlArguments))
+            {
+                m_index = maybeControl->offset;
+                return true;
+            }
+            throw std::runtime_error{"could not encode control '" +
+                                     maybeControl->entry.text().label().name + "'"};
         }
     }
-    return false;
+    throw std::runtime_error{"could not parse control code"};
+}
+
+bool TableEncoder::encodeHook(const Table::EntryReference entry, const std::string& argument)
+{
+    m_binary.append(entry.binary());
+
+    auto const hook = entry.text().hook();
+    auto const iter = m_hooks.find(hook);
+    if (iter != m_hooks.cend())
+    {
+        if (auto const maybeBinary = iter->second->encode(hook, argument))
+        {
+            m_binary.append(*maybeBinary);
+            return true;
+        }
+        else
+        {
+            throw std::runtime_error{"could not encode hook '" + hook + "'"};
+        }
+    }
+    else
+    {
+        throw std::runtime_error{"no handler for hook '" + hook + "' installed"};
+    }
 }
 
 bool TableEncoder::encodeControl(
-    const std::string& label, const std::vector<TableEntry::ParameterFormat::argument_t>& arguments)
+    const Table::EntryReference entry,
+    const std::vector<TableEntry::ParameterFormat::argument_t>& arguments)
 {
-    if (auto maybeControl = activeTable().control(label))
-    {
-        m_binary.append(maybeControl->binary());
+    m_binary.append(entry.binary());
 
-        auto const& control = maybeControl->text();
-        if (arguments.size() != control.parameterCount())
+    auto const& control = entry.text();
+    if (arguments.size() != control.parameterCount())
+    {
+        return false;
+    }
+    for (auto i = 0U; i < arguments.size(); ++i)
+    {
+        auto const parameter = arguments[i];
+        auto const parameterFormat = control.parameter(i);
+
+        if (parameterFormat.isCompatible(parameter))
+        {
+            auto binary = parameterFormat.encode(parameter);
+            m_binary.append(binary);
+        }
+        else
         {
             return false;
         }
-        for (auto i = 0U; i < arguments.size(); ++i)
-        {
-            auto const parameter = arguments[i];
-            auto const parameterFormat = control.parameter(i);
-
-            if (parameterFormat.isCompatible(parameter))
-            {
-                auto binary = parameterFormat.encode(parameter);
-                m_binary.append(binary);
-            }
-            else
-            {
-                return false;
-            }
-        }
-        return true;
     }
-    return false;
+    return true;
 }
 
 auto TableEncoder::findNextControl() const -> std::optional<size_t>

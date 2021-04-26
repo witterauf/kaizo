@@ -1,3 +1,6 @@
+from pathlib import Path
+import io
+
 class ConstrainedReader:
     """Constrains reading to a sub-region of an original file/reader object"""
 
@@ -66,19 +69,33 @@ def copy(source, dest, size, chunk_size=16*1024*1024, observer=None):
     if observer is not None:
         observer(size, size)
 
-def _replace_files(source, destination, replacements):
+def _replace_files(source, destination, replacements, superfluous_ok=False):
+    covered = set(replacements)
     for i in range(source.member_count):
         dest = destination.create_file()
         replacement = None
         if i in replacements:
             replacement = replacements[i]
+            covered.remove(i)
         elif source.path(i) in replacements:
             replacement = replacements[source.path(i)]
+            covered.remove(source.path(i))
         if replacement is None:
             with source.open(i) as src:
                 copy(src, dest, source.member(i).size)
-        else:
+        elif isinstance(replacement, Path):
             with replacement.open('rb') as src:
-                copy(src, dest, source.member(i).size)
+                copy(src, dest, replacement.stat().st_size)
+        elif isinstance(replacement, bytes) or isinstance(replacement, bytearray):
+            dest.write(replacement)
+        else:
+            current = replacement.tell()
+            replacement.seek(0, io.SEEK_END)
+            size = replacement.tell()
+            replacement.seek(current, io.SEEK_SET)
+            copy(replacement, dest, size)
         destination.finish_file()
     destination.finish()
+
+    if not superfluous_ok and covered:
+        raise ValueError(f'_replace_files: there were {len(covered)} uncovered replacements: ' + ', '.join(covered))

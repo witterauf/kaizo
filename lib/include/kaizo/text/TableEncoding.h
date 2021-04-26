@@ -3,8 +3,9 @@
 #include "Table.h"
 #include "TableDecoder.h"
 #include "TableEncoder.h"
-#include <kaizo/text/TextEncoding.h>
 #include <kaizo/text/TableMapper.h>
+#include <kaizo/text/TextEncoding.h>
+#include <map>
 
 namespace kaizo {
 
@@ -15,7 +16,7 @@ public:
 
     void addTable(const Table& table);
     void setFixedLength(size_t length);
-    void setMissingDecoder(std::unique_ptr<MissingDecoder>&& decoder);
+    void addHook(const std::string& name, std::shared_ptr<HookHandler> handler);
 
     bool canEncode() const override;
     auto encode(const std::string& text) -> Binary override;
@@ -39,7 +40,7 @@ private:
     TableDecoder m_decoder;
     mutable TableMapper m_mapper;
     mutable std::vector<Chunk> m_chunks;
-    std::unique_ptr<MissingDecoder> m_missingDecoder;
+    std::vector<std::shared_ptr<HookHandler>> m_hooks;
 };
 
 } // namespace kaizo

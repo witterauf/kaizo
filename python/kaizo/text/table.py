@@ -7,6 +7,7 @@ class TableEntryKind(Enum):
     CONTROL = 1
     TABLE_SWITCH = 2
     END = 3
+    HOOK = 4
 
 def _to_hex(binary):
     return "".join(f'{byte:0>2X}' for byte in binary)
@@ -28,6 +29,8 @@ class TableEntry:
             return TableSwitchEntry(entry[1])
         elif entry[0] == 3:
             return TableEndEntry(entry[1], entry[2])
+        elif entry[0] == 4:
+            return TableHookEntry(entry[1])
         else:
             raise ValueError()
 
@@ -42,6 +45,10 @@ class TableEntry:
     @property
     def is_control(self):
         return self.kind == TableEntryKind.CONTROL
+
+    @property
+    def is_hook(self):
+        return self.kind == TableEntryKind.HOOK    
 
 class TableControlEntry(TableEntry):
     def __init__(self, label, postfix=None, parameters=None):
@@ -110,6 +117,20 @@ class TableSwitchEntry(TableEntry):
 
     def to_tbl(self, binary):
         return f'!{_to_hex(binary)}=[{self.table}]'
+
+class TableHookEntry(TableEntry):
+    def __init__(self, name):
+        self.kind = TableEntryKind.HOOK
+        self.name = name
+
+    def __str__(self):
+        return f'{self.name}'
+
+    def to_tbl(self, binary):
+        return f'@{_to_hex(binary)}=[{self}]'
+
+    def _insert(self, table, binary):
+        table.insert_hook_entry(binary, self.name)
 
 class Table:
     @staticmethod
@@ -189,3 +210,10 @@ class TableEncoding(ExtensionTextEncoding):
         _chunks = self._encoding.chunks(text)
         return [Chunk(_chunk[0], _chunk[1], TableEntry._make(_chunk[2]),
                       None if len(_chunk) == 3 else _chunk[3]) for _chunk in _chunks]
+
+    def add_hook(self, name, hook):
+        if isinstance(hook, tuple):
+            decoder, encoder = hook
+            self._encoding.add_hook(name, decoder, encoder)
+        else:
+            raise ValueError('invalid hook handler')

@@ -2,6 +2,7 @@ from kaizo.graphics.tile import Tile, Image
 from pathlib import PurePath, Path
 import json
 from enum import Enum
+from bdflib import reader as bdfreader
 
 def _build_font(description, directory):
     metrics = description['metrics']
@@ -20,7 +21,7 @@ def _build_font(description, directory):
 
     glyphs = description['glyphs']
     for glyphdesc in glyphs:
-        if glyphdesc['shrink']:
+        if 'shrink' in glyphdesc and glyphdesc['shrink']:
             raise ValueError('shrinking not yet supported')
 
         bounding_box = glyphdesc['bounding_box']
@@ -33,7 +34,9 @@ def _build_font(description, directory):
 
         baseline = glyphdesc['baseline']
 
-        font.append_glyph(BitmapGlyph(glyphdesc['characters'], glyph_data, baseline))
+        font.append_glyph(BitmapGlyph(glyphdesc['characters'], glyph_data, baseline,
+                                      advance_width=glyphdesc['horizontal_advance'],
+                                      xoffset=glyphdesc['xoffset']))
 
     return font
 
@@ -43,17 +46,29 @@ def _load_json_font(path):
         description = json.load(f)
         return _build_font(description, directory)
 
+def _load_bdf_font(path):
+    with open(path, 'rb') as f:
+        font = bdfreader.read_bdf(f)
+        #ascent, descent = font[b'FONT_ASCENT'], font[b'FONT_DESCENT']
+        for glyph in font.glyphs():
+            bitmap = glyph.bitmap
+
 class BitmapGlyph:
-    def __init__(self, characters, tile, baseline, bgcolor=0):
+    def __init__(self, characters, tile, baseline, xoffset=0, bgcolor=0, advance_width=None):
         if not characters:
             raise ValueError('characters of a BitmapGlyph must not be empty')
-        if not 0 <= baseline < tile.height:
-            raise ValueError('baseline of a BitmapGlyph must be between 0 and its height')
+        #if not 0 <= baseline < tile.height:
+            #raise ValueError('baseline of a BitmapGlyph must be between 0 and its height')
 
         self.characters = characters
         self.tile = tile
         self.baseline = baseline
         self.bgcolor = bgcolor
+        self.xoffset = xoffset
+        if advance_width is not None:
+            self.advance_width = advance_width
+        else:
+            self.advance_width = self.tile.width + 1
 
     @property
     def width(self):
@@ -71,10 +86,6 @@ class BitmapGlyph:
     def descent(self):
         return self.height - self.baseline
 
-    @property
-    def advance_width(self):
-        return self.width + 1
-
     def get_pixel(self, x, y):
         return None
 
@@ -91,6 +102,8 @@ class BitmapFont:
         path = PurePath(filename)
         if path.suffix == '.json':
             return _load_json_font(path)
+        elif path.suffix == '.bdf':
+            return _load_bdf_font(path)
         else:
             raise ValueError('unsupported bitmap font description file')
 

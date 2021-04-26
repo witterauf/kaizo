@@ -75,6 +75,15 @@ auto TableEntry::makeControl(const Label& label, const std::vector<ParameterForm
     return sequence;
 }
 
+auto TableEntry::makeHook(const std::string& name) -> TableEntry
+{
+    Expects(!name.empty());
+    TableEntry hook;
+    hook.m_kind = Kind::Hook;
+    hook.m_label.name = name;
+    return hook;
+}
+
 auto TableEntry::kind() const -> Kind
 {
     return m_kind;
@@ -88,13 +97,13 @@ auto TableEntry::targetTable() const -> const std::string&
 
 auto TableEntry::label() const -> const Label&
 {
-    Expects(kind() == Kind::Control || kind() == Kind::End);
+    Expects(kind() == Kind::Control || kind() == Kind::End || kind() == Kind::Hook);
     return m_label;
 }
 
 auto TableEntry::labelName() const -> const std::string&
 {
-    Expects(kind() == Kind::Control || kind() == Kind::End);
+    Expects(kind() == Kind::Control || kind() == Kind::End || kind() == Kind::Hook);
     return m_label.name;
 }
 
@@ -102,6 +111,12 @@ auto TableEntry::text() const -> const std::string&
 {
     Expects(kind() == Kind::Text);
     return m_string;
+}
+
+auto TableEntry::hook() const -> const std::string&
+{
+    Expects(kind() == Kind::Hook);
+    return m_label.name;
 }
 
 auto TableEntry::parameterCount() const -> size_t

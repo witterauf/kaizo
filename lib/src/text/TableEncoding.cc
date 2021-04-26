@@ -23,10 +23,11 @@ void TableEncoding::setFixedLength(size_t length)
     m_decoder.setFixedLength(length);
 }
 
-void TableEncoding::setMissingDecoder(std::unique_ptr<MissingDecoder>&& decoder)
+void TableEncoding::addHook(const std::string& name, std::shared_ptr<HookHandler> handler)
 {
-    m_missingDecoder = std::move(decoder);
-    m_decoder.setMissingDecoder(m_missingDecoder.get());
+    m_hooks.push_back(handler);
+    m_decoder.addHook(name, handler.get());
+    m_encoder.addHook(name, handler.get());
 }
 
 bool TableEncoding::canEncode() const
@@ -55,7 +56,6 @@ auto TableEncoding::copy() const -> std::unique_ptr<TextEncoding>
     auto encoding = std::make_unique<TableEncoding>();
     encoding->m_decoder = m_decoder;
     encoding->m_encoder = m_encoder;
-    encoding->m_missingDecoder = m_missingDecoder->copy();
     return std::move(encoding);
 }
 

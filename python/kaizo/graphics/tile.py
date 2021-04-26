@@ -77,6 +77,9 @@ class Tile:
         self.width = width
         self.height = height
 
+    def fill(self, color):
+        self._tile.fill(color)
+
     def set_pixel(self, x, y, packed):
         self._tile.set_pixel(x, y, packed)
 
@@ -112,7 +115,10 @@ class Image(Tile):
 class TileFormat(ABC):
     @staticmethod
     def make(format, properties):
-        return _PyTileFormat(_TileFormat.make(format, properties))
+        _format = _TileFormat.make(format, properties)
+        if _format is None:
+            raise ValueError(f'unknown format: {format}')
+        return _PyTileFormat(_format)
 
     @abstractmethod
     def encode_tile(self, binary, tile, offset=0):
@@ -160,7 +166,7 @@ class _PyTileFormat(TileFormat):
         self._format = format
 
     def encode_tile(self, binary, tile, offset=0):
-        return self._format.encode(tile._tile, binary, offset)
+        return self._format.encode(binary, offset, tile._tile)
 
     def decode_tile(self, binary, offset=0):
         return Tile._make(self._format.decode(binary, offset))

@@ -19,6 +19,7 @@ target_compile_features(kaizopy PRIVATE cxx_std_20)
 target_link_libraries(kaizopy
   PRIVATE
     Kaizo::Kaizo
+    sign_np
 )
 
 add_library(Kaizo::Python ALIAS kaizopy)

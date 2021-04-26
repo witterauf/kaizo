@@ -15,7 +15,8 @@ public:
         Text,
         TableSwitch,
         Control,
-        End
+        End,
+        Hook,
     };
 
     struct ParameterFormat
@@ -56,17 +57,20 @@ public:
     static auto makeEnd(const Label& label) -> TableEntry;
     static auto makeControl(const Label& label, const std::vector<ParameterFormat>& parameters)
         -> TableEntry;
+    static auto makeHook(const std::string& name) -> TableEntry;
 
     auto kind() const -> Kind;
     bool isText() const;
     bool isTableSwitch() const;
     bool isControl() const;
     bool isEnd() const;
+    bool isHook() const;
 
     auto targetTable() const -> const std::string&;
     auto label() const -> const Label&;
     auto labelName() const -> const std::string&;
     auto text() const -> const std::string&;
+    auto hook() const -> const std::string&;
 
     auto parameterCount() const -> size_t;
     auto parameter(size_t index) -> ParameterFormat&;
